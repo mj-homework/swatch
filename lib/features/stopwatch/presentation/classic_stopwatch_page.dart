@@ -2,40 +2,41 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-import '../stopwatch/stopwatch_controller.dart';
-import '../stopwatch/time_source.dart';
-import 'widgets/analog_clock.dart';
+import '../../../core/stopwatch/shopwatch_controller.dart';
+import '../../../core/stopwatch/time_source.dart';
+import '../../../core/widgets/analog_clock.dart';
 import 'widgets/control_buttons.dart';
 import 'widgets/elapsed_time_display.dart';
 import 'widgets/lap_panel.dart';
 
-/// Main screen. Owns the [StopwatchController] and the frame [Ticker].
+/// Main screen. Owns the [ShopwatchController] and the frame [Ticker].
 ///
 /// The controller only notifies on state changes. While running, a [Ticker]
 /// (synchronised with the display refresh rate) pushes the current elapsed
 /// time into [_elapsed]; only the widgets listening to it repaint, the rest
 /// of the tree is not rebuilt on every frame.
-class StopwatchPage extends StatefulWidget {
-  const StopwatchPage({super.key, this.timeSource});
+class ClassicStopwatchPage extends StatefulWidget {
+  const ClassicStopwatchPage({super.key, this.timeSource});
 
   final TimeSource? timeSource;
 
   @override
-  State<StopwatchPage> createState() => _StopwatchPageState();
+  State<ClassicStopwatchPage> createState() => _ClassicStopwatchPageState();
 }
 
-class _StopwatchPageState extends State<StopwatchPage>
+class _ClassicStopwatchPageState extends State<ClassicStopwatchPage>
     with SingleTickerProviderStateMixin {
-  late final StopwatchController _controller =
-      StopwatchController(timeSource: widget.timeSource);
+  late final ShopwatchController _controller =
+      ShopwatchController(timeSource: widget.timeSource);
   final ValueNotifier<Duration> _elapsed = ValueNotifier(Duration.zero);
-  late final Ticker _ticker = createTicker(_onTick);
+  late final Ticker _ticker;
 
   static const _wideLayoutBreakpoint = 720.0;
 
   @override
   void initState() {
     super.initState();
+    _ticker = createTicker(_onTick);
     _controller.addListener(_onControllerChanged);
   }
 
@@ -63,7 +64,7 @@ class _StopwatchPageState extends State<StopwatchPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Stopwatch'),
+        title: const Text('Classic Stopwatch'),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -71,7 +72,7 @@ class _StopwatchPageState extends State<StopwatchPage>
           padding: const EdgeInsets.all(16),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final stopwatch = _StopwatchSection(
+              final shopwatch = _ShopwatchSection(
                 controller: _controller,
                 elapsed: _elapsed,
               );
@@ -80,7 +81,7 @@ class _StopwatchPageState extends State<StopwatchPage>
               if (constraints.maxWidth >= _wideLayoutBreakpoint) {
                 return Row(
                   children: [
-                    Expanded(flex: 3, child: stopwatch),
+                    Expanded(flex: 3, child: shopwatch),
                     const SizedBox(width: 24),
                     Expanded(flex: 2, child: laps),
                   ],
@@ -88,7 +89,7 @@ class _StopwatchPageState extends State<StopwatchPage>
               }
               return Column(
                 children: [
-                  Expanded(flex: 3, child: stopwatch),
+                  Expanded(flex: 3, child: shopwatch),
                   const SizedBox(height: 16),
                   Expanded(flex: 2, child: laps),
                 ],
@@ -101,10 +102,10 @@ class _StopwatchPageState extends State<StopwatchPage>
   }
 }
 
-class _StopwatchSection extends StatelessWidget {
-  const _StopwatchSection({required this.controller, required this.elapsed});
+class _ShopwatchSection extends StatelessWidget {
+  const _ShopwatchSection({required this.controller, required this.elapsed});
 
-  final StopwatchController controller;
+  final ShopwatchController controller;
   final ValueListenable<Duration> elapsed;
 
   @override

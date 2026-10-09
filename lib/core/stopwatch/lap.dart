@@ -15,7 +15,7 @@ class Lap {
   /// Time elapsed since the previous lap (or since the start for the first).
   final Duration lapTime;
 
-  /// Total elapsed stopwatch time at the moment the lap was recorded.
+  /// Total elapsed shopwatch time at the moment the lap was recorded.
   final Duration splitTime;
 
   @override

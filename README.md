@@ -1,7 +1,7 @@
-# Stopwatch – OTP Bank Flutter homework
+# Shopwatch
 
-A stopwatch app with start / pause (resume) / reset, laps and an analog clock.
-No third-party packages – only the Flutter SDK.
+Shopwatch is a timing app with start / pause (resume) / reset, laps and an
+analog clock. It uses no third-party packages – only the Flutter SDK.
 
 | Task | Status |
 |---|---|
@@ -15,9 +15,8 @@ No third-party packages – only the Flutter SDK.
 Requires Flutter ≥ 3.27 (Dart ≥ 3.6).
 
 ```bash
-# The repository contains only the Dart sources. Generate the platform
-# folders once (existing files are not overwritten):
-flutter create --project-name otp_stopwatch .
+# Generate platform folders if needed (existing files are not overwritten):
+flutter create --project-name shopwatch .
 
 flutter pub get
 flutter run          # any device: Android, iOS, web, desktop
@@ -30,26 +29,26 @@ flutter analyze
 ```
 lib/
   main.dart
-  src/
+  app/
     app.dart                         MaterialApp, light/dark theme
+    router.dart                      named routes for app features
+  core/
     stopwatch/
-      time_source.dart               clock abstraction (+ monotonic implementation)
-      stopwatch_controller.dart      all business logic (ChangeNotifier)
+      time_source.dart               monotonic clock abstraction
+      shopwatch_controller.dart      shared elapsed-time and lap engine
       lap.dart                       immutable lap value object
-    util/duration_format.dart        MM:SS.mmm formatting
-    ui/
-      stopwatch_page.dart            screen, Ticker, responsive layout
-      stopwatch_keys.dart            keys used by widget tests
-      widgets/
-        elapsed_time_display.dart
-        control_buttons.dart
-        lap_panel.dart
-        analog_clock.dart            CustomPainter
+    formatting/duration_format.dart  MM:SS.mmm formatting
+    widgets/
+      analog_clock.dart              shared CustomPainter clock
+      shopwatch_keys.dart            shared widget-test keys
+  features/
+    classic_stopwatch/presentation/  existing classic UI
+    shopwatch/presentation/          future Shopwatch UI
+    shopwatch/services/              future feature services
 test/
-  stopwatch_controller_test.dart     test cases 1, 2, 3, 5 + laps
-  widget_test.dart                   test case 4 (+ laps, edge cases, narrow layout)
-  duration_format_test.dart          formatting + clock hand angles
-  helpers/fake_time_source.dart
+  core/stopwatch/                    shared engine tests and fake clock
+  core/formatting/                   duration and clock-angle tests
+  features/classic_stopwatch/        classic UI tests
 ```
 
 ### Key decisions
@@ -62,12 +61,12 @@ in the background); this approach is exact regardless of frame rate or app
 lifecycle.
 
 **Injectable `TimeSource`.** The controller never reads the clock directly. In
-production it uses a monotonic `Stopwatch` (not affected by system clock
-changes); tests inject `FakeTimeSource` and advance time manually. Tests are
+production it uses Dart's monotonic elapsed-time source (not affected by system
+clock changes); tests inject `FakeTimeSource` and advance time manually. Tests are
 therefore deterministic and fast – no `sleep`, no flakiness. (One unit test
 still uses the real clock to verify the production implementation.)
 
-**Logic separated from UI.** `StopwatchController` is a plain `ChangeNotifier`
+**Logic separated from UI.** `ShopwatchController` is a plain `ChangeNotifier`
 with no widget dependency, so it is unit-tested in isolation. It notifies only
 on state changes (start, pause, lap…), not on every tick. For this scope
 `ChangeNotifier` + `ListenableBuilder` is enough; the controller would map 1:1
@@ -87,18 +86,18 @@ states so the UI always reflects what is possible.
 ### Behaviour details
 
 - **Pause** toggles between *Pause* and *Resume*. *Start* while paused also resumes.
-- **Reset** sets the time to zero, stops the stopwatch and clears the laps.
+- **Reset** sets the time to zero, stops Shopwatch and clears the laps.
 - **Lap** is available only while running. Each lap shows its own duration and
   the total time; the newest lap is on top. With three or more laps the fastest
   and slowest are highlighted.
-- **Clear** empties the lap list without stopping the stopwatch. The next lap
+- **Clear** empties the lap list without stopping Shopwatch. The next lap
   is still measured from the last recorded lap, so its duration stays correct.
 - Minutes are not wrapped at an hour (`75:30.000`).
 - **Analog clock:** second hand = 1 turn/minute, minute hand = 1 turn/hour,
   hour hand = 1 turn/12 hours, plus a ring showing progress within the current
   minute. Angles are computed from the elapsed time with sub-millisecond
   precision every frame, so the hands sweep smoothly.
-- **Responsive:** side-by-side layout (stopwatch | laps) at ≥ 720 px width,
+- **Responsive:** side-by-side layout (Shopwatch | laps) at ≥ 720 px width,
   stacked layout on phones; the clock scales to the available space. Light and
   dark theme follow the system setting. Tabular figures keep the digits from
   jittering.
@@ -107,7 +106,7 @@ states so the UI always reflects what is possible.
 
 | Requirement | Test |
 |---|---|
-| 1. Start starts the stopwatch, time increases | `stopwatch_controller_test.dart` › *Test case 1* |
+| 1. Start begins timing, and elapsed time increases | Controller unit tests › *Test case 1* |
 | 2. Pause stops the time; pressing again resumes | › *Test case 2* |
 | 3. Reset sets zero and stops the time | › *Test case 3* |
 | 4. Widget test simulating taps | `widget_test.dart` |

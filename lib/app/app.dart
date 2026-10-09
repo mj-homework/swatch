@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'stopwatch/time_source.dart';
-import 'ui/stopwatch_page.dart';
+import '../core/stopwatch/time_source.dart';
+import 'router.dart';
 
 /// Root widget of the application.
 ///
 /// [timeSource] can be injected so the whole app can be driven by a fake
 /// clock in widget tests.
-class StopwatchApp extends StatelessWidget {
-  const StopwatchApp({super.key, this.timeSource});
+class ShopwatchApp extends StatelessWidget {
+  const ShopwatchApp({super.key, this.timeSource});
 
   final TimeSource? timeSource;
 
@@ -17,7 +17,7 @@ class StopwatchApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Stopwatch',
+      title: 'Shopwatch',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: _seedColor),
@@ -30,7 +30,9 @@ class StopwatchApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: StopwatchPage(timeSource: timeSource),
+      initialRoute: AppRoutes.landing,
+      onGenerateRoute: (settings) =>
+          AppRouter.onGenerateRoute(settings, timeSource: timeSource),
     );
   }
 }

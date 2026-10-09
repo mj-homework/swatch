@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../stopwatch/stopwatch_controller.dart';
-import '../stopwatch_keys.dart';
+import '../../../../core/stopwatch/shopwatch_controller.dart';
+import '../../../../core/widgets/shopwatch_keys.dart';
 
 /// Start / Pause(Resume) / Lap / Reset buttons.
 ///
@@ -10,7 +10,7 @@ import '../stopwatch_keys.dart';
 class ControlButtons extends StatelessWidget {
   const ControlButtons({super.key, required this.controller});
 
-  final StopwatchController controller;
+  final ShopwatchController controller;
 
   @override
   Widget build(BuildContext context) {

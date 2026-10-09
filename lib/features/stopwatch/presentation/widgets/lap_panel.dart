@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../stopwatch/lap.dart';
-import '../../stopwatch/stopwatch_controller.dart';
-import '../../util/duration_format.dart';
-import '../stopwatch_keys.dart';
+import '../../../../core/stopwatch/lap.dart';
+import '../../../../core/stopwatch/shopwatch_controller.dart';
+import '../../../../core/formatting/duration_format.dart';
+import '../../../../core/widgets/shopwatch_keys.dart';
 
 /// Card with the recorded laps (newest on top) and a Clear button.
 ///
@@ -11,7 +11,7 @@ import '../stopwatch_keys.dart';
 class LapPanel extends StatelessWidget {
   const LapPanel({super.key, required this.controller});
 
-  final StopwatchController controller;
+  final ShopwatchController controller;
 
   @override
   Widget build(BuildContext context) {

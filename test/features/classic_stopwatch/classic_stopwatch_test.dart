@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:otp_stopwatch/src/app.dart';
-import 'package:otp_stopwatch/src/ui/stopwatch_keys.dart';
-import 'package:otp_stopwatch/src/ui/widgets/analog_clock.dart';
+import 'package:shopwatch/core/widgets/shopwatch_keys.dart';
+import 'package:shopwatch/features/stopwatch/presentation/classic_stopwatch_page.dart';
+import 'package:shopwatch/core/widgets/analog_clock.dart';
 
-import 'helpers/fake_time_source.dart';
+import '../../core/stopwatch/helpers/fake_time_source.dart';
 
 /// Test case 4 – widget tests simulating user interaction.
 void main() {
@@ -13,7 +13,7 @@ void main() {
   setUp(() => time = FakeTimeSource());
 
   Future<void> pumpApp(WidgetTester tester) =>
-      tester.pumpWidget(StopwatchApp(timeSource: time));
+      tester.pumpWidget(MaterialApp(home: ClassicStopwatchPage(timeSource: time)));
 
   /// Advances the fake clock and lets the ticker render one frame.
   Future<void> elapse(WidgetTester tester, Duration d) async {
@@ -137,7 +137,7 @@ void main() {
     await tap(tester, StopwatchKeys.clearLapsButton);
     expect(find.text('No laps yet'), findsOneWidget);
     expect(lapList, findsNothing);
-    // Clearing laps does not stop the stopwatch.
+    // Clearing laps does not stop the shopwatch.
     await elapse(tester, const Duration(seconds: 1));
     expect(displayedTime(tester), '00:06.000');
   });

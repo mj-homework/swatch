@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../../util/duration_format.dart';
-import '../stopwatch_keys.dart';
+import '../../../../core/formatting/duration_format.dart';
+import '../../../../core/widgets/shopwatch_keys.dart';
 
 /// Digital `MM:SS.mmm` readout.
 class ElapsedTimeDisplay extends StatelessWidget {

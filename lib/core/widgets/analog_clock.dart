@@ -3,9 +3,9 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../stopwatch_keys.dart';
+import 'shopwatch_keys.dart';
 
-/// Analog clock face showing the stopwatch's elapsed time.
+/// Analog clock face showing the shopwatch's elapsed time.
 ///
 /// * second hand: one revolution per minute
 /// * minute hand: one revolution per hour

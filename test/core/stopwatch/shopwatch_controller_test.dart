@@ -1,18 +1,18 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:otp_stopwatch/src/stopwatch/lap.dart';
-import 'package:otp_stopwatch/src/stopwatch/stopwatch_controller.dart';
-import 'package:otp_stopwatch/src/stopwatch/time_source.dart';
+import 'package:shopwatch/core/stopwatch/lap.dart';
+import 'package:shopwatch/core/stopwatch/shopwatch_controller.dart';
+import 'package:shopwatch/core/stopwatch/time_source.dart';
 
 import 'helpers/fake_time_source.dart';
 
 void main() {
   late FakeTimeSource time;
-  late StopwatchController controller;
+  late ShopwatchController controller;
   late int notifications;
 
   setUp(() {
     time = FakeTimeSource();
-    controller = StopwatchController(timeSource: time);
+    controller = ShopwatchController(timeSource: time);
     notifications = 0;
     controller.addListener(() => notifications++);
   });
@@ -20,7 +20,7 @@ void main() {
   tearDown(() => controller.dispose());
 
   test('initial state is idle at zero with no laps', () {
-    expect(controller.status, StopwatchStatus.idle);
+    expect(controller.status, ShopwatchStatus.idle);
     expect(controller.elapsed, Duration.zero);
     expect(controller.laps, isEmpty);
   });
@@ -39,7 +39,7 @@ void main() {
     });
 
     test('elapsed time increases with the real monotonic clock', () async {
-      final real = StopwatchController(timeSource: MonotonicTimeSource());
+      final real = ShopwatchController(timeSource: MonotonicTimeSource());
       addTearDown(real.dispose);
 
       real.start();
@@ -241,7 +241,7 @@ void main() {
       expect(controller.laps, isEmpty);
     });
 
-    test('clearLaps empties the list but keeps the stopwatch running', () {
+    test('clearLaps empties the list but keeps the shopwatch running', () {
       controller.start();
       time.advance(const Duration(seconds: 1));
       controller.lap();

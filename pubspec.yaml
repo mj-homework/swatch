@@ -1,5 +1,5 @@
-name: otp_stopwatch
-description: Stopwatch app with laps and an analog clock – OTP Bank Flutter homework.
+name: shopwatch
+description: Shopwatch app with laps and an analog clock.
 publish_to: 'none'
 version: 1.0.0+1
 

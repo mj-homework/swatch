@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:otp_stopwatch/src/ui/widgets/analog_clock.dart';
-import 'package:otp_stopwatch/src/util/duration_format.dart';
+import 'package:shopwatch/core/widgets/analog_clock.dart';
+import 'package:shopwatch/core/formatting/duration_format.dart';
 
 void main() {
   group('formatElapsed', () {
