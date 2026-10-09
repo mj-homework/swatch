@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'app/app.dart';
+import 'features/shopwatch/data/firebase_bootstrap.dart';
+import 'features/shopwatch/shopwatch_dependencies.dart';
 
-void main() {
-  runApp(const SwatchApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final repository = await initializeLeaderboard();
+  runApp(SwatchApp(shopwatchDependencies: ShopwatchDependencies(repository: repository)));
 }

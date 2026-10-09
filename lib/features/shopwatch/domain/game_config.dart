@@ -1,0 +1,32 @@
+import 'package:flutter/foundation.dart';
+
+@immutable
+class GameConfig {
+  GameConfig({
+    List<String> items = const ['farhát', 'büdös sajt', 'hajzselé', 'fokhagymás lángos', 'tescós zacskó', 'ananászos pizza', 'akciós pizsama', 'zokni páratlanul'],
+    this.minGoal = const Duration(seconds: 5),
+    this.maxGoal = const Duration(seconds: 15),
+    this.normalHideAfter = const Duration(seconds: 2),
+    this.perfect = const Duration(milliseconds: 50),
+    this.close = const Duration(milliseconds: 250),
+    this.fair = const Duration(milliseconds: 750),
+  }) : items = List.unmodifiable(items) {
+    if (items.isEmpty || items.length > 100 || items.any((i) => i.trim().isEmpty) || items.toSet().length != items.length ||
+        minGoal.inMilliseconds < 1 || maxGoal < minGoal || normalHideAfter.isNegative ||
+        perfect.isNegative || close < perfect || fair < close) {
+      throw ArgumentError('Invalid game configuration');
+    }
+  }
+  final List<String> items;
+  final Duration minGoal, maxGoal, normalHideAfter, perfect, close, fair;
+  Accuracy accuracy(Duration error) {
+    final absolute = error.abs();
+    if (absolute <= perfect) return Accuracy.perfect;
+    if (absolute <= close) return Accuracy.close;
+    if (absolute <= fair) return Accuracy.fair;
+    return Accuracy.missed;
+  }
+}
+
+enum Difficulty { easy, normal, hard }
+enum Accuracy { perfect, close, fair, missed }

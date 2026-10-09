@@ -1,0 +1,12 @@
+{
+  "indexes": [{
+    "collectionGroup": "scores",
+    "queryScope": "COLLECTION",
+    "fields": [
+      {"fieldPath": "itemCount", "order": "ASCENDING"},
+      {"fieldPath": "difficulty", "order": "ASCENDING"},
+      {"fieldPath": "totalDiffMs", "order": "ASCENDING"}
+    ]
+  }],
+  "fieldOverrides": []
+}

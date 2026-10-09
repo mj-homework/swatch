@@ -1,18 +1,2 @@
-import 'package:flutter/material.dart';
-
-class ShopwatchPage extends StatelessWidget {
-  const ShopwatchPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shopwatch'),
-        centerTitle: true,
-      ),
-      body: const Center(
-        child: Text('Shopwatch feature coming soon'),
-      ),
-    );
-  }
-}
+// Compatibility export; the implementation now lives beside the game pages.
+export 'pages/shopwatch_page.dart';
