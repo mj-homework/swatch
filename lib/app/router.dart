@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../core/stopwatch/time_source.dart';
-import '../features/stopwatch/presentation/classic_stopwatch_page.dart';
+import '../features/stopwatch/presentation/stopwatch_page.dart';
 import '../features/landing/landing_page.dart';
 import '../features/shopwatch/presentation/shopwatch_page.dart';
 
 abstract final class AppRoutes {
   static const landing = '/';
-  static const classicStopwatch = '/classic-stopwatch';
+  static const stopwatch = '/stopwatch';
   static const shopwatch = '/shopwatch';
 }
 
@@ -19,8 +19,8 @@ class AppRouter {
     TimeSource? timeSource,
   }) {
     final Widget page = switch (settings.name) {
-      AppRoutes.classicStopwatch =>
-        ClassicStopwatchPage(timeSource: timeSource),
+      AppRoutes.stopwatch =>
+        StopwatchPage(timeSource: timeSource),
       AppRoutes.shopwatch => const ShopwatchPage(),
       _ => const LandingPage(),
     };

@@ -1,18 +1,18 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shopwatch/core/stopwatch/lap.dart';
-import 'package:shopwatch/core/stopwatch/shopwatch_controller.dart';
-import 'package:shopwatch/core/stopwatch/time_source.dart';
+import 'package:swatch/core/stopwatch/lap.dart';
+import 'package:swatch/core/stopwatch/stopwatch_controller.dart';
+import 'package:swatch/core/stopwatch/time_source.dart';
 
 import 'helpers/fake_time_source.dart';
 
 void main() {
   late FakeTimeSource time;
-  late ShopwatchController controller;
+  late StopwatchController controller;
   late int notifications;
 
   setUp(() {
     time = FakeTimeSource();
-    controller = ShopwatchController(timeSource: time);
+    controller = StopwatchController(timeSource: time);
     notifications = 0;
     controller.addListener(() => notifications++);
   });
@@ -20,7 +20,7 @@ void main() {
   tearDown(() => controller.dispose());
 
   test('initial state is idle at zero with no laps', () {
-    expect(controller.status, ShopwatchStatus.idle);
+    expect(controller.status, StopwatchStatus.idle);
     expect(controller.elapsed, Duration.zero);
     expect(controller.laps, isEmpty);
   });
@@ -39,7 +39,7 @@ void main() {
     });
 
     test('elapsed time increases with the real monotonic clock', () async {
-      final real = ShopwatchController(timeSource: MonotonicTimeSource());
+      final real = StopwatchController(timeSource: MonotonicTimeSource());
       addTearDown(real.dispose);
 
       real.start();

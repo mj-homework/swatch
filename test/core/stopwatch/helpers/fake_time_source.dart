@@ -1,4 +1,4 @@
-import 'package:shopwatch/core/stopwatch/time_source.dart';
+import 'package:swatch/core/stopwatch/time_source.dart';
 
 /// Manually controlled clock for deterministic tests.
 class FakeTimeSource implements TimeSource {

@@ -6,7 +6,10 @@ class ShopwatchPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Shopwatch')),
+      appBar: AppBar(
+        title: const Text('Shopwatch'),
+        centerTitle: true,
+      ),
       body: const Center(
         child: Text('Shopwatch feature coming soon'),
       ),

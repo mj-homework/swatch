@@ -1,5 +1,5 @@
-name: shopwatch
-description: Shopwatch app with laps and an analog clock.
+name: swatch
+description: Swatch app with laps and an analog clock.
 publish_to: 'none'
 version: 1.0.0+1
 

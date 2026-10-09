@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'shopwatch_keys.dart';
+import 'swatch_keys.dart';
 
 /// Analog clock face showing the shopwatch's elapsed time.
 ///
@@ -27,7 +27,7 @@ class AnalogClock extends StatelessWidget {
       label: 'Analog clock showing the elapsed time',
       child: RepaintBoundary(
         child: CustomPaint(
-          key: StopwatchKeys.analogClock,
+          key: SwatchKeys.analogClock,
           painter: AnalogClockPainter(
             elapsed: elapsed,
             colors: Theme.of(context).colorScheme,

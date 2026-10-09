@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/stopwatch/lap.dart';
-import '../../../../core/stopwatch/shopwatch_controller.dart';
+import '../../../../core/stopwatch/stopwatch_controller.dart';
 import '../../../../core/formatting/duration_format.dart';
-import '../../../../core/widgets/shopwatch_keys.dart';
+import '../../../../core/widgets/swatch_keys.dart';
 
 /// Card with the recorded laps (newest on top) and a Clear button.
 ///
@@ -11,7 +11,7 @@ import '../../../../core/widgets/shopwatch_keys.dart';
 class LapPanel extends StatelessWidget {
   const LapPanel({super.key, required this.controller});
 
-  final ShopwatchController controller;
+  final StopwatchController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class LapPanel extends StatelessWidget {
                       ),
                     ),
                     TextButton.icon(
-                      key: StopwatchKeys.clearLapsButton,
+                      key: SwatchKeys.clearLapsButton,
                       onPressed: laps.isEmpty ? null : controller.clearLaps,
                       icon: const Icon(Icons.delete_sweep_outlined),
                       label: const Text('Clear'),
@@ -109,7 +109,7 @@ class _LapList extends StatelessWidget {
     }
 
     return ListView.separated(
-      key: StopwatchKeys.lapList,
+      key: SwatchKeys.lapList,
       itemCount: laps.length,
       separatorBuilder: (context, index) => const Divider(height: 1, indent: 16),
       itemBuilder: (context, index) {

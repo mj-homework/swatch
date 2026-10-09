@@ -5,9 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'lap.dart';
 import 'time_source.dart';
 
-enum ShopwatchStatus { idle, running, paused }
+enum StopwatchStatus { idle, running, paused }
 
-/// Pure business logic of the shopwatch, independent of any widget.
+/// Pure business logic of the stopwatch, independent of any widget.
 ///
 /// Elapsed time is not accumulated tick by tick (which would drift), it is
 /// computed on demand from a monotonic [TimeSource]:
@@ -17,22 +17,22 @@ enum ShopwatchStatus { idle, running, paused }
 ///
 /// Listeners are notified on state changes only (start, pause, lap, ...),
 /// not on every tick. The UI decides how often it wants to repaint.
-class ShopwatchController extends ChangeNotifier {
-  ShopwatchController({TimeSource? timeSource})
+class StopwatchController extends ChangeNotifier {
+  StopwatchController({TimeSource? timeSource})
       : _timeSource = timeSource ?? MonotonicTimeSource();
 
   final TimeSource _timeSource;
 
-  ShopwatchStatus _status = ShopwatchStatus.idle;
+  StopwatchStatus _status = StopwatchStatus.idle;
   Duration _accumulated = Duration.zero;
   Duration _runStartedAt = Duration.zero;
   Duration _lastLapSplit = Duration.zero;
   final List<Lap> _laps = [];
 
-  ShopwatchStatus get status => _status;
-  bool get isIdle => _status == ShopwatchStatus.idle;
-  bool get isRunning => _status == ShopwatchStatus.running;
-  bool get isPaused => _status == ShopwatchStatus.paused;
+  StopwatchStatus get status => _status;
+  bool get isIdle => _status == StopwatchStatus.idle;
+  bool get isRunning => _status == StopwatchStatus.running;
+  bool get isPaused => _status == StopwatchStatus.paused;
 
   /// Current elapsed time.
   Duration get elapsed => isRunning
@@ -49,7 +49,7 @@ class ShopwatchController extends ChangeNotifier {
   void start() {
     if (isRunning) return;
     _runStartedAt = _timeSource.now();
-    _status = ShopwatchStatus.running;
+    _status = StopwatchStatus.running;
     notifyListeners();
   }
 
@@ -57,7 +57,7 @@ class ShopwatchController extends ChangeNotifier {
   void pause() {
     if (!isRunning) return;
     _accumulated = elapsed;
-    _status = ShopwatchStatus.paused;
+    _status = StopwatchStatus.paused;
     notifyListeners();
   }
 
@@ -67,7 +67,7 @@ class ShopwatchController extends ChangeNotifier {
     start();
   }
 
-  /// Behaviour of the Pause button: pauses when running, resumes when
+  /// Behavior of the Pause button: pauses when running, resumes when
   /// paused, does nothing when idle.
   void togglePause() {
     if (isRunning) {
@@ -77,10 +77,10 @@ class ShopwatchController extends ChangeNotifier {
     }
   }
 
-  /// Stops the shopwatch, sets it back to zero and clears the laps.
+  /// Stops the stopwatch, sets it back to zero and clears the laps.
   void reset() {
     if (isIdle && _accumulated == Duration.zero && _laps.isEmpty) return;
-    _status = ShopwatchStatus.idle;
+    _status = StopwatchStatus.idle;
     _accumulated = Duration.zero;
     _lastLapSplit = Duration.zero;
     _laps.clear();

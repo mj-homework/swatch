@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "Shopwatch" "\0"
-            VALUE "FileDescription", "Shopwatch" "\0"
+            VALUE "CompanyName", "Swatch" "\0"
+            VALUE "FileDescription", "Swatch" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "shopwatch" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 Shopwatch. All rights reserved." "\0"
-            VALUE "OriginalFilename", "shopwatch.exe" "\0"
-            VALUE "ProductName", "Shopwatch" "\0"
+            VALUE "InternalName", "swatch" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Swatch. All rights reserved." "\0"
+            VALUE "OriginalFilename", "swatch.exe" "\0"
+            VALUE "ProductName", "Swatch" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

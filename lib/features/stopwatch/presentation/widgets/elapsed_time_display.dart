@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/formatting/duration_format.dart';
-import '../../../../core/widgets/shopwatch_keys.dart';
+import '../../../../core/widgets/swatch_keys.dart';
 
 /// Digital `MM:SS.mmm` readout.
 class ElapsedTimeDisplay extends StatelessWidget {
@@ -30,7 +30,7 @@ class ElapsedTimeDisplay extends StatelessWidget {
             label: 'Elapsed time',
             value: text,
             child: ExcludeSemantics(
-              child: Text(text, key: StopwatchKeys.elapsedText, style: style),
+              child: Text(text, key: SwatchKeys.elapsedText, style: style),
             ),
           );
         },

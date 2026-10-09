@@ -7,8 +7,8 @@ import 'router.dart';
 ///
 /// [timeSource] can be injected so the whole app can be driven by a fake
 /// clock in widget tests.
-class ShopwatchApp extends StatelessWidget {
-  const ShopwatchApp({super.key, this.timeSource});
+class SwatchApp extends StatelessWidget {
+  const SwatchApp({super.key, this.timeSource});
 
   final TimeSource? timeSource;
 
@@ -17,7 +17,7 @@ class ShopwatchApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Shopwatch',
+      title: 'Swatch',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: _seedColor),

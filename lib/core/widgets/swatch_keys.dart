@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 /// Stable keys used by widget tests (and handy for integration tests).
-abstract final class StopwatchKeys {
+abstract final class SwatchKeys {
   static const elapsedText = Key('elapsedText');
   static const startButton = Key('startButton');
   static const pauseButton = Key('pauseButton');

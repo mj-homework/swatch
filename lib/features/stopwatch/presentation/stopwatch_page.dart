@@ -2,32 +2,32 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-import '../../../core/stopwatch/shopwatch_controller.dart';
+import '../../../core/stopwatch/stopwatch_controller.dart';
 import '../../../core/stopwatch/time_source.dart';
 import '../../../core/widgets/analog_clock.dart';
 import 'widgets/control_buttons.dart';
 import 'widgets/elapsed_time_display.dart';
 import 'widgets/lap_panel.dart';
 
-/// Main screen. Owns the [ShopwatchController] and the frame [Ticker].
+/// Main screen. Owns the [StopwatchController] and the frame [Ticker].
 ///
 /// The controller only notifies on state changes. While running, a [Ticker]
-/// (synchronised with the display refresh rate) pushes the current elapsed
+/// (synchronized with the display refresh rate) pushes the current elapsed
 /// time into [_elapsed]; only the widgets listening to it repaint, the rest
 /// of the tree is not rebuilt on every frame.
-class ClassicStopwatchPage extends StatefulWidget {
-  const ClassicStopwatchPage({super.key, this.timeSource});
+class StopwatchPage extends StatefulWidget {
+  const StopwatchPage({super.key, this.timeSource});
 
   final TimeSource? timeSource;
 
   @override
-  State<ClassicStopwatchPage> createState() => _ClassicStopwatchPageState();
+  State<StopwatchPage> createState() => _StopwatchPageState();
 }
 
-class _ClassicStopwatchPageState extends State<ClassicStopwatchPage>
+class _StopwatchPageState extends State<StopwatchPage>
     with SingleTickerProviderStateMixin {
-  late final ShopwatchController _controller =
-      ShopwatchController(timeSource: widget.timeSource);
+  late final StopwatchController _controller =
+      StopwatchController(timeSource: widget.timeSource);
   final ValueNotifier<Duration> _elapsed = ValueNotifier(Duration.zero);
   late final Ticker _ticker;
 
@@ -64,7 +64,7 @@ class _ClassicStopwatchPageState extends State<ClassicStopwatchPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Classic Stopwatch'),
+        title: const Text('Stopwatch'),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -105,7 +105,7 @@ class _ClassicStopwatchPageState extends State<ClassicStopwatchPage>
 class _ShopwatchSection extends StatelessWidget {
   const _ShopwatchSection({required this.controller, required this.elapsed});
 
-  final ShopwatchController controller;
+  final StopwatchController controller;
   final ValueListenable<Duration> elapsed;
 
   @override
