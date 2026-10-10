@@ -1,4 +1,4 @@
-# Shopwatch – concept
+﻿# Shopwatch – concept
 
 > Naming: **Stopwatch → Shopwatch**, always one word (code: `Shopwatch…` classes, `shopwatch` files/folders/variables).
 
@@ -24,7 +24,7 @@ Every button keeps a clear icon and the original action name as a small subtitle
 | Spec action | Shopwatch label | Subtitle | Icon |
 |---|---|---|---|
 | Start | **Shop!** | start | `Icons.shopping_cart_outlined` |
-| Pause | **Window shopping** | pause | `Icons.storefront_outlined` |
+| Pause | **Coffee break** | pause | `Icons.storefront_outlined` |
 | Resume | **Back to it** | resume | `Icons.shopping_cart_checkout` |
 | Lap | **Add to cart** | lap | `Icons.add_shopping_cart` |
 | Clear laps | **Empty cart** | clear laps | `Icons.remove_shopping_cart_outlined` |
@@ -71,7 +71,7 @@ A small status line under the time, rotating by elapsed time. It is purely cosme
 | 1–5 min | "Ooh, that's on sale." |
 | 5–15 min | "Do we really need a third one?" |
 | 15+ min | "The bag holder needs a bench." |
-| paused | "Window shopping. Look, don't touch." |
+| paused | "Coffee break. Back in a minute." |
 
 Keep it person-neutral: no "wife shops, husband waits" jokes.
 
@@ -159,13 +159,13 @@ A configurable list of funny Hungarian shopping items, e.g. *farhát, büdös sa
 ### 10.3 Round flow
 
 1. **Shop!** (Start) starts the stopwatch, and the first random item appears at the top with its **goal time shown as a price tag**: `BÜDÖS SAJT — 7,350` (it reads like 7 350 Ft, but it means 7.350 s).
-2. The goal time is random in **[minGoal, maxGoal]**, by default 5–15 s, with millisecond resolution.
-3. **Add to cart** (Lap) records the item. The goal is measured **per item, from the previous Add to cart** (the lap time), so the engine's existing lap logic is reused unchanged.
-4. The receipt prints the line, and the next random item appears immediately while the clock keeps running.
+2. The **first** goal is random in **[minGoal, maxGoal]**, by default 5–15 s, with millisecond resolution.
+3. **Add to cart** (Lap) records the item. There is **one continuous clock**: goals are absolute times on it. The **next goal = click time + a random gap of 3–13 s** (`minGap`/`maxGap`), revealed only after the click. Example: 10 s, 17 s, 24 s…
+4. The receipt prints the line (goal, click time, difference), and the next item appears immediately while the clock keeps running.
 5. After the last item, the stopwatch **stops automatically**, the receipt prints the total, and **Pay is enabled**.
-6. **Pay** runs the checkout flow (section 4), resets the game and returns to the setup screen with the nickname pre-filled.
+6. **Pay** runs the checkout flow (section 4), resets the game and returns to the setup state with the nickname pre-filled.
 
-During a round, **Pause and Empty cart are disabled** (no cheating, no confusing states). **Pay** is disabled until the round is finished.
+During a round, **Pause (Coffee break)** simply freezes the total clock; Add to cart is disabled while paused. **Pay** is disabled until the round is finished. The Difficulty selector is temporarily hidden (always easy).
 
 ### 10.4 Receipt lines
 

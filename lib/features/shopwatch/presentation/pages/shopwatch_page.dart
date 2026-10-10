@@ -1,13 +1,17 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import '../../../../core/formatting/duration_format.dart';
-import '../../../../core/stopwatch/stopwatch_controller.dart';
+import '../../../../core/widgets/analog_clock.dart';
+import '../../data/leaderboard_repository.dart';
+import '../../domain/game_config.dart';
+import '../../domain/game_round.dart';
+import '../../domain/shopwatch_game_cubit.dart';
 import '../../shopwatch_dependencies.dart';
 import '../../shopwatch_strings.dart';
 import '../widgets/mood_line.dart';
 import '../widgets/pos_terminal_sheet.dart';
-import '../widgets/price_tag_clock.dart';
 import '../widgets/receipt_lap_list.dart';
 import '../widgets/shopping_controls.dart';
 
@@ -17,67 +21,569 @@ class ShopwatchPage extends StatefulWidget {
   @override
   State<ShopwatchPage> createState() => _ShopwatchPageState();
 }
-class _ShopwatchPageState extends State<ShopwatchPage> with SingleTickerProviderStateMixin {
-  late final _controller = StopwatchController(timeSource: widget.dependencies.timeSource);
+
+class _ShopwatchPageState extends State<ShopwatchPage> {
   late final _sound = widget.dependencies.soundFactory();
   final _elapsed = ValueNotifier(Duration.zero);
-  late final Ticker _ticker;
+  final _gameRound = ValueNotifier<GameRound?>(null);
   bool _muted = false, _checkingOut = false;
+  static const _wideLayoutBreakpoint = 720.0;
+
+  Future<bool> _pay(GameRound round) async {
+    if (_checkingOut) {
+      return false;
+    }
+    setState(() => _checkingOut = true);
+    var paid = false;
+    try {
+      paid = await showCheckout(context,
+          total: round.totalTime,
+          receipt: ReceiptLapList(
+            results: round.results,
+            total: round.totalTime,
+          ),
+          sound: _sound,
+          muted: _muted,
+          haptic: widget.dependencies.haptic);
+    } finally {
+      if (mounted) {
+        setState(() => _checkingOut = false);
+      }
+    }
+    // Only a completed round is submitted to the leaderboard.
+    if (paid && round.ownedNickname && round.status == RoundStatus.finished) {
+      unawaited(_submit(round));
+    }
+    return paid;
+  }
+
+  Future<void> _submit(GameRound round) async {
+    bool success;
+    try {
+      success = await widget.dependencies.repository
+          .submit(round)
+          .timeout(const Duration(seconds: 6));
+    } catch (_) {
+      success = false;
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(success
+              ? 'Score saved'
+              : 'Score not uploaded — local receipt retained'),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _elapsed.dispose();
+    _gameRound.dispose();
+    unawaited(_sound.dispose());
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('Shopwatch'), actions: [
+          IconButton(
+              key: ShopwatchKeys.mute,
+              tooltip: _muted ? 'Unmute checkout' : 'Mute checkout',
+              onPressed: () => setState(() => _muted = !_muted),
+              icon: Icon(_muted ? Icons.volume_off : Icons.volume_up)),
+        ]),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final controls = _ShopwatchControls(
+                  elapsed: _elapsed,
+                  checkingOut: _checkingOut,
+                  dependencies: widget.dependencies,
+                  onRoundChanged: (round) => _gameRound.value = round,
+                  onPay: _pay,
+                );
+
+                final receipt = _ShopwatchReceipt(
+                  gameRound: _gameRound,
+                );
+
+                if (constraints.maxWidth >= _wideLayoutBreakpoint) {
+                  return Row(
+                    children: [
+                      Expanded(flex: 3, child: controls),
+                      const SizedBox(width: 24),
+                      Expanded(flex: 2, child: receipt),
+                    ],
+                  );
+                }
+                return Column(
+                  children: [
+                    Expanded(flex: 3, child: controls),
+                    const SizedBox(height: 16),
+                    Expanded(flex: 2, child: receipt),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      );
+}
+
+class _ShopwatchControls extends StatefulWidget {
+  const _ShopwatchControls({
+    required this.elapsed,
+    required this.checkingOut,
+    required this.dependencies,
+    required this.onRoundChanged,
+    required this.onPay,
+  });
+
+  final ValueNotifier<Duration> elapsed;
+  final bool checkingOut;
+  final ShopwatchDependencies dependencies;
+  final ValueChanged<GameRound?> onRoundChanged;
+  final Future<bool> Function(GameRound) onPay;
+
+  @override
+  State<_ShopwatchControls> createState() => _ShopwatchControlsState();
+}
+
+class _ShopwatchControlsState extends State<_ShopwatchControls>
+    with SingleTickerProviderStateMixin {
+  late final _nickname = TextEditingController();
+  final _policy = const NicknamePolicy();
+  Timer? _debounce;
+  late final Ticker _ticker;
+  ShopwatchGameCubit? _game;
+  StreamSubscription<GameRound>? _gameSubscription;
+  int _generation = 0;
+  late int _count;
+  // Difficulty selector is temporarily hidden; rounds always play on easy.
+  final Difficulty _difficulty = Difficulty.easy;
+  NicknameStatus _status = NicknameStatus.invalid;
+  bool _starting = false;
+
+  ValueNotifier<Duration> get elapsed => widget.elapsed;
+  bool get checkingOut => widget.checkingOut;
+  ShopwatchDependencies get dependencies => widget.dependencies;
+
   @override
   void initState() {
     super.initState();
-    _ticker = createTicker((_) => _elapsed.value = _controller.elapsed);
-    _controller.addListener(_changed);
+    _ticker = createTicker((_) {
+      final game = _game;
+      if (game != null) elapsed.value = game.elapsed;
+    });
+    final availableItems = dependencies.config.items.length;
+    _count = availableItems < 3 ? availableItems : 3;
   }
-  void _changed() {
-    _elapsed.value = _controller.elapsed;
-    if (_controller.isRunning && !_ticker.isActive) _ticker.start();
-    if (!_controller.isRunning && _ticker.isActive) _ticker.stop();
-    setState(() {});
-  }
-  Future<void> _pay() async {
-    if (_checkingOut || (_controller.elapsed == Duration.zero && _controller.laps.isEmpty)) return;
-    setState(() => _checkingOut = true);
-    _controller.pause();
-    final total = _controller.elapsed;
-    final laps = _controller.laps.toList();
-    try {
-      await showCheckout(context, total: total, receipt: ReceiptLapList(laps: laps, total: total),
-        sound: _sound, muted: _muted, haptic: widget.dependencies.haptic);
-    } finally {
-      if (mounted) { _controller.reset(); setState(() => _checkingOut = false); }
-    }
-  }
+
   @override
   void dispose() {
-    _controller.removeListener(_changed); _ticker.dispose(); _controller.dispose(); _elapsed.dispose();
-    unawaited(_sound.dispose()); super.dispose();
+    ++_generation;
+    _debounce?.cancel();
+    _ticker.dispose();
+    unawaited(_gameSubscription?.cancel());
+    unawaited(_game?.close());
+    _nickname.dispose();
+    super.dispose();
   }
+
+  void _onNicknameChanged(String value) {
+    _debounce?.cancel();
+    final generation = ++_generation;
+    final valid = _policy.isValid(value);
+    setState(() {
+      _status = valid ? NicknameStatus.checking : NicknameStatus.invalid;
+    });
+    if (!valid) return;
+
+    _debounce = Timer(const Duration(milliseconds: 400), () async {
+      NicknameStatus status;
+      try {
+        status = await widget.dependencies.repository
+            .check(value)
+            .timeout(const Duration(seconds: 6));
+      } catch (_) {
+        status = NicknameStatus.offline;
+      }
+      if (mounted && generation == _generation) {
+        setState(() => _status = status);
+      }
+    });
+  }
+
+  Future<void> _shop() async {
+    final game = _game;
+    if (_starting || checkingOut) return;
+    if (game != null) {
+      if (game.state.status == RoundStatus.ready) game.start();
+      return;
+    }
+    final typed = _nickname.text.trim();
+    if (typed.isNotEmpty && !_policy.isValid(typed)) {
+      setState(() => _status = NicknameStatus.invalid);
+      return;
+    }
+
+    _debounce?.cancel();
+    ++_generation;
+    final nickname = typed.isEmpty ? 'Guest' : typed;
+    NicknameStatus reservation = NicknameStatus.offline;
+    if (typed.isNotEmpty) {
+      setState(() => _starting = true);
+      try {
+        reservation = await dependencies.repository
+            .reserve(nickname)
+            .timeout(const Duration(seconds: 6));
+      } catch (_) {
+        reservation = NicknameStatus.offline;
+      }
+      if (!mounted) return;
+      setState(() {
+        _starting = false;
+        _status = reservation;
+      });
+      if (reservation != NicknameStatus.available &&
+          reservation != NicknameStatus.offline) {
+        return;
+      }
+    }
+
+    final round = ShopwatchGameCubit(
+      config: dependencies.config,
+      difficulty: _difficulty,
+      itemCount: _count,
+      nickname: nickname,
+      roundId: dependencies.newRoundId(),
+      random: dependencies.random,
+      timeSource: dependencies.timeSource,
+      ownedNickname: reservation == NicknameStatus.available,
+    );
+    _game = round;
+    _gameSubscription = round.stream.listen((state) {
+      elapsed.value = round.elapsed;
+      widget.onRoundChanged(state);
+      if (round.isRunning && !_ticker.isActive) _ticker.start();
+      if (!round.isRunning && _ticker.isActive) _ticker.stop();
+      if (mounted) setState(() {});
+    });
+    widget.onRoundChanged(round.state);
+    setState(() {});
+    round.start();
+  }
+
+  void _togglePause() {
+    final game = _game;
+    if (game == null) return;
+    game.togglePause();
+    elapsed.value = game.elapsed;
+    if (game.isRunning && !_ticker.isActive) _ticker.start();
+    if (!game.isRunning && _ticker.isActive) _ticker.stop();
+    setState(() {});
+  }
+
+  Future<void> _checkoutGame() async {
+    final game = _game;
+    if (game == null) return;
+    // Pay always pauses; continuing resumes only if it was running.
+    final wasRunning = game.isRunning;
+    if (wasRunning) _togglePause();
+    var leave = false;
+    if (game.state.results.isEmpty) {
+      leave = await showNothingToPay(context);
+    } else {
+      leave = await widget.onPay(game.state);
+    }
+    if (!mounted) return;
+    if (leave) {
+      await _endRound();
+    } else if (wasRunning && game.isPaused) {
+      _togglePause();
+    }
+  }
+
+  void _emptyCart() {
+    final game = _game;
+    if (game == null) return;
+    game.emptyCart();
+    elapsed.value = game.elapsed;
+    if (game.isRunning && !_ticker.isActive) _ticker.start();
+    setState(() {});
+  }
+
+  Future<void> _endRound() async {
+    final game = _game;
+    if (game == null) return;
+    _ticker.stop();
+    await _gameSubscription?.cancel();
+    await game.close();
+    _game = null;
+    elapsed.value = Duration.zero;
+    widget.onRoundChanged(null);
+    setState(() {});
+  }
+
+  Future<void> _showLeaderboard() async {
+    final board = dependencies.repository.top(_count, _difficulty);
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Top 10 • lower total difference wins'),
+        content: SizedBox(
+          width: 360,
+          child: FutureBuilder(
+            future: board,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Text('Loading leaderboard…');
+              }
+              final entries = snapshot.data;
+              if (entries == null) return const Text('Leaderboard offline');
+              if (entries.isEmpty) return const Text('No scores yet');
+              return ListView(
+                shrinkWrap: true,
+                children: [
+                  for (var i = 0; i < entries.length; i++)
+                    ListTile(
+                      title: Text('${i + 1}. ${entries[i].nickname}'),
+                      trailing: Text('${entries[i].totalDiffMs} ms'),
+                    ),
+                ],
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Shopwatch'), actions: [
-      IconButton(key: ShopwatchKeys.mute, tooltip: _muted ? 'Unmute checkout' : 'Mute checkout',
-        onPressed: () => setState(() => _muted = !_muted), icon: Icon(_muted ? Icons.volume_off : Icons.volume_up)),
-    ]),
-    body: SafeArea(child: SingleChildScrollView(padding: const EdgeInsets.all(16), child: Center(
-      child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 900), child: Column(children: [
-        FilledButton.tonalIcon(onPressed: () => Navigator.pushNamed(context, '/shopwatch/game'),
-          icon: const Icon(Icons.sports_esports), label: const Text('Time is money • Game & leaderboard')),
-        PriceTagClock(elapsed: _elapsed),
-        ValueListenableBuilder(valueListenable: _elapsed, builder: (_, value, __) => Column(children: [
-          Text(formatElapsed(value), key: ShopwatchKeys.time, style: const TextStyle(fontSize: 36, fontFeatures: [FontFeature.tabularFigures()])),
+  Widget build(BuildContext context) => LayoutBuilder(
+        builder: (context, constraints) => Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: constraints.maxWidth < 380 ? 140 : 174,
+                    child: _GameOptions(
+                      nickname: _nickname,
+                      count: _count,
+                      status: _status,
+                      starting: _starting || _game != null,
+                      itemCount: dependencies.config.items.length,
+                      onNicknameChanged: _onNicknameChanged,
+                      onCountChanged: (value) => setState(() => _count = value),
+                      onShowLeaderboard: _showLeaderboard,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: 320,
+                        maxHeight: 320,
+                      ),
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: AnalogClock(elapsed: elapsed),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (_game?.state.currentItem case final item?) ...[
+              const SizedBox(height: 8),
+              Text(
+                '${item.name.toUpperCase()} • goal ${formatElapsed(item.goal)}',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              Text(
+                'Item ${_game!.state.results.length + 1} / ${_game!.state.itemCount}',
+                textAlign: TextAlign.center,
+              ),
+            ],
+            if (_game?.state.status == RoundStatus.finished)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text('Cart complete — pay to see your receipt.'),
+              ),
+            const SizedBox(height: 16),
+            ValueListenableBuilder<Duration>(
+              valueListenable: elapsed,
+              builder: (_, value, __) {
+                final round = _game?.state;
+                final showTime = round == null ||
+                    round.difficulty == Difficulty.easy ||
+                    (round.difficulty == Difficulty.normal &&
+                        value < round.config.normalHideAfter);
+                return Column(
+                  children: [
+                    Text(
+                      showTime ? formatElapsed(value) : '--:--.---',
+                      key: ShopwatchKeys.time,
+                      semanticsLabel: showTime
+                          ? 'Item time ${formatElapsed(value)}'
+                          : 'Item time hidden',
+                      style: const TextStyle(
+                        fontSize: 36,
+                        fontFeatures: [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ShoppingControls(
+                      start: !checkingOut &&
+                              !_starting &&
+                              _status != NicknameStatus.taken &&
+                              (_nickname.text.trim().isEmpty ||
+                                  _policy.isValid(_nickname.text)) &&
+                              (round == null ||
+                                  round.status == RoundStatus.ready)
+                          ? _shop
+                          : null,
+                      pause:
+                          !checkingOut && round?.status == RoundStatus.playing
+                              ? _togglePause
+                              : null,
+                      paused: _game?.isPaused ?? false,
+                      add: !checkingOut &&
+                              round?.status == RoundStatus.playing &&
+                              !(_game?.isPaused ?? false)
+                          ? _game!.addToCart
+                          : null,
+                      clear: !checkingOut &&
+                              (_game?.state.results.isNotEmpty ?? false)
+                          ? _emptyCart
+                          : null,
+                      pay: !checkingOut && _game != null ? _checkoutGame : null,
+                    ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+            MoodLine(elapsed: elapsed, paused: _game?.isPaused ?? false),
+          ],
+        ),
+      );
+}
+
+class _GameOptions extends StatelessWidget {
+  const _GameOptions({
+    required this.nickname,
+    required this.count,
+    required this.status,
+    required this.starting,
+    required this.itemCount,
+    required this.onNicknameChanged,
+    required this.onCountChanged,
+    required this.onShowLeaderboard,
+  });
+
+  final TextEditingController nickname;
+  final int count;
+  final NicknameStatus status;
+  final bool starting;
+  final int itemCount;
+  final ValueChanged<String> onNicknameChanged;
+  final ValueChanged<int> onCountChanged;
+  final VoidCallback onShowLeaderboard;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextField(
+            key: ShopwatchKeys.nickname,
+            controller: nickname,
+            enabled: !starting,
+            onChanged: onNicknameChanged,
+            decoration: const InputDecoration(
+              labelText: 'Nickname',
+              helperText: '3–16 letters, digits or underscore',
+              isDense: true,
+            ),
+          ),
           const SizedBox(height: 8),
-          ShoppingControls(start: !_checkingOut && _controller.isIdle ? _controller.start : null,
-            pause: !_checkingOut && !_controller.isIdle ? _controller.togglePause : null,
-            paused: _controller.isPaused,
-            add: !_checkingOut && _controller.isRunning ? _controller.lap : null,
-            clear: !_checkingOut && _controller.laps.isNotEmpty ? _controller.clearLaps : null,
-            pay: !_checkingOut && (value > Duration.zero || _controller.laps.isNotEmpty) ? _pay : null),
-        ])),
-        const SizedBox(height: 12), MoodLine(elapsed: _elapsed, paused: _controller.isPaused),
-        const SizedBox(height: 16),
-        ValueListenableBuilder(valueListenable: _elapsed, builder: (_, value, __) => ReceiptLapList(laps: _controller.laps, total: value)),
-      ])),
-    ))),
-  );
+          DropdownButtonFormField<int>(
+            initialValue: count,
+            isExpanded: true,
+            key: ValueKey('item-count-$count'),
+            decoration: const InputDecoration(
+              labelText: 'Items',
+              isDense: true,
+            ),
+            items: [
+              for (var i = 1; i <= itemCount; i++)
+                DropdownMenuItem(value: i, child: Text('$i')),
+            ],
+            onChanged: starting
+                ? null
+                : (value) {
+                    if (value != null) onCountChanged(value);
+                  },
+          ),
+          const SizedBox(height: 8),
+          Text(
+            starting
+                ? 'Reserving nickname…'
+                : switch (status) {
+                    NicknameStatus.invalid => nickname.text.trim().isEmpty
+                        ? 'Optional — needed for the leaderboard.'
+                        : 'Enter a valid nickname.',
+                    NicknameStatus.checking => 'Checking…',
+                    NicknameStatus.available => 'Available ✓',
+                    NicknameStatus.taken => 'Taken ✗',
+                    NicknameStatus.offline => ShopwatchStrings.offline,
+                  },
+            semanticsLabel: 'Nickname ${status.name}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          TextButton(
+            onPressed: onShowLeaderboard,
+            child: const Text('Top scores'),
+          ),
+        ],
+      );
+}
+
+class _ShopwatchReceipt extends StatelessWidget {
+  const _ShopwatchReceipt({required this.gameRound});
+
+  final ValueListenable<GameRound?> gameRound;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+        builder: (context, constraints) => ValueListenableBuilder<GameRound?>(
+          valueListenable: gameRound,
+          builder: (_, round, __) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: round == null
+                  ? const ReceiptLapList()
+                  : ReceiptLapList(
+                      results: round.results,
+                      total: round.totalTime,
+                      showTotal: round.status == RoundStatus.finished,
+                    ),
+            ),
+          ),
+        ),
+      );
 }

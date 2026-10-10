@@ -7,61 +7,138 @@ import 'game_round.dart';
 
 /// Owns its engine; external callers only receive read-only timing values.
 class ShopwatchGameCubit extends Cubit<GameRound> {
-  ShopwatchGameCubit({required GameConfig config, required Difficulty difficulty,
-    required int itemCount, required String nickname, required String roundId,
-    required Random random, TimeSource? timeSource, bool ownedNickname = false})
+  ShopwatchGameCubit(
+      {required GameConfig config,
+      required Difficulty difficulty,
+      required int itemCount,
+      required String nickname,
+      required String roundId,
+      required Random random,
+      TimeSource? timeSource,
+      bool ownedNickname = false})
       : _engine = StopwatchController(timeSource: timeSource),
-        super(_prepare(config, difficulty, itemCount, nickname, roundId, random, ownedNickname)) {
+        _random = random,
+        super(_prepare(config, difficulty, itemCount, nickname, roundId, random,
+            ownedNickname)) {
     _engine.addListener(_capture);
   }
   final StopwatchController _engine;
+  final Random _random;
+  int _lapBase = 0;
   bool _capturing = false;
   Duration get elapsed => _engine.elapsed;
-  Duration get itemElapsed => elapsed - state.totalTime;
   bool get isRunning => _engine.isRunning;
   static GameRound _prepare(GameConfig config, Difficulty difficulty, int count,
       String nickname, String id, Random random, bool owned) {
-    if (count < 1 || count > config.items.length) throw ArgumentError.value(count, 'itemCount');
+    if (count < 1 || count > config.items.length) {
+      throw ArgumentError.value(count, 'itemCount');
+    }
     final names = config.items.toList()..shuffle(random);
-    final low = config.minGoal.inMilliseconds;
-    final range = config.maxGoal.inMilliseconds - low + 1;
-    return GameRound(config: config, difficulty: difficulty, nickname: nickname, id: id,
-      ownedNickname: owned, status: RoundStatus.ready,
-      items: names.take(count).map((name) => GameItem(name, Duration(milliseconds: low + random.nextInt(range)))).toList());
+    return GameRound(
+        config: config,
+        difficulty: difficulty,
+        nickname: nickname,
+        id: id,
+        ownedNickname: owned,
+        status: RoundStatus.ready,
+        names: names.take(count).toList(),
+        goals: [_between(random, config.minGoal, config.maxGoal)]);
   }
+
+  /// Random duration in [low, high], millisecond resolution, inclusive.
+  static Duration _between(Random random, Duration low, Duration high) =>
+      Duration(
+          milliseconds: low.inMilliseconds +
+              random.nextInt(high.inMilliseconds - low.inMilliseconds + 1));
+
   void start() {
     if (isClosed || state.status != RoundStatus.ready) return;
     emit(state.copyWith(status: RoundStatus.playing));
     _engine.start();
   }
+
   void addToCart() {
     if (!isClosed && state.status == RoundStatus.playing) _engine.lap();
   }
+
   void _capture() {
     if (isClosed || _capturing || state.status != RoundStatus.playing) return;
     _capturing = true;
     try {
       final results = state.results.toList();
-      for (final lap in _engine.laps.skip(results.length)) {
-        if (results.length >= state.items.length) break;
-        final item = state.items[results.length];
-        results.add(ItemResult(item, lap.lapTime, state.config.accuracy(lap.lapTime - item.goal)));
+      final goals = state.goals.toList();
+      for (final lap in _engine.laps.skip(_lapBase + results.length)) {
+        if (results.length >= state.itemCount) break;
+        final item =
+            GameItem(state.names[results.length], goals[results.length]);
+        results.add(ItemResult(item, lap.splitTime,
+            state.config.accuracy(lap.splitTime - item.goal)));
+        if (results.length < state.itemCount) {
+          goals.add(lap.splitTime +
+              _between(_random, state.config.minGap, state.config.maxGap));
+        }
       }
       if (results.length == state.results.length) return;
-      final finished = results.length == state.items.length;
+      final finished = results.length == state.itemCount;
       // pause synchronously notifies: the guard prevents duplicate capture.
       if (finished) _engine.pause();
-      emit(state.copyWith(results: results, status: finished ? RoundStatus.finished : RoundStatus.playing));
-    } finally { _capturing = false; }
+      emit(state.copyWith(
+          results: results,
+          goals: goals,
+          status: finished ? RoundStatus.finished : RoundStatus.playing));
+    } finally {
+      _capturing = false;
+    }
   }
+
+  bool get isPaused => _engine.isPaused;
+
+  /// Coffee break: freezes the clock; goals are on that clock, so nothing
+  /// else changes.
+  void togglePause() {
+    if (!isClosed && state.status == RoundStatus.playing) _engine.togglePause();
+  }
+
+  /// Empty cart: drops the results and restarts at item 1 without touching
+  /// the clock. The new first goal is "now" plus a regular gap.
+  void emptyCart() {
+    if (isClosed ||
+        (state.status != RoundStatus.playing &&
+            state.status != RoundStatus.finished)) {
+      return;
+    }
+    final wasFinished = state.status == RoundStatus.finished;
+    _lapBase = _engine.laps.length;
+    emit(state.copyWith(results: [], goals: [
+      _engine.elapsed +
+          _between(_random, state.config.minGap, state.config.maxGap)
+    ], status: RoundStatus.playing));
+    if (wasFinished) _engine.togglePause();
+  }
+
+  /// Pay: zeroes and stops the clock but keeps the cart (results) as it is.
+  void resetClock() {
+    if (isClosed ||
+        (state.status != RoundStatus.playing &&
+            state.status != RoundStatus.finished)) {
+      return;
+    }
+    emit(state.copyWith(status: RoundStatus.finished));
+    _engine.reset();
+  }
+
   // These operations deliberately cannot change an active round.
   void pause() {}
   void clear() {}
   void reset() {
     if (isClosed || state.status == RoundStatus.playing) return;
     _engine.reset();
-    emit(state.copyWith(results: [], status: RoundStatus.ready));
+    emit(state.copyWith(
+        results: [],
+        goals: state.goals.take(1).toList(),
+        status: RoundStatus.ready));
   }
+
   @override
   Future<void> close() {
     _engine.removeListener(_capture);

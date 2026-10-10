@@ -4,7 +4,7 @@ import '../core/stopwatch/time_source.dart';
 import '../features/stopwatch/presentation/stopwatch_page.dart';
 import '../features/landing/landing_page.dart';
 import '../features/shopwatch/presentation/pages/shopwatch_page.dart';
-import '../features/shopwatch/presentation/pages/game_setup_page.dart';
+import '../features/shopwatch/presentation/pages/game_arguments.dart';
 import '../features/shopwatch/presentation/pages/game_page.dart';
 import '../features/shopwatch/shopwatch_dependencies.dart';
 
@@ -24,16 +24,18 @@ class AppRouter {
     TimeSource? timeSource,
     ShopwatchDependencies? dependencies,
   }) {
-    final services = dependencies ?? ShopwatchDependencies(timeSource: timeSource);
+    final services =
+        dependencies ?? ShopwatchDependencies(timeSource: timeSource);
     final arguments = settings.arguments;
     final Widget page = switch (settings.name) {
-      AppRoutes.stopwatch =>
-        StopwatchPage(timeSource: timeSource),
+      AppRoutes.stopwatch => StopwatchPage(timeSource: timeSource),
       AppRoutes.shopwatch => ShopwatchPage(dependencies: services),
-      AppRoutes.game => GameSetupPage(dependencies: services),
-      AppRoutes.play => arguments is GameArguments && arguments.count >= 1 && arguments.count <= services.config.items.length
+      AppRoutes.game => ShopwatchPage(dependencies: services),
+      AppRoutes.play => arguments is GameArguments &&
+              arguments.count >= 1 &&
+              arguments.count <= services.config.items.length
           ? GamePage(dependencies: services, arguments: arguments)
-          : GameSetupPage(dependencies: services),
+          : ShopwatchPage(dependencies: services),
       _ => const LandingPage(),
     };
 

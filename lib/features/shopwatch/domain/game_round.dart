@@ -21,23 +21,53 @@ class ItemResult {
 
 @immutable
 class GameRound {
-  GameRound({required this.config, required this.difficulty, required this.nickname,
-    required this.id, List<GameItem> items = const [], List<ItemResult> results = const [],
-    this.status = RoundStatus.setup, this.ownedNickname = false})
-      : items = List.unmodifiable(items), results = List.unmodifiable(results);
+  /// [goals] are absolute times on the round's single running clock. Only the
+  /// goals reached so far are known: each next goal depends on the click time.
+  GameRound(
+      {required this.config,
+      required this.difficulty,
+      required this.nickname,
+      required this.id,
+      List<String> names = const [],
+      List<Duration> goals = const [],
+      List<ItemResult> results = const [],
+      this.status = RoundStatus.setup,
+      this.ownedNickname = false})
+      : names = List.unmodifiable(names),
+        goals = List.unmodifiable(goals),
+        results = List.unmodifiable(results);
   final GameConfig config;
   final Difficulty difficulty;
   final String nickname, id;
   final bool ownedNickname;
-  final List<GameItem> items;
+  final List<String> names;
+  final List<Duration> goals;
   final List<ItemResult> results;
   final RoundStatus status;
-  Duration get totalError => results.fold(Duration.zero, (sum, r) => sum + r.difference.abs());
-  Duration get totalTime => results.fold(Duration.zero, (sum, r) => sum + r.actual);
-  GameItem? get currentItem => results.length < items.length ? items[results.length] : null;
-  GameRound copyWith({RoundStatus? status, List<ItemResult>? results}) => GameRound(
-    config: config, difficulty: difficulty, nickname: nickname, id: id,
-    ownedNickname: ownedNickname, items: items, results: results ?? this.results,
-    status: status ?? this.status,
-  );
+  int get itemCount => names.length;
+  Duration get totalError =>
+      results.fold(Duration.zero, (sum, r) => sum + r.difference.abs());
+
+  /// Click time of the last item on the continuous clock.
+  Duration get totalTime =>
+      results.isEmpty ? Duration.zero : results.last.actual;
+  GameItem? get currentItem =>
+      results.length < names.length && results.length < goals.length
+          ? GameItem(names[results.length], goals[results.length])
+          : null;
+  GameRound copyWith(
+          {RoundStatus? status,
+          List<ItemResult>? results,
+          List<Duration>? goals}) =>
+      GameRound(
+        config: config,
+        difficulty: difficulty,
+        nickname: nickname,
+        id: id,
+        ownedNickname: ownedNickname,
+        names: names,
+        goals: goals ?? this.goals,
+        results: results ?? this.results,
+        status: status ?? this.status,
+      );
 }

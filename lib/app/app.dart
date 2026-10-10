@@ -33,7 +33,7 @@ class SwatchApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      initialRoute: AppRoutes.landing,
+      initialRoute: AppRoutes.shopwatch,
       onGenerateRoute: (settings) =>
           AppRouter.onGenerateRoute(settings, timeSource: timeSource, dependencies: dependencies),
     );

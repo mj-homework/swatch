@@ -1,4 +1,4 @@
-# Stopwatch · Sho**p**watch
+﻿# Stopwatch · Sho**p**watch
 
 A Flutter stopwatch app built for the OTP Bank Flutter homework, with a playful twist.
 
@@ -109,7 +109,7 @@ Every button keeps a clear icon and the original action name as a subtitle, so t
 | Spec action | Shopwatch label | Icon |
 |---|---|---|
 | Start | **Shop!** | 🛒 |
-| Pause / Resume | **Window shopping** / **Back to it** | 🏪 |
+| Pause / Resume | **Coffee break** / **Back to it** | 🏪 |
 | Lap | **Add to cart** | ➕🛒 |
 | Clear laps | **Empty cart** | 🗑️ |
 | Reset | **Pay** | contactless |

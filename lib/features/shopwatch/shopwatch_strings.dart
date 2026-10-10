@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
 abstract final class ShopwatchStrings {
   static const shop = 'Shop!';
-  static const pause = 'Window shopping';
+  static const pause = 'Coffee break';
   static const resume = 'Back to it';
   static const add = 'Add to cart';
   static const clear = 'Empty cart';
@@ -12,13 +12,14 @@ abstract final class ShopwatchStrings {
   static const finePrint = 'No money was harmed in this transaction.';
   static const offline = 'Offline — play locally; nickname is not reserved.';
   static String mood(Duration elapsed, bool paused) {
-    if (paused) return "Window shopping. Look, don't touch.";
+    if (paused) return 'Coffee break. Back in a minute.';
     if (elapsed.inMinutes < 1) return 'Just browsing…';
     if (elapsed.inMinutes < 5) return "Ooh, that's on sale.";
     if (elapsed.inMinutes < 15) return 'Do we really need a third one?';
     return 'The bag holder needs a bench.';
   }
 }
+
 abstract final class ShopwatchStyle {
   static const paper = Color(0xFFFFF9E9);
   static const ink = Color(0xFF242724);
@@ -26,6 +27,7 @@ abstract final class ShopwatchStyle {
   static const approved = Color(0xFF237B46);
   static const receipt = TextStyle(fontFamily: 'monospace', color: ink);
 }
+
 abstract final class ShopwatchKeys {
   static const start = ValueKey('shop-start');
   static const pause = ValueKey('shop-pause');
@@ -35,7 +37,9 @@ abstract final class ShopwatchKeys {
   static const mute = ValueKey('shop-mute');
   static const time = ValueKey('shop-time');
   static const skip = ValueKey('shop-skip');
+  static const cancelShopping = ValueKey('shop-cancel-shopping');
+  static const continueShopping = ValueKey('shop-continue-shopping');
+  static const confirmPay = ValueKey('shop-confirm-pay');
   static const dismiss = ValueKey('shop-dismiss');
   static const nickname = ValueKey('shop-nickname');
-  static const startGame = ValueKey('shop-start-game');
 }
