@@ -4,6 +4,7 @@ import '../../../../core/stopwatch/lap.dart';
 import '../../domain/game_config.dart';
 import '../../domain/game_round.dart';
 import '../../shopwatch_strings.dart';
+import '../../../../core/widgets/layout_breakpoints.dart';
 
 class ReceiptList extends StatelessWidget {
   const ReceiptList(
@@ -40,11 +41,25 @@ class ReceiptList extends StatelessWidget {
     final game = results;
     final averageDiff = game == null || game.isEmpty
         ? null
-        : Duration(
-            microseconds: game
-                    .fold(Duration.zero, (sum, r) => sum + r.difference.abs())
-                    .inMicroseconds ~/
-                game.length);
+        : Duration(microseconds: game.fold(Duration.zero, (sum, r) => sum + r.difference.abs()).inMicroseconds ~/ game.length);
+
+    lastRow() {
+      final itemsText = Text('${game?.length ?? laps.length} items');
+      final averageDiffText = Text('AVERAGE DIFF: ${formatElapsed(averageDiff ?? Duration.zero)}');
+
+      if (averageDiff == null) return itemsText;
+
+      return MediaQuery.sizeOf(context).width < wideLayoutBreakpoint
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [itemsText, averageDiffText],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [itemsText, averageDiffText],
+            );
+    }
+
     return ClipPath(
       clipper: _TornEdge(),
       child: ColoredBox(
@@ -56,22 +71,9 @@ class ReceiptList extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text('RECEIPT'),
-                        if (showClear)
-                          TextButton.icon(
-                            key: ShopwatchKeys.clear,
-                            onPressed: onClear,
-                            icon: const Icon(Icons.delete_sweep_outlined),
-                            label: const Text('Put it all back'),
-                          ),
-                      ],
-                    ),
+                    const Text('RECEIPT'),
                     const _DashedRule(),
-                    if ((game ?? laps).isEmpty)
-                      const Text(ShopwatchStrings.empty),
+                    if ((game ?? laps).isEmpty) const Text(ShopwatchStrings.empty),
                     // if (game == null)
                     //   for (var i = 0; i < laps.length; i++)
                     //     Padding(
@@ -96,21 +98,23 @@ class ReceiptList extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(result.item.shopItem.receiptLabel),
+                                    Expanded(
+                                      child: Text(
+                                        result.item.shopItem.receiptLabel,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
                                     Text(result.accuracy.name.toUpperCase()),
                                   ],
                                 ),
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                        'goal ${formatElapsed(result.item.goal)}'),
-                                    Text(
-                                        '${result.difference.isNegative ? '−' : '+'}${formatElapsed(result.difference.abs())}'),
+                                    Text('goal ${formatElapsed(result.item.goal)}'),
+                                    Text('${result.difference.isNegative ? '−' : '+'}${formatElapsed(result.difference.abs())}'),
                                   ],
                                 ),
                                 Text('got  ${formatElapsed(result.actual)}'),
@@ -119,10 +123,20 @@ class ReceiptList extends StatelessWidget {
                           ),
                         ),
                     const _DashedRule(),
-                    Text('${game?.length ?? laps.length} items'),
-                    if (averageDiff != null)
-                      Text('AVERAGE DIFF ${formatElapsed(averageDiff)}'),
+                    lastRow(),
                     if (showTotal) Text('TOTAL TIME ${formatElapsed(total)}'),
+                    if (showClear)
+                      Column(
+                        children: [
+                          const SizedBox(height: 12),
+                          FilledButton.icon(
+                            key: ShopwatchKeys.clear,
+                            onPressed: onClear,
+                            icon: const Icon(Icons.delete_sweep_outlined),
+                            label: const Text('Put it all back'),
+                          ),
+                        ],
+                      ),
                   ],
                 )),
           )),
@@ -134,11 +148,7 @@ class _DashedRule extends StatelessWidget {
   const _DashedRule();
 
   @override
-  Widget build(BuildContext context) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: LayoutBuilder(
-          builder: (_, c) =>
-              Text('-' * (c.maxWidth / 9).floor(), maxLines: 1)));
+  Widget build(BuildContext context) => LayoutBuilder(builder: (_, c) => Text('-' * (c.maxWidth / 9).floor(), maxLines: 1));
 }
 
 class _TornEdge extends CustomClipper<Path> {

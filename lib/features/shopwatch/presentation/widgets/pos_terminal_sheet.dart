@@ -44,11 +44,11 @@ Future<bool> showNothingToPay(BuildContext context) async =>
             FilledButton(
                 key: ShopwatchKeys.cancelShopping,
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Cancel shopping')),
+                child: const Text('Cancel anyway')),
             OutlinedButton(
                 key: ShopwatchKeys.continueShopping,
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Continue shopping')),
+                child: const Text('Continue')),
           ]),
         ]),
       ),
@@ -155,6 +155,7 @@ class _PosTerminalSheetState extends State<PosTerminalSheet> with SingleTickerPr
                     child: const Text('Bag it & go'),
                   ),
                 ],
+                const SizedBox(height: 32),
               ],
             ),
           ),

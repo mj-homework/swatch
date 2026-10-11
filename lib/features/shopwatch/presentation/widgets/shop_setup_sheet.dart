@@ -10,10 +10,10 @@ class ShopChoice {
 }
 
 /// Resolves to null when the gamer cancels.
-Future<ShopChoice?> showShopSetup(BuildContext context, {int maxItems = 99}) =>
-    showModalBottomSheet<ShopChoice>(
+Future<ShopChoice?> showShopSetup(BuildContext context, {int maxItems = 99}) => showModalBottomSheet<ShopChoice>(
       context: context,
       useSafeArea: true,
+      isScrollControlled: true,
       isDismissible: false,
       constraints: const BoxConstraints(maxWidth: double.infinity),
       enableDrag: false,
@@ -21,8 +21,7 @@ Future<ShopChoice?> showShopSetup(BuildContext context, {int maxItems = 99}) =>
     );
 
 class ShopSetupSheet extends StatefulWidget {
-  const ShopSetupSheet(
-      {super.key, this.maxItems = 99, this.autoStartSeconds = 5});
+  const ShopSetupSheet({super.key, this.maxItems = 99, this.autoStartSeconds = 5});
 
   final int maxItems;
   final int autoStartSeconds;
@@ -95,7 +94,8 @@ class _ShopSetupSheetState extends State<ShopSetupSheet> {
     return SizedBox(
       width: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        // Lift the sheet above the on-screen keyboard.
+        padding: const EdgeInsets.all(24) + EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -105,20 +105,16 @@ class _ShopSetupSheetState extends State<ShopSetupSheet> {
               child: Autocomplete<String>(
                 key: ShopwatchKeys.itemsDropdown,
                 initialValue: const TextEditingValue(text: _unlimited),
-                  optionsViewOpenDirection: OptionsViewOpenDirection.mostSpace,
+                optionsViewOpenDirection: OptionsViewOpenDirection.up,
                 optionsBuilder: (value) {
                   final query = value.text.trim().toLowerCase();
-                  return _options.where((o) =>
-                      query.isEmpty ||
-                      query == _unlimited.toLowerCase() ||
-                      o.toLowerCase().startsWith(query));
+                  return _options.where((o) => query.isEmpty || query == _unlimited.toLowerCase() || o.toLowerCase().startsWith(query));
                 },
                 onSelected: (value) {
                   _cancelCountdown();
                   setState(() => _count = _parse(value));
                 },
-                fieldViewBuilder: (context, controller, focusNode, onSubmit) =>
-                    TextField(
+                fieldViewBuilder: (context, controller, focusNode, onSubmit) => TextField(
                   controller: controller,
                   focusNode: focusNode,
                   keyboardType: TextInputType.number,
@@ -143,12 +139,8 @@ class _ShopSetupSheetState extends State<ShopSetupSheet> {
               children: [
                 FilledButton(
                   key: ShopwatchKeys.shopConfirm,
-                  onPressed: _valid
-                      ? () => Navigator.of(context).pop(ShopChoice(_count))
-                      : null,
-                  child: Text(_timer == null
-                      ? ShopwatchStrings.shop
-                      : '${ShopwatchStrings.shop} ($_remaining)'),
+                  onPressed: _valid ? () => Navigator.of(context).pop(ShopChoice(_count)) : null,
+                  child: Text(_timer == null ? ShopwatchStrings.shop : '${ShopwatchStrings.shop} ($_remaining)'),
                 ),
                 OutlinedButton(
                   key: ShopwatchKeys.shopCancel,
@@ -157,6 +149,7 @@ class _ShopSetupSheetState extends State<ShopSetupSheet> {
                 ),
               ],
             ),
+            const SizedBox(height: 32),
           ],
         ),
       ),

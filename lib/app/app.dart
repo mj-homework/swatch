@@ -36,14 +36,27 @@ class SwatchApp extends StatelessWidget {
     onSecondary: const Color(0xFF0B2A1F),
   );
 
+  ThemeData _buildTheme(Brightness brightness) {
+    final base = ThemeData(
+      useMaterial3: true,
+      colorScheme: brightness == Brightness.light ? _lightScheme : _darkScheme,
+    );
+
+    final sized = Typography.englishLike2021.merge(base.textTheme);
+
+    return base.copyWith(
+      textTheme: sized.apply(fontSizeFactor: 0.9),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final dependencies = shopwatchDependencies ?? ShopwatchDependencies(timeSource: timeSource);
     return MaterialApp(
       title: 'Swatch',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorScheme: _lightScheme, useMaterial3: true),
-      darkTheme: ThemeData(colorScheme: _darkScheme, useMaterial3: true),
+      theme: _buildTheme(Brightness.light),
+      darkTheme: _buildTheme(Brightness.dark),
       initialRoute: AppRoutes.shopwatch,
       onGenerateInitialRoutes: (name) => [
         AppRouter.onGenerateRoute(
@@ -52,8 +65,7 @@ class SwatchApp extends StatelessWidget {
           dependencies: dependencies,
         ),
       ],
-      onGenerateRoute: (settings) =>
-          AppRouter.onGenerateRoute(settings, timeSource: timeSource, dependencies: dependencies),
+      onGenerateRoute: (settings) => AppRouter.onGenerateRoute(settings, timeSource: timeSource, dependencies: dependencies),
     );
   }
 }

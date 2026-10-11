@@ -63,7 +63,7 @@ class _StopwatchPageState extends State<StopwatchPage>
     return Scaffold(
       appBar: AppBar(
         // automaticallyImplyLeading: false,
-        title: const Text('Stopwatch'),
+        title: const Text('Classic stopwatch'),
         centerTitle: true,
       ),
       body: SafeArea(

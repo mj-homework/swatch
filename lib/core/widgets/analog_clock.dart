@@ -12,31 +12,55 @@ import 'swatch_keys.dart';
 /// * hour hand:   one revolution per 12 hours
 /// * outer ring:  progress within the current minute
 ///
-/// Hand angles are computed from the elapsed time with sub-millisecond
-/// precision on every frame, so the hands sweep smoothly instead of jumping.
-/// The painter listens to [elapsed] directly (`repaint:`), so only this
-/// canvas is repainted on each tick – no widget rebuilds.
+/// The painter listens to [elapsed] directly (`repaint:`), avoiding widget
+/// rebuilds for the analog hands.
 class AnalogClock extends StatelessWidget {
-  const AnalogClock({super.key, required this.elapsed, this.goalSec});
+  const AnalogClock({
+    super.key,
+    required this.elapsed,
+    this.goalSec,
+    this.digitalDisplay,
+  });
 
   final ValueListenable<Duration> elapsed;
 
   /// Optional target time, marked as a red tick on the seconds scale.
   final Duration? goalSec;
 
+  /// Optional digital readout rendered over the lower half of the clock face.
+  final Widget? digitalDisplay;
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
       label: 'Analog clock showing the elapsed time',
       child: RepaintBoundary(
-        child: CustomPaint(
-          key: SwatchKeys.analogClock,
-          painter: AnalogClockPainter(
-            elapsed: elapsed,
-            colors: Theme.of(context).colorScheme,
-            goalSec: goalSec == null ? null : goalSec!.inMicroseconds / 1e6,
-          ),
-          size: Size.infinite,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CustomPaint(
+              key: SwatchKeys.analogClock,
+              painter: AnalogClockPainter(
+                elapsed: elapsed,
+                colors: Theme.of(context).colorScheme,
+                goalSec: goalSec == null ? null : goalSec!.inMicroseconds / 1e6,
+              ),
+              size: Size.infinite,
+            ),
+            if (digitalDisplay != null)
+              IgnorePointer(
+                child: Align(
+                  alignment: const Alignment(0, 0.42),
+                  child: FractionallySizedBox(
+                    widthFactor: 0.9,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: digitalDisplay,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

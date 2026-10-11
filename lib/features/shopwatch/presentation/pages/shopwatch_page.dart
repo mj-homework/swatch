@@ -31,6 +31,7 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
   late final _sound = widget.dependencies.soundFactory();
   final _elapsed = ValueNotifier(Duration.zero);
   final _gameRound = ValueNotifier<GameRound?>(null);
+  final _shopEnabled = ValueNotifier(true);
   final _controlsKey = GlobalKey<_ShopwatchControlsState>();
   bool _muted = false, _checkingOut = false;
 
@@ -67,14 +68,18 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
   Future<void> _submit(GameRound round) async {
     bool success;
     try {
-      success = await widget.dependencies.repository.submit(round).timeout(const Duration(seconds: 6));
+      success = await widget.dependencies.repository
+          .submit(round)
+          .timeout(const Duration(seconds: 6));
     } catch (_) {
       success = false;
     }
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(success ? 'Score saved' : 'Score not uploaded — local receipt retained'),
+          content: Text(success
+              ? 'Score saved'
+              : 'Score not uploaded — local receipt retained'),
         ),
       );
     }
@@ -84,6 +89,7 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
   void dispose() {
     _elapsed.dispose();
     _gameRound.dispose();
+    _shopEnabled.dispose();
     unawaited(_sound.dispose());
     super.dispose();
   }
@@ -91,13 +97,21 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-            leadingWidth: 150,
             leading: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: FilledButton.icon(
-                onPressed: () => Navigator.of(context).pushNamed(AppRoutes.stopwatch),
-                icon: const Icon(Icons.timer_outlined),
-                label: const Text('Stopwatch'),
+              child: ValueListenableBuilder<bool>(
+                valueListenable: _shopEnabled,
+                builder: (context, enabled, _) => IconButton.filled(
+                  onPressed: enabled
+                      ? () =>
+                          Navigator.of(context).pushNamed(AppRoutes.stopwatch)
+                      : null,
+                  style: IconButton.styleFrom(
+                    foregroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  ),
+                  icon: const Icon(Icons.timer_outlined),
+                  // label: const Text(''),
+                ),
               ),
             ),
             title: const Text('Shopwatch', textAlign: TextAlign.center),
@@ -115,8 +129,10 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final controls = _ShopwatchControls(
+                  landscape: constraints.maxWidth > wideLayoutBreakpoint,
                   key: _controlsKey,
                   elapsed: _elapsed,
+                  shopEnabled: _shopEnabled,
                   checkingOut: _checkingOut,
                   dependencies: widget.dependencies,
                   onRoundChanged: (round) => _gameRound.value = round,
@@ -140,7 +156,7 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
                 }
                 return Column(
                   children: [
-                    Expanded(flex: 3, child: controls),
+                    Expanded(flex: 5, child: controls),
                     const SizedBox(height: 16),
                     Expanded(flex: 2, child: receipt),
                   ],
@@ -155,14 +171,18 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
 class _ShopwatchControls extends StatefulWidget {
   const _ShopwatchControls({
     super.key,
+    required this.landscape,
     required this.elapsed,
+    required this.shopEnabled,
     required this.checkingOut,
     required this.dependencies,
     required this.onRoundChanged,
     required this.onPay,
   });
 
+  final bool landscape;
   final ValueNotifier<Duration> elapsed;
+  final ValueNotifier<bool> shopEnabled;
   final bool checkingOut;
   final ShopwatchDependencies dependencies;
   final ValueChanged<GameRound?> onRoundChanged;
@@ -172,7 +192,8 @@ class _ShopwatchControls extends StatefulWidget {
   State<_ShopwatchControls> createState() => _ShopwatchControlsState();
 }
 
-class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTickerProviderStateMixin {
+class _ShopwatchControlsState extends State<_ShopwatchControls>
+    with SingleTickerProviderStateMixin {
   late final _nickname = TextEditingController();
   final _policy = const NicknamePolicy();
   Timer? _debounce;
@@ -191,6 +212,13 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
   bool get checkingOut => widget.checkingOut;
 
   ShopwatchDependencies get dependencies => widget.dependencies;
+
+  bool get canShop =>
+      !checkingOut &&
+      !_starting &&
+      _status != NicknameStatus.taken &&
+      (_nickname.text.trim().isEmpty || _policy.isValid(_nickname.text)) &&
+      (_game == null || _game!.state.status == RoundStatus.ready);
 
   @override
   void initState() {
@@ -212,27 +240,27 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
     super.dispose();
   }
 
-  void _onNicknameChanged(String value) {
-    _debounce?.cancel();
-    final generation = ++_generation;
-    final valid = _policy.isValid(value);
-    setState(() {
-      _status = valid ? NicknameStatus.checking : NicknameStatus.invalid;
-    });
-    if (!valid) return;
-
-    _debounce = Timer(const Duration(milliseconds: 400), () async {
-      NicknameStatus status;
-      try {
-        status = await widget.dependencies.repository.check(value).timeout(const Duration(seconds: 6));
-      } catch (_) {
-        status = NicknameStatus.offline;
-      }
-      if (mounted && generation == _generation) {
-        setState(() => _status = status);
-      }
-    });
-  }
+  // void _onNicknameChanged(String value) {
+  //   _debounce?.cancel();
+  //   final generation = ++_generation;
+  //   final valid = _policy.isValid(value);
+  //   setState(() {
+  //     _status = valid ? NicknameStatus.checking : NicknameStatus.invalid;
+  //   });
+  //   if (!valid) return;
+  //
+  //   _debounce = Timer(const Duration(milliseconds: 400), () async {
+  //     NicknameStatus status;
+  //     try {
+  //       status = await widget.dependencies.repository.check(value).timeout(const Duration(seconds: 6));
+  //     } catch (_) {
+  //       status = NicknameStatus.offline;
+  //     }
+  //     if (mounted && generation == _generation) {
+  //       setState(() => _status = status);
+  //     }
+  //   });
+  // }
 
   Future<void> _shop() async {
     final game = _game;
@@ -258,7 +286,9 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
     if (typed.isNotEmpty) {
       setState(() => _starting = true);
       try {
-        reservation = await dependencies.repository.reserve(nickname).timeout(const Duration(seconds: 6));
+        reservation = await dependencies.repository
+            .reserve(nickname)
+            .timeout(const Duration(seconds: 6));
       } catch (_) {
         reservation = NicknameStatus.offline;
       }
@@ -267,7 +297,8 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
         _starting = false;
         _status = reservation;
       });
-      if (reservation != NicknameStatus.available && reservation != NicknameStatus.offline) {
+      if (reservation != NicknameStatus.available &&
+          reservation != NicknameStatus.offline) {
         return;
       }
     }
@@ -347,7 +378,8 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
   }
 
   Future<void> _showLeaderboard() async {
-    final board = dependencies.repository.top(_count ?? shopItemCombinationCount, _difficulty);
+    final board = dependencies.repository
+        .top(_count ?? shopItemCombinationCount, _difficulty);
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -369,7 +401,8 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
                   for (var i = 0; i < entries.length; i++)
                     ListTile(
                       title: Text('${i + 1}. ${entries[i].nickname}'),
-                      trailing: Text('${entries[i].averageDiffMs.toStringAsFixed(1)} ms'),
+                      trailing: Text(
+                          '${entries[i].averageDiffMs.toStringAsFixed(1)} ms'),
                     ),
                 ],
               );
@@ -389,135 +422,171 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
   @override
   Widget build(BuildContext context) => LayoutBuilder(
         builder: (context, constraints) {
+          final enabled = canShop;
+          if (widget.shopEnabled.value != enabled) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              final currentEnabled = canShop;
+              if (widget.shopEnabled.value != currentEnabled) {
+                widget.shopEnabled.value = currentEnabled;
+              }
+            });
+          }
           final item = _game?.state.currentItem;
+
+          Widget clockFace() => AnalogClock(
+                elapsed: elapsed,
+                goalSec: _game?.state.currentItem?.goal,
+                digitalDisplay: ValueListenableBuilder<Duration>(
+                  valueListenable: elapsed,
+                  builder: (context, value, __) {
+                    final round = _game?.state;
+                    final showTime = round == null ||
+                        round.difficulty == Difficulty.easy ||
+                        (round.difficulty == Difficulty.normal &&
+                            value < round.config.normalHideAfter);
+                    final text = showTime ? formatElapsed(value) : '--:--.---';
+                    final colors = Theme.of(context).colorScheme;
+                    return DecoratedBox(
+                      decoration: ShapeDecoration(
+                        color: Colors.white,
+                        shape: StadiumBorder(
+                            side: BorderSide(color: colors.outlineVariant)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 4),
+                        child: Text(
+                          text,
+                          key: ShopwatchKeys.time,
+                          semanticsLabel:
+                              showTime ? 'Item time $text' : 'Item time hidden',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+
+          Widget goalBox() => Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: ShapeDecoration(
+                  shape: StadiumBorder(
+                    side: BorderSide(
+                        color: Theme.of(context).colorScheme.secondary),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (item == null)
+                      Text(
+                        'Add to cart at exactly the right millisecond!',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      )
+                    else
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Collect ${item.shopItem.receiptLabel} at',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            formatElapsed(item.goal),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ],
+                      ),
+                    if (item != null && !_game!.state.isEndless)
+                      Text(
+                        'Item ${_game!.state.results.length + 1} / ${_game!.state.itemCount}',
+                        textAlign: TextAlign.center,
+                      ),
+                  ],
+                ),
+              );
+
+          Widget finishedNote() => const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text('Cart complete — pay to see your receipt.'),
+              );
+
+          Widget buttons() => ValueListenableBuilder<Duration>(
+                valueListenable: elapsed,
+                builder: (_, __, ___) {
+                  final round = _game?.state;
+                  return ShoppingControls(
+                    start: canShop ? _shop : null,
+                    pause: !checkingOut && round?.status == RoundStatus.playing
+                        ? _togglePause
+                        : null,
+                    paused: _game?.isPaused ?? false,
+                    add: !checkingOut &&
+                            round?.status == RoundStatus.playing &&
+                            !(_game?.isPaused ?? false)
+                        ? _game!.addToCart
+                        : null,
+                    pay: !checkingOut && _game != null ? _checkoutGame : null,
+                  );
+                },
+              );
+
+          if (widget.landscape) {
+            return Column(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      AspectRatio(aspectRatio: 1, child: clockFace()),
+                      const SizedBox(width: 16),
+                      Expanded(child: Center(child: buttons())),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                goalBox(),
+                if (_game?.state.status == RoundStatus.finished) finishedNote(),
+              ],
+            );
+          }
+
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Flexible(
-                child: Row(
-                  children: [
-                    // SizedBox(
-                    //   width: constraints.maxWidth < 380 ? 140 : 174,
-                    //   child: _GameOptions(
-                    //     nickname: _nickname,
-                    //     status: _status,
-                    //     starting: _starting || _game != null,
-                    //     onNicknameChanged: _onNicknameChanged,
-                    //     onShowLeaderboard: _showLeaderboard,
-                    //   ),
-                    // ),
-                    // const SizedBox(width: 12),
-                    Expanded(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          minWidth: 500,
-                          minHeight: 500,
-                          maxWidth: 640,
-                          maxHeight: 640,
-                        ),
-                        child: AspectRatio(
-                          aspectRatio: 1,
-                          child: AnalogClock(
-                            elapsed: elapsed,
-                            goalSec: _game?.state.currentItem?.goal,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                child: ConstrainedBox(
+                  constraints:
+                      MediaQuery.sizeOf(context).width < wideLayoutBreakpoint
+                          ? const BoxConstraints()
+                          : const BoxConstraints(maxWidth: 640, maxHeight: 640),
+                  child: AspectRatio(aspectRatio: 1, child: clockFace()),
                 ),
               ),
-              ...[
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: ShapeDecoration(
-                    shape: StadiumBorder(
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      if (item == null)
-                        Text(
-                          'Add to cart at exactly the right millisecond!',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        )
-                      else
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Collect ${item.shopItem.receiptLabel} at ',
-                              ),
-                              TextSpan(
-                                text: formatElapsed(item.goal),
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.secondary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      if (item != null && !_game!.state.isEndless)
-                        Text(
-                          'Item ${_game!.state.results.length + 1} / ${_game!.state.itemCount}',
-                          textAlign: TextAlign.center,
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-              if (_game?.state.status == RoundStatus.finished)
-                const Padding(
-                  padding: EdgeInsets.only(top: 8),
-                  child: Text('Cart complete — pay to see your receipt.'),
-                ),
               const SizedBox(height: 16),
-              ValueListenableBuilder<Duration>(
-                valueListenable: elapsed,
-                builder: (_, value, __) {
-                  final round = _game?.state;
-                  final showTime = round == null ||
-                      round.difficulty == Difficulty.easy ||
-                      (round.difficulty == Difficulty.normal && value < round.config.normalHideAfter);
-                  return Column(
-                    children: [
-                      Text(
-                        showTime ? formatElapsed(value) : '--:--.---',
-                        key: ShopwatchKeys.time,
-                        semanticsLabel: showTime ? 'Item time ${formatElapsed(value)}' : 'Item time hidden',
-                        style: const TextStyle(
-                          fontSize: 36,
-                          fontFeatures: [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ShoppingControls(
-                        start: !checkingOut &&
-                                !_starting &&
-                                _status != NicknameStatus.taken &&
-                                (_nickname.text.trim().isEmpty || _policy.isValid(_nickname.text)) &&
-                                (round == null || round.status == RoundStatus.ready)
-                            ? _shop
-                            : null,
-                        pause: !checkingOut && round?.status == RoundStatus.playing ? _togglePause : null,
-                        paused: _game?.isPaused ?? false,
-                        add: !checkingOut && round?.status == RoundStatus.playing && !(_game?.isPaused ?? false) ? _game!.addToCart : null,
-                        pay: !checkingOut && _game != null ? _checkoutGame : null,
-                      ),
-                    ],
-                  );
-                },
-              ),
-              // const SizedBox(height: 12),
-              // MoodLine(elapsed: elapsed, paused: _game?.isPaused ?? false),
+              goalBox(),
+              if (_game?.state.status == RoundStatus.finished) finishedNote(),
+              const SizedBox(height: 16),
+              const SizedBox(height: 8),
+              buttons(),
+              const SizedBox(height: 12),
             ],
           );
         },
@@ -638,7 +707,9 @@ class _ShopwatchReceiptState extends State<_ShopwatchReceipt> {
                     ? const ReceiptList(showClear: true)
                     : ReceiptList(
                         showClear: true,
-                        onClear: !widget.checkingOut && round.results.isNotEmpty ? widget.onClear : null,
+                        onClear: !widget.checkingOut && round.results.isNotEmpty
+                            ? widget.onClear
+                            : null,
                         results: round.results,
                         total: round.totalTime,
                         showTotal: round.status == RoundStatus.finished,
