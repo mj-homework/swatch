@@ -14,7 +14,27 @@ class SwatchApp extends StatelessWidget {
   final TimeSource? timeSource;
   final ShopwatchDependencies? shopwatchDependencies;
 
-  static const _seedColor = Color(0xFF52AE30);
+  static const _seedColor = Color(0xFF00674C);
+
+  static final _lightScheme = ColorScheme.fromSeed(
+    seedColor: _seedColor,
+    brightness: Brightness.light,
+  ).copyWith(
+    primary: _seedColor,
+    onPrimary: Colors.white,
+    secondary: const Color(0xFF6EC72D),
+    onSecondary: const Color(0xFF242724),
+  );
+
+  static final _darkScheme = ColorScheme.fromSeed(
+    seedColor: _seedColor,
+    brightness: Brightness.dark,
+  ).copyWith(
+    primary: const Color(0xFF6EC72D),
+    onPrimary: const Color(0xFF0B2A1F),
+    secondary: const Color(0xFF4FB38F),
+    onSecondary: const Color(0xFF0B2A1F),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -22,17 +42,8 @@ class SwatchApp extends StatelessWidget {
     return MaterialApp(
       title: 'Swatch',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: _seedColor),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: _seedColor,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      theme: ThemeData(colorScheme: _lightScheme, useMaterial3: true),
+      darkTheme: ThemeData(colorScheme: _darkScheme, useMaterial3: true),
       initialRoute: AppRoutes.shopwatch,
       onGenerateRoute: (settings) =>
           AppRouter.onGenerateRoute(settings, timeSource: timeSource, dependencies: dependencies),

@@ -148,9 +148,9 @@ class AnalogClockPainter extends CustomPainter {
     }
   }
 
-  void _paintGoalTick(Canvas canvas, Offset center, double radius, double goalSec) {
+  void _paintGoalTick( Canvas canvas, Offset center, double radius, double goalSec) {
     final goal = Paint()
-      ..color = Colors.red
+      ..color = colors.secondary
       ..strokeWidth = radius * 0.015
       ..strokeCap = StrokeCap.round;
 
