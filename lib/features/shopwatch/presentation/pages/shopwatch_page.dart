@@ -269,7 +269,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
   //   });
   // }
 
-  Future<void> _shop() async {
+  Future<void> _shop({bool skipSetup = false}) async {
     final game = _game;
     if (_starting || checkingOut) return;
     if (game != null) {
@@ -282,9 +282,11 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
       return;
     }
 
-    final choice = await showShopSetup(context);
-    if (choice == null || !mounted) return;
-    _count = choice.count;
+    if (!skipSetup) {
+      final choice = await showShopSetup(context);
+      if (choice == null || !mounted) return;
+      _count = choice.count;
+    }
 
     _debounce?.cancel();
     ++_generation;
@@ -562,6 +564,8 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
                   final round = _game?.state;
                   return ShoppingControls(
                     start: canShop ? _shop : null,
+                    onDoubleStart:
+                        canShop ? () => _shop(skipSetup: true) : null,
                     pause: !checkingOut && round?.status == RoundStatus.playing
                         ? _togglePause
                         : null,
@@ -572,6 +576,9 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
                         ? _addToCart
                         : null,
                     pay: !checkingOut && _game != null ? _checkoutGame : null,
+                    onDoublePay: !checkingOut && _game != null
+                        ? () => unawaited(_endRound())
+                        : null,
                   );
                 },
               );

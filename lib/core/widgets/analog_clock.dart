@@ -155,6 +155,18 @@ class _AnalogClockState extends State<AnalogClock> {
                   ),
                 ),
               ),
+            if (widget.digitalDisplay != null)
+              CustomPaint(
+                painter: AnalogClockPainter(
+                  elapsed: widget.elapsed,
+                  colors: Theme.of(context).colorScheme,
+                  goalSec: widget.goalSec == null
+                      ? null
+                      : widget.goalSec!.inMicroseconds / 1e6,
+                  handsOnly: true,
+                ),
+                size: Size.infinite,
+              ),
           ],
         ),
       ),
@@ -176,12 +188,16 @@ class _AnalogClockState extends State<AnalogClock> {
 
 class AnalogClockPainter extends CustomPainter {
   AnalogClockPainter(
-      {required this.elapsed, required this.colors, this.goalSec})
+      {required this.elapsed,
+      required this.colors,
+      this.goalSec,
+      this.handsOnly = false})
       : super(repaint: elapsed);
 
   final ValueListenable<Duration> elapsed;
   final ColorScheme colors;
   final double? goalSec;
+  final bool handsOnly;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -189,14 +205,16 @@ class AnalogClockPainter extends CustomPainter {
     final radius = size.shortestSide / 2;
     final angles = handAngles(elapsed.value);
 
-    _paintFace(canvas, center, radius);
-    _paintTicks(canvas, center, radius);
+    if (!handsOnly) {
+      _paintFace(canvas, center, radius);
+      _paintTicks(canvas, center, radius);
 
-    if (goalSec != null) {
-      _paintGoalTick(canvas, center, radius, goalSec!);
+      if (goalSec != null) {
+        _paintGoalTick(canvas, center, radius, goalSec!);
+      }
+
+      _paintProgressRing(canvas, center, radius, angles.second);
     }
-
-    _paintProgressRing(canvas, center, radius, angles.second);
 
     _paintHand(
       canvas,
@@ -333,5 +351,6 @@ class AnalogClockPainter extends CustomPainter {
   bool shouldRepaint(AnalogClockPainter oldDelegate) =>
       oldDelegate.elapsed != elapsed ||
       oldDelegate.colors != colors ||
-      oldDelegate.goalSec != goalSec;
+      oldDelegate.goalSec != goalSec ||
+      oldDelegate.handsOnly != handsOnly;
 }

@@ -30,6 +30,15 @@ void main() {
     expect(find.text('0'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
+    final clockStack = tester.widget<Stack>(
+      find.descendant(
+        of: find.byType(AnalogClock),
+        matching: find.byType(Stack),
+      ),
+    );
+    final handsOverlay = clockStack.children.last as CustomPaint;
+    expect((handsOverlay.painter as AnalogClockPainter).handsOnly, isTrue);
+
     elapsed.value = const Duration(milliseconds: 1234);
     await tester.pump();
 

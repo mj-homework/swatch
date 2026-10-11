@@ -26,8 +26,7 @@ Future<bool> showCheckout(BuildContext context,
             receipt: receipt,
             sound: sound,
             muted: muted,
-            haptic: haptic))
-        .then((paid) => paid ?? false);
+            haptic: haptic)).then((paid) => paid ?? false);
 
 /// Returns true when the gamer chooses to cancel shopping.
 Future<bool> showNothingToPay(BuildContext context) async =>
@@ -37,19 +36,15 @@ Future<bool> showNothingToPay(BuildContext context) async =>
       builder: (context) => Padding(
         padding: const EdgeInsets.all(24),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text('Nothing to pay.',
-              style: TextStyle(fontSize: 18)),
+          const Text('Nothing to pay.', style: TextStyle(fontSize: 18)),
           const SizedBox(height: 16),
           Wrap(spacing: 12, children: [
             FilledButton(
-                key: ShopwatchKeys.cancelShopping,
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Cancel anyway')),
+                key: ShopwatchKeys.cancelShopping, onPressed: () => Navigator.of(context).pop(true), child: const Text('Checkout anyway')),
             OutlinedButton(
-                key: ShopwatchKeys.continueShopping,
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Continue')),
+                key: ShopwatchKeys.continueShopping, onPressed: () => Navigator.of(context).pop(false), child: const Text('Continue')),
           ]),
+          const SizedBox(height: 32),
         ]),
       ),
     ) ??
@@ -57,7 +52,14 @@ Future<bool> showNothingToPay(BuildContext context) async =>
 
 class PosTerminalSheet extends StatefulWidget {
   const PosTerminalSheet(
-      {super.key, required this.total, required this.averageDiff, required this.isEndless, required this.receipt, required this.sound, required this.muted, required this.haptic});
+      {super.key,
+      required this.total,
+      required this.averageDiff,
+      required this.isEndless,
+      required this.receipt,
+      required this.sound,
+      required this.muted,
+      required this.haptic});
 
   final Duration total;
   final Duration averageDiff;
@@ -118,8 +120,7 @@ class _PosTerminalSheetState extends State<PosTerminalSheet> with SingleTickerPr
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('AVERAGE DIFF: ${formatElapsed(widget.averageDiff)}',
-                    style: const TextStyle(fontFamily: 'monospace', fontSize: 22)),
+                Text('AVERAGE DIFF: ${formatElapsed(widget.averageDiff)}', style: const TextStyle(fontFamily: 'monospace', fontSize: 22)),
                 if (!_approved) ...[
                   IconButton(
                     onPressed: _approve,
