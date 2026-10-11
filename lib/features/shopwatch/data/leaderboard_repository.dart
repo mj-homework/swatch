@@ -23,9 +23,9 @@ class NicknamePolicy {
 }
 
 class LeaderboardEntry {
-  const LeaderboardEntry(this.nickname, this.totalDiffMs);
+  const LeaderboardEntry(this.nickname, this.averageDiffMs);
   final String nickname;
-  final int totalDiffMs;
+  final double averageDiffMs;
 }
 
 abstract interface class LeaderboardRepository {

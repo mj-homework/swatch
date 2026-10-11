@@ -7,7 +7,7 @@ import '../../shopwatch_strings.dart';
 /// Resolves to true only when the gamer paid and closed the sheet with Done.
 Future<bool> showCheckout(BuildContext context,
         {required Duration total,
-        required Duration totalDiff,
+        required Duration averageDiff,
         required bool isEndless,
         required Widget receipt,
         required SoundPlayer sound,
@@ -21,7 +21,7 @@ Future<bool> showCheckout(BuildContext context,
         enableDrag: false,
         builder: (_) => PosTerminalSheet(
             total: total,
-            totalDiff: totalDiff,
+            averageDiff: averageDiff,
             isEndless: isEndless,
             receipt: receipt,
             sound: sound,
@@ -57,10 +57,10 @@ Future<bool> showNothingToPay(BuildContext context) async =>
 
 class PosTerminalSheet extends StatefulWidget {
   const PosTerminalSheet(
-      {super.key, required this.total, required this.totalDiff, required this.isEndless, required this.receipt, required this.sound, required this.muted, required this.haptic});
+      {super.key, required this.total, required this.averageDiff, required this.isEndless, required this.receipt, required this.sound, required this.muted, required this.haptic});
 
   final Duration total;
-  final Duration totalDiff;
+  final Duration averageDiff;
   final bool isEndless;
   final Widget receipt;
   final SoundPlayer sound;
@@ -118,7 +118,8 @@ class _PosTerminalSheetState extends State<PosTerminalSheet> with SingleTickerPr
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('TOTAL DIFF: ${formatElapsed(widget.totalDiff)}', style: const TextStyle(fontFamily: 'monospace', fontSize: 22)),
+                Text('AVERAGE DIFF: ${formatElapsed(widget.averageDiff)}',
+                    style: const TextStyle(fontFamily: 'monospace', fontSize: 22)),
                 if (!_approved) ...[
                   IconButton(
                     onPressed: _approve,

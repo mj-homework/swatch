@@ -79,7 +79,7 @@ class _GamePageState extends State<GamePage>
     if (snapshot.ownedNickname) unawaited(_submit(snapshot));
     await showCheckout(context,
         total: snapshot.totalTime,
-        totalDiff: snapshot.totalDiff,
+        averageDiff: snapshot.averageError,
         isEndless: snapshot.isEndless,
         receipt:
             ReceiptList(results: snapshot.results, total: snapshot.totalTime),

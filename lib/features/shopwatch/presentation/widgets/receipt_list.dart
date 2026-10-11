@@ -38,6 +38,13 @@ class ReceiptList extends StatelessWidget {
       if (fastest == slowest) slowest = null;
     }
     final game = results;
+    final averageDiff = game == null || game.isEmpty
+        ? null
+        : Duration(
+            microseconds: game
+                    .fold(Duration.zero, (sum, r) => sum + r.difference.abs())
+                    .inMicroseconds ~/
+                game.length);
     return ClipPath(
       clipper: _TornEdge(),
       child: ColoredBox(
@@ -113,9 +120,8 @@ class ReceiptList extends StatelessWidget {
                         ),
                     const _DashedRule(),
                     Text('${game?.length ?? laps.length} items'),
-                    if (game != null)
-                      Text(
-                          'TOTAL DIFF ${formatElapsed(game.fold(Duration.zero, (sum, r) => sum + r.difference.abs()))}'),
+                    if (averageDiff != null)
+                      Text('AVERAGE DIFF ${formatElapsed(averageDiff)}'),
                     if (showTotal) Text('TOTAL TIME ${formatElapsed(total)}'),
                   ],
                 )),

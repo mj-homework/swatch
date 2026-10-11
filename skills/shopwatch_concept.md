@@ -175,11 +175,11 @@ BÜDÖS SAJT      goal   7.350
 FARHÁT          goal  11.200
                 got   10.954   −0.246
 ------------------------------------
-TOTAL DIFF                      0.408
+AVERAGE DIFF                    0.204
 ```
 
 - `diff = got − goal`, shown signed (`+` = too late, `−` = too early).
-- **Total diff = sum of absolute diffs.** Lower is better, and this is the leaderboard score.
+- **Average diff = the sum of absolute diffs divided by the number of items.** Lower is better, and this is the leaderboard score.
 - The line colour shows the accuracy of `|diff|`:
 
 | \|diff\| | Colour |
@@ -208,12 +208,12 @@ The game lives inside the `shopwatch` feature (see section 8): its logic in `dom
 
 ### 10.7 Leaderboard (Firebase)
 
-- **Cloud Firestore**, with a `players/{normalizedNickname}` doc for nickname ownership and a `scores` collection holding `{nickname, totalDiffMs, itemCount, difficulty, createdAt}`.
+- **Cloud Firestore**, with a `players/{normalizedNickname}` doc for nickname ownership and a `scores` collection holding `{nickname, averageDiffMs, itemCount, difficulty, createdAt}`.
 - **Firebase Anonymous Auth** gives each device a uid. A nickname doc stores its owner's uid, so a player can reuse their own nickname but nobody else can.
 - **Live nickname check while typing**: debounced (~400 ms), with the states *checking… / available ✓ / taken ✗ / offline*. Stale responses are ignored (only the latest query counts).
 - The live check is only a hint. The nickname is **reserved atomically in a transaction** on Start, which closes the race where two players check the same free nickname at once.
 - Nickname rules: 3–16 chars, letters, digits, `_`; compared case- and accent-insensitively (normalized key). A small bad-word filter is used, since reviewers will see the board.
-- The leaderboard is ranked **per item count and difficulty**, ordered by `totalDiffMs` ascending (top 10).
+- The leaderboard is ranked **per item count and difficulty**, ordered by `averageDiffMs` ascending (top 10).
 - **Security rules**: a user can only write their own nickname doc and their own scores, and scores are validated for shape and ranges.
 - **Graceful fallback**: if Firebase isn't configured or is offline, the game still works and the leaderboard shows "offline". Reviewers can run the app without Firebase credentials.
 

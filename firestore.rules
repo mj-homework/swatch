@@ -17,15 +17,15 @@ service cloud.firestore {
       allow get: if signedIn() && (resource == null || resource.data.uid == request.auth.uid);
       allow list: if signedIn() && request.query.limit != null && request.query.limit <= 10;
       allow create: if signedIn()
-        && request.resource.data.keys().hasAll(['uid', 'nickname', 'normalizedNickname', 'totalDiffMs', 'itemCount', 'difficulty', 'createdAt'])
-        && request.resource.data.keys().hasOnly(['uid', 'nickname', 'normalizedNickname', 'totalDiffMs', 'itemCount', 'difficulty', 'createdAt'])
+        && request.resource.data.keys().hasAll(['uid', 'nickname', 'normalizedNickname', 'averageDiffMs', 'itemCount', 'difficulty', 'createdAt'])
+        && request.resource.data.keys().hasOnly(['uid', 'nickname', 'normalizedNickname', 'averageDiffMs', 'itemCount', 'difficulty', 'createdAt'])
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.nickname is string
         && request.resource.data.nickname.size() >= 3 && request.resource.data.nickname.size() <= 32
         && nickname(request.resource.data.normalizedNickname)
         && get(/databases/$(database)/documents/players/$(request.resource.data.normalizedNickname)).data.uid == request.auth.uid
-        && request.resource.data.totalDiffMs is int
-        && request.resource.data.totalDiffMs >= 0 && request.resource.data.totalDiffMs <= 86400000
+        && request.resource.data.averageDiffMs is number
+        && request.resource.data.averageDiffMs >= 0 && request.resource.data.averageDiffMs <= 86400000
         && request.resource.data.itemCount is int
         && request.resource.data.itemCount >= 1 && request.resource.data.itemCount <= 100
         && request.resource.data.difficulty in ['easy', 'normal', 'hard']

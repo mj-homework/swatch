@@ -78,6 +78,7 @@ void main() {
     expect(cubit.state.results.map((r) => r.difference.inMilliseconds),
         [50, -250, 1]);
     expect(cubit.state.totalError.inMilliseconds, 301);
+    expect(cubit.state.averageError.inMicroseconds, 100333);
     expect(cubit.state.totalTime, const Duration(milliseconds: 10801));
     expect(cubit.state.status, RoundStatus.finished);
     expect(cubit.isRunning, isFalse);

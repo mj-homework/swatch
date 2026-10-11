@@ -62,6 +62,7 @@ class _StopwatchPageState extends State<StopwatchPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        // automaticallyImplyLeading: false,
         title: const Text('Stopwatch'),
         centerTitle: true,
       ),

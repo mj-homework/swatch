@@ -158,7 +158,7 @@ The animation is short and tap-to-skip, so it never gets in the way of the reset
 2. Goal times are random between **5 and 15 s** (configurable).
 3. Press **Add to cart** as close to the goal as you can. Each goal is measured from the previous Add to cart.
 4. The receipt prints the goal, what you got and the signed difference, coloured by accuracy.
-5. After the last item, the clock stops and the total difference is printed. **Pay** is enabled.
+5. After the last item, the clock stops and the average difference is printed. **Pay** is enabled.
 6. **Pay** runs the checkout and returns you to setup.
 
 Pause and Empty cart are disabled during a round.
@@ -169,7 +169,7 @@ BÜDÖS SAJT      goal   7.350
 FARHÁT          goal  11.200
                 got   10.954   −0.246
 ------------------------------------
-TOTAL DIFF                      0.408
+AVERAGE DIFF                    0.204
 ```
 
 | \|diff\| | Colour |
@@ -183,7 +183,7 @@ TOTAL DIFF                      0.408
 
 - **Cloud Firestore**, with **Firebase Anonymous Auth** so each device owns its nickname.
 - The nickname is reserved atomically when the round starts. The live check while typing is only a hint.
-- Scores are ranked by total difference (lower is better), per item count and difficulty.
+- Scores are ranked by average difference (lower is better), per item count and difficulty.
 - **Works without Firebase:** if it isn't configured or is offline, the game runs normally and the leaderboard shows "offline".
 
 ---

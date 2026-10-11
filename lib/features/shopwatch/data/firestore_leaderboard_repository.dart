@@ -72,7 +72,8 @@ class FirestoreLeaderboardRepository implements LeaderboardRepository {
           'uid': uid,
           'nickname': round.nickname,
           'normalizedNickname': policy.normalize(round.nickname),
-          'totalDiffMs': round.totalError.inMilliseconds,
+          'averageDiffMs':
+              round.totalError.inMicroseconds / round.results.length / 1000,
           'itemCount': round.itemCount,
           'difficulty': round.difficulty.name,
           'createdAt': FieldValue.serverTimestamp(),
@@ -93,13 +94,13 @@ class FirestoreLeaderboardRepository implements LeaderboardRepository {
           .collection('scores')
           .where('itemCount', isEqualTo: itemCount)
           .where('difficulty', isEqualTo: difficulty.name)
-          .orderBy('totalDiffMs')
+          .orderBy('averageDiffMs')
           .limit(10)
           .get(const GetOptions(source: Source.server))
           .timeout(timeout);
       return snapshot.docs
-          .map((d) => LeaderboardEntry(
-              d.data()['nickname'] as String, d.data()['totalDiffMs'] as int))
+          .map((d) => LeaderboardEntry(d.data()['nickname'] as String,
+              (d.data()['averageDiffMs'] as num).toDouble()))
           .toList();
     } catch (_) {
       return null;

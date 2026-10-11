@@ -53,14 +53,13 @@ class GameRound {
   int get itemCount => limit ?? items.length;
   Duration get totalError =>
       results.fold(Duration.zero, (sum, r) => sum + r.difference.abs());
+  Duration get averageError => results.isEmpty
+      ? Duration.zero
+      : Duration(microseconds: totalError.inMicroseconds ~/ results.length);
 
   /// Click time of the last item on the continuous clock.
   Duration get totalTime =>
       results.isEmpty ? Duration.zero : results.last.actual;
-
-  /// Click time of the last item on the single running clock.
-  Duration get totalDiff =>
-      results.isEmpty ? Duration.zero : results.fold(Duration.zero, (sum, r) => sum + r.difference.abs());
 
   GameItem? get currentItem =>
       results.length < items.length && results.length < goals.length

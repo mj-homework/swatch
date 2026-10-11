@@ -5,7 +5,7 @@
     "fields": [
       {"fieldPath": "itemCount", "order": "ASCENDING"},
       {"fieldPath": "difficulty", "order": "ASCENDING"},
-      {"fieldPath": "totalDiffMs", "order": "ASCENDING"}
+      {"fieldPath": "averageDiffMs", "order": "ASCENDING"}
     ]
   }],
   "fieldOverrides": []

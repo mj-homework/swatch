@@ -45,6 +45,13 @@ class SwatchApp extends StatelessWidget {
       theme: ThemeData(colorScheme: _lightScheme, useMaterial3: true),
       darkTheme: ThemeData(colorScheme: _darkScheme, useMaterial3: true),
       initialRoute: AppRoutes.shopwatch,
+      onGenerateInitialRoutes: (name) => [
+        AppRouter.onGenerateRoute(
+          RouteSettings(name: name),
+          timeSource: timeSource,
+          dependencies: dependencies,
+        ),
+      ],
       onGenerateRoute: (settings) =>
           AppRouter.onGenerateRoute(settings, timeSource: timeSource, dependencies: dependencies),
     );
