@@ -10,7 +10,7 @@ import '../../domain/shopwatch_game_cubit.dart';
 import '../../shopwatch_dependencies.dart';
 import '../../shopwatch_strings.dart';
 import '../widgets/pos_terminal_sheet.dart';
-import '../widgets/receipt_lap_list.dart';
+import '../widgets/receipt_list.dart';
 import '../widgets/shopping_controls.dart';
 import 'game_arguments.dart';
 
@@ -79,8 +79,10 @@ class _GamePageState extends State<GamePage>
     if (snapshot.ownedNickname) unawaited(_submit(snapshot));
     await showCheckout(context,
         total: snapshot.totalTime,
-        receipt: ReceiptLapList(
-            results: snapshot.results, total: snapshot.totalTime),
+        totalDiff: snapshot.totalDiff,
+        isEndless: snapshot.isEndless,
+        receipt:
+            ReceiptList(results: snapshot.results, total: snapshot.totalTime),
         sound: _sound,
         muted: _muted,
         haptic: widget.dependencies.haptic);
@@ -128,7 +130,7 @@ class _GamePageState extends State<GamePage>
                                 padding: const EdgeInsets.all(16),
                                 color: ShopwatchStyle.tag,
                                 child: Text(
-                                    '${item.name.toUpperCase()} — ${(item.goal.inMilliseconds / 1000).toStringAsFixed(3).replaceAll('.', ',')}',
+                                    '${item.shopItem.receiptLabel} — ${(item.goal.inMilliseconds / 1000).toStringAsFixed(3).replaceAll('.', ',')}',
                                     style: const TextStyle(
                                         color: ShopwatchStyle.ink,
                                         fontSize: 24))),
@@ -172,7 +174,7 @@ class _GamePageState extends State<GamePage>
                                   : null),
                           if (_upload.isNotEmpty) Text(_upload),
                           const SizedBox(height: 16),
-                          ReceiptLapList(
+                          ReceiptList(
                               results: round.results,
                               total: round.totalTime,
                               showTotal: round.status == RoundStatus.finished),

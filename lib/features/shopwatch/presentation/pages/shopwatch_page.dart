@@ -8,12 +8,13 @@ import '../../../../core/widgets/layout_breakpoints.dart';
 import '../../data/leaderboard_repository.dart';
 import '../../domain/game_config.dart';
 import '../../domain/game_round.dart';
+import '../../domain/shop_item.dart';
 import '../../domain/shopwatch_game_cubit.dart';
 import '../../shopwatch_dependencies.dart';
 import '../../shopwatch_strings.dart';
 import '../widgets/mood_line.dart';
 import '../widgets/pos_terminal_sheet.dart';
-import '../widgets/receipt_lap_list.dart';
+import '../widgets/receipt_list.dart';
 import '../widgets/shop_setup_sheet.dart';
 import '../widgets/shopping_controls.dart';
 
@@ -39,7 +40,9 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
     try {
       paid = await showCheckout(context,
           total: round.totalTime,
-          receipt: ReceiptLapList(
+          totalDiff: round.totalDiff,
+          isEndless: round.isEndless,
+          receipt: ReceiptList(
             results: round.results,
             total: round.totalTime,
           ),
@@ -89,11 +92,11 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Shopwatch'), actions: [
-          // IconButton(
-          //     key: ShopwatchKeys.mute,
-          //     tooltip: _muted ? 'Unmute checkout' : 'Mute checkout',
-          //     onPressed: () => setState(() => _muted = !_muted),
-          //     icon: Icon(_muted ? Icons.volume_off : Icons.volume_up)),
+          IconButton(
+              key: ShopwatchKeys.mute,
+              tooltip: _muted ? 'Unmute checkout' : 'Mute checkout',
+              onPressed: () => setState(() => _muted = !_muted),
+              icon: Icon(_muted ? Icons.volume_off : Icons.volume_up)),
         ]),
         body: SafeArea(
           child: Padding(
@@ -234,8 +237,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
       return;
     }
 
-    final choice = await showShopSetup(context,
-        maxItems: dependencies.config.items.length);
+    final choice = await showShopSetup(context);
     if (choice == null || !mounted) return;
     _count = choice.count;
 
@@ -339,7 +341,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
 
   Future<void> _showLeaderboard() async {
     final board = dependencies.repository
-        .top(_count ?? dependencies.config.items.length, _difficulty);
+        .top(_count ?? shopItemCombinationCount, _difficulty);
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -405,7 +407,10 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
                       ),
                       child: AspectRatio(
                         aspectRatio: 1,
-                        child: AnalogClock(elapsed: elapsed),
+                        child: AnalogClock(
+                          elapsed: elapsed,
+                          goalSec: _game?.state.currentItem?.goal,
+                        ),
                       ),
                     ),
                   ),
@@ -413,17 +418,44 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
               ),
             ),
             if (_game?.state.currentItem case final item?) ...[
-              const SizedBox(height: 8),
-              Text(
-                '${item.name.toUpperCase()} • goal ${formatElapsed(item.goal)}',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              Text(
-                _game!.state.isEndless
-                    ? 'Item ${_game!.state.results.length + 1}'
-                    : 'Item ${_game!.state.results.length + 1} / ${_game!.state.itemCount}',
-                textAlign: TextAlign.center,
+              const SizedBox(height: 16),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: ShapeDecoration(
+                  shape: StadiumBorder(
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Collect ${item.shopItem.receiptLabel} @ ',
+                          ),
+                          TextSpan(
+                            text: formatElapsed(item.goal),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    if (!_game!.state.isEndless)
+                      Text(
+                        'Item ${_game!.state.results.length + 1} / ${_game!.state.itemCount}',
+                        textAlign: TextAlign.center,
+                      ),
+                  ],
+                ),
               ),
             ],
             if (_game?.state.status == RoundStatus.finished)
@@ -548,7 +580,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
 //       );
 // }
 
-class _ShopwatchReceipt extends StatelessWidget {
+class _ShopwatchReceipt extends StatefulWidget {
   const _ShopwatchReceipt({
     required this.gameRound,
     required this.checkingOut,
@@ -560,25 +592,57 @@ class _ShopwatchReceipt extends StatelessWidget {
   final VoidCallback onClear;
 
   @override
+  State<_ShopwatchReceipt> createState() => _ShopwatchReceiptState();
+}
+
+class _ShopwatchReceiptState extends State<_ShopwatchReceipt> {
+  final _scrollController = ScrollController();
+  String? _lastRoundId;
+  int _lastResultCount = 0;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) => LayoutBuilder(
         builder: (context, constraints) => ValueListenableBuilder<GameRound?>(
-          valueListenable: gameRound,
-          builder: (_, round, __) => SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: round == null
-                  ? const ReceiptLapList(showClear: true)
-                  : ReceiptLapList(
-                      showClear: true,
-                      onClear: !checkingOut && round.results.isNotEmpty
-                          ? onClear
-                          : null,
-                      results: round.results,
-                      total: round.totalTime,
-                      showTotal: round.status == RoundStatus.finished,
-                    ),
-            ),
-          ),
+          valueListenable: widget.gameRound,
+          builder: (_, round, __) {
+            final resultCount = round?.results.length ?? 0;
+            if (round?.id == _lastRoundId && resultCount > _lastResultCount) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (_scrollController.hasClients) {
+                  _scrollController.animateTo(
+                    _scrollController.position.maxScrollExtent,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                  );
+                }
+              });
+            }
+            _lastRoundId = round?.id;
+            _lastResultCount = resultCount;
+            return SingleChildScrollView(
+              controller: _scrollController,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: round == null
+                    ? const ReceiptList(showClear: true)
+                    : ReceiptList(
+                        showClear: true,
+                        onClear: !widget.checkingOut && round.results.isNotEmpty
+                            ? widget.onClear
+                            : null,
+                        results: round.results,
+                        total: round.totalTime,
+                        showTotal: round.status == RoundStatus.finished,
+                      ),
+              ),
+            );
+          },
         ),
       );
 }

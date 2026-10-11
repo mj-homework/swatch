@@ -154,7 +154,7 @@ The animation is short and tap-to-skip, so it never gets in the way of the reset
 
 ### Round (`/shopwatch/game/play`)
 
-1. **Shop!** starts the clock. A random item appears with its goal time as a price tag: **BÜDÖS SAJT — 7,350**. That reads like 7 350 Ft, but means 7.350 seconds.
+1. **Shop!** starts the clock and generates the next item: a random property, product and quantity (for example, **HAUNTED TOASTER ×2**) with its goal time as a price tag. Each combination is unique within the round.
 2. Goal times are random between **5 and 15 s** (configurable).
 3. Press **Add to cart** as close to the goal as you can. Each goal is measured from the previous Add to cart.
 4. The receipt prints the goal, what you got and the signed difference, coloured by accuracy.

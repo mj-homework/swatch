@@ -7,6 +7,8 @@ import '../../shopwatch_strings.dart';
 /// Resolves to true only when the gamer paid and closed the sheet with Done.
 Future<bool> showCheckout(BuildContext context,
         {required Duration total,
+        required Duration totalDiff,
+        required bool isEndless,
         required Widget receipt,
         required SoundPlayer sound,
         required bool muted,
@@ -17,7 +19,14 @@ Future<bool> showCheckout(BuildContext context,
         useSafeArea: true,
         isDismissible: false,
         enableDrag: false,
-        builder: (_) => PosTerminalSheet(total: total, receipt: receipt, sound: sound, muted: muted, haptic: haptic))
+        builder: (_) => PosTerminalSheet(
+            total: total,
+            totalDiff: totalDiff,
+            isEndless: isEndless,
+            receipt: receipt,
+            sound: sound,
+            muted: muted,
+            haptic: haptic))
         .then((paid) => paid ?? false);
 
 /// Returns true when the gamer chooses to cancel shopping.
@@ -28,7 +37,7 @@ Future<bool> showNothingToPay(BuildContext context) async =>
       builder: (context) => Padding(
         padding: const EdgeInsets.all(24),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text('Nothing to pay, the game canceled',
+          const Text('Nothing to pay.',
               style: TextStyle(fontSize: 18)),
           const SizedBox(height: 16),
           Wrap(spacing: 12, children: [
@@ -48,9 +57,11 @@ Future<bool> showNothingToPay(BuildContext context) async =>
 
 class PosTerminalSheet extends StatefulWidget {
   const PosTerminalSheet(
-      {super.key, required this.total, required this.receipt, required this.sound, required this.muted, required this.haptic});
+      {super.key, required this.total, required this.totalDiff, required this.isEndless, required this.receipt, required this.sound, required this.muted, required this.haptic});
 
   final Duration total;
+  final Duration totalDiff;
+  final bool isEndless;
   final Widget receipt;
   final SoundPlayer sound;
   final bool muted;
@@ -102,27 +113,50 @@ class _PosTerminalSheetState extends State<PosTerminalSheet> with SingleTickerPr
         },
         child: ConstrainedBox(
           constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * .9),
-          child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Text('TOTAL: ${formatElapsed(widget.total)}', style: const TextStyle(fontFamily: 'monospace', fontSize: 22)),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('TOTAL DIFF: ${formatElapsed(widget.totalDiff)}', style: const TextStyle(fontFamily: 'monospace', fontSize: 22)),
                 if (!_approved) ...[
-                  FadeTransition(opacity: Tween(begin: .35, end: 1.0).animate(_pulse), child: const Icon(Icons.contactless, size: 72)),
-                  const Text('Contactless'),
+                  IconButton(
+                    onPressed: _approve,
+                    iconSize: 72,
+                    icon: FadeTransition(
+                      opacity: Tween(begin: .35, end: 1.0).animate(_pulse),
+                      child: const Icon(Icons.contactless),
+                    ),
+                  ),
+                  // const Text('Contactless'),
                   const SizedBox(height: 12),
                   Wrap(spacing: 12, children: [
-                    FilledButton(key: ShopwatchKeys.confirmPay, onPressed: _approve, child: const Text('Pay')),
-                    OutlinedButton(key: ShopwatchKeys.skip, onPressed: _close, child: const Text('Continue shopping')),
+                    // FilledButton(key: ShopwatchKeys.confirmPay, onPressed: _approve, child: const Text('Pay')),
+                    OutlinedButton(
+                      key: ShopwatchKeys.skip,
+                      onPressed: _close,
+                      child: Text(widget.isEndless ? 'Continue shopping' : 'Cancel'),
+                    ),
                   ]),
                 ] else ...[
-                  const Icon(Icons.check_circle, color: ShopwatchStyle.approved, size: 48),
-                  const Text(ShopwatchStrings.approved),
-                  const Text(ShopwatchStrings.finePrint),
+                  // const SizedBox(height: 12),
+                  // const Icon(Icons.check_circle, color: ShopwatchStyle.approved, size: 48),
+                  // const Text(ShopwatchStrings.approved),
+                  // const Text(ShopwatchStrings.finePrint),
                   const SizedBox(height: 12),
-                  widget.receipt,
-                  FilledButton(key: ShopwatchKeys.dismiss, onPressed: () => _close(true), child: const Text('Done')),
+                  Flexible(
+                    child: SingleChildScrollView(child: widget.receipt),
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton(
+                    key: ShopwatchKeys.dismiss,
+                    onPressed: () => _close(true),
+                    child: const Text('Bag it & go'),
+                  ),
                 ],
-              ])),
+              ],
+            ),
+          ),
         ),
       );
 }

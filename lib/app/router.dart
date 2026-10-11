@@ -6,6 +6,7 @@ import '../features/landing/landing_page.dart';
 import '../features/shopwatch/presentation/pages/shopwatch_page.dart';
 import '../features/shopwatch/presentation/pages/game_arguments.dart';
 import '../features/shopwatch/presentation/pages/game_page.dart';
+import '../features/shopwatch/domain/shop_item.dart';
 import '../features/shopwatch/shopwatch_dependencies.dart';
 
 abstract final class AppRoutes {
@@ -33,7 +34,7 @@ class AppRouter {
       AppRoutes.game => ShopwatchPage(dependencies: services),
       AppRoutes.play => arguments is GameArguments &&
               arguments.count >= 1 &&
-              arguments.count <= services.config.items.length
+              arguments.count <= shopItemCombinationCount
           ? GamePage(dependencies: services, arguments: arguments)
           : ShopwatchPage(dependencies: services),
       _ => const LandingPage(),

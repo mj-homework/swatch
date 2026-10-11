@@ -17,9 +17,12 @@ import 'swatch_keys.dart';
 /// The painter listens to [elapsed] directly (`repaint:`), so only this
 /// canvas is repainted on each tick – no widget rebuilds.
 class AnalogClock extends StatelessWidget {
-  const AnalogClock({super.key, required this.elapsed});
+  const AnalogClock({super.key, required this.elapsed, this.goalSec});
 
   final ValueListenable<Duration> elapsed;
+
+  /// Optional target time, marked as a red tick on the seconds scale.
+  final Duration? goalSec;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +34,7 @@ class AnalogClock extends StatelessWidget {
           painter: AnalogClockPainter(
             elapsed: elapsed,
             colors: Theme.of(context).colorScheme,
+            goalSec: goalSec == null ? null : goalSec!.inMicroseconds / 1e6,
           ),
           size: Size.infinite,
         ),
@@ -147,11 +151,12 @@ class AnalogClockPainter extends CustomPainter {
   void _paintGoalTick(Canvas canvas, Offset center, double radius, double goalSec) {
     final goal = Paint()
       ..color = Colors.red
-      ..strokeWidth = radius * 0.022
+      ..strokeWidth = radius * 0.015
       ..strokeCap = StrokeCap.round;
 
-    final angle = goalSec / 60 * 2 * math.pi;
-    final outer = radius * 0.88;
+    // The goal is an absolute time on the running clock; the face shows seconds.
+    final angle = (goalSec % 60) / 60 * 2 * math.pi;
+    final outer = radius * 0.84;
     final inner = radius * 0.66;
     canvas.drawLine(
       _polar(center, angle, inner),
@@ -205,5 +210,7 @@ class AnalogClockPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(AnalogClockPainter oldDelegate) =>
-      oldDelegate.elapsed != elapsed || oldDelegate.colors != colors;
+      oldDelegate.elapsed != elapsed ||
+      oldDelegate.colors != colors ||
+      oldDelegate.goalSec != goalSec;
 }

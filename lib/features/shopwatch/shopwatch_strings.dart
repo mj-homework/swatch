@@ -7,7 +7,7 @@ abstract final class ShopwatchStrings {
   static const add = 'Add to cart';
   static const clear = 'Empty cart';
   static const pay = 'Pay';
-  static const empty = 'Your cart is empty. Time is ticking though.';
+  static const empty = 'Your cart is empty.';
   static const approved = 'Payment approved ✓';
   static const finePrint = 'No money was harmed in this transaction.';
   static const offline = 'Offline — play locally; nickname is not reserved.';
@@ -21,7 +21,7 @@ abstract final class ShopwatchStrings {
 }
 
 abstract final class ShopwatchStyle {
-  static const paper = Color(0xFFFFF9E9);
+  static const paper = Colors.white;
   static const ink = Color(0xFF242724);
   static const tag = Color(0xFFFFD85B);
   static const approved = Color(0xFF237B46);

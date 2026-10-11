@@ -4,6 +4,7 @@ import '../../../../core/stopwatch/stopwatch_controller.dart';
 import '../../../../core/stopwatch/time_source.dart';
 import 'game_config.dart';
 import 'game_round.dart';
+import 'shop_item.dart';
 
 /// Owns its engine; external callers only receive read-only timing values.
 class ShopwatchGameCubit extends Cubit<GameRound> {
@@ -24,16 +25,16 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
   }
   final StopwatchController _engine;
   final Random _random;
+  final List<ShopItem> _usedItems = [];
   int _lapBase = 0;
   bool _capturing = false;
   Duration get elapsed => _engine.elapsed;
   bool get isRunning => _engine.isRunning;
   static GameRound _prepare(GameConfig config, Difficulty difficulty,
       int? count, String nickname, String id, Random random, bool owned) {
-    if (count != null && (count < 1 || count > config.items.length)) {
+    if (count != null && (count < 1 || count > shopItemCombinationCount)) {
       throw ArgumentError.value(count, 'itemCount');
     }
-    final names = config.items.toList()..shuffle(random);
     return GameRound(
         config: config,
         difficulty: difficulty,
@@ -42,7 +43,6 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
         ownedNickname: owned,
         status: RoundStatus.ready,
         limit: count,
-        names: count == null ? [names.first] : names.take(count).toList(),
         goals: [_between(random, config.minGoal, config.maxGoal)]);
   }
 
@@ -54,7 +54,8 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
 
   void start() {
     if (isClosed || state.status != RoundStatus.ready) return;
-    emit(state.copyWith(status: RoundStatus.playing));
+    final item = _generateItem();
+    emit(state.copyWith(status: RoundStatus.playing, items: [item]));
     _engine.start();
   }
 
@@ -68,19 +69,17 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
     try {
       final results = state.results.toList();
       final goals = state.goals.toList();
+      final items = state.items.toList();
       final limit = state.limit;
-      final names = state.names.toList();
       for (final lap in _engine.laps.skip(_lapBase + results.length)) {
         if (limit != null && results.length >= limit) break;
-        final item = GameItem(names[results.length], goals[results.length]);
+        final item = GameItem(items[results.length], goals[results.length]);
         results.add(ItemResult(item, lap.splitTime,
             state.config.accuracy(lap.splitTime - item.goal)));
         if (limit == null || results.length < limit) {
           goals.add(lap.splitTime +
               _between(_random, state.config.minGap, state.config.maxGap));
-          if (limit == null && names.length <= results.length) {
-            names.add(_nextName(names.last));
-          }
+          items.add(_generateItem());
         }
       }
       if (results.length == state.results.length) return;
@@ -90,25 +89,20 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
       emit(state.copyWith(
           results: results,
           goals: goals,
-          names: names,
+          items: items,
           status: finished ? RoundStatus.finished : RoundStatus.playing));
     } finally {
       _capturing = false;
     }
   }
 
-  /// Endless rounds: a random item that differs from the previous one.
-  String _nextName(String previous) {
-    final items = state.config.items;
-    if (items.length < 2) return items.first;
-    String next;
-    do {
-      next = items[_random.nextInt(items.length)];
-    } while (next == previous);
-    return next;
-  }
-
   bool get isPaused => _engine.isPaused;
+
+  ShopItem _generateItem() {
+    final item = nextItem(_usedItems, _random);
+    _usedItems.add(item);
+    return item;
+  }
 
   /// Coffee break: freezes the clock; goals are on that clock, so nothing
   /// else changes.
@@ -126,9 +120,12 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
     }
     final wasFinished = state.status == RoundStatus.finished;
     _lapBase = _engine.laps.length;
+    final item = _generateItem();
     emit(state.copyWith(results: [], goals: [
       _engine.elapsed +
           _between(_random, state.config.minGap, state.config.maxGap)
+    ], items: [
+      item
     ], status: RoundStatus.playing));
     if (wasFinished) _engine.togglePause();
   }
@@ -150,9 +147,12 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
   void reset() {
     if (isClosed || state.status == RoundStatus.playing) return;
     _engine.reset();
+    _lapBase = 0;
+    _usedItems.clear();
     emit(state.copyWith(
         results: [],
         goals: state.goals.take(1).toList(),
+        items: [],
         status: RoundStatus.ready));
   }
 

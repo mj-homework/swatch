@@ -5,23 +5,25 @@ import '../../shopwatch_strings.dart';
 /// The gamer's choice from the setup sheet. [count] null means unlimited.
 class ShopChoice {
   const ShopChoice(this.count);
+
   final int? count;
 }
 
 /// Resolves to null when the gamer cancels.
-Future<ShopChoice?> showShopSetup(BuildContext context,
-        {required int maxItems}) =>
+Future<ShopChoice?> showShopSetup(BuildContext context, {int maxItems = 99}) =>
     showModalBottomSheet<ShopChoice>(
       context: context,
       useSafeArea: true,
       isDismissible: false,
+      constraints: const BoxConstraints(maxWidth: double.infinity),
       enableDrag: false,
       builder: (_) => ShopSetupSheet(maxItems: maxItems),
     );
 
 class ShopSetupSheet extends StatefulWidget {
   const ShopSetupSheet(
-      {super.key, required this.maxItems, this.autoStartSeconds = 3});
+      {super.key, this.maxItems = 99, this.autoStartSeconds = 5});
+
   final int maxItems;
   final int autoStartSeconds;
 
@@ -30,7 +32,15 @@ class ShopSetupSheet extends StatefulWidget {
 }
 
 class _ShopSetupSheetState extends State<ShopSetupSheet> {
+  static const _unlimited = 'Unlimited';
   int? _count;
+  bool _valid = true;
+  late final List<String> _options = [
+    _unlimited,
+    for (var i = 1; i <= widget.maxItems; i++) '$i',
+  ];
+  final _actionsKey = GlobalKey();
+  double? _actionsWidth;
   Timer? _timer;
   late int _remaining = widget.autoStartSeconds;
 
@@ -48,6 +58,17 @@ class _ShopSetupSheetState extends State<ShopSetupSheet> {
     });
   }
 
+  int? _parse(String text) {
+    final v = text.trim();
+    if (v.isEmpty || v.toLowerCase() == _unlimited.toLowerCase()) {
+      _valid = true;
+      return null;
+    }
+    final n = int.tryParse(v);
+    _valid = n != null && n >= 1 && n <= widget.maxItems;
+    return _valid ? n : _count;
+  }
+
   void _cancelCountdown() {
     if (_timer == null) return;
     _timer!.cancel();
@@ -61,39 +82,70 @@ class _ShopSetupSheetState extends State<ShopSetupSheet> {
     super.dispose();
   }
 
+  void _measureActions() {
+    final width = _actionsKey.currentContext?.size?.width;
+    if (mounted && width != null && width != _actionsWidth) {
+      setState(() => _actionsWidth = width);
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => Padding(
+  Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _measureActions());
+    return SizedBox(
+      width: double.infinity,
+      child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            DropdownButtonFormField<int?>(
-              key: ShopwatchKeys.itemsDropdown,
-              initialValue: _count,
-              isExpanded: true,
-              decoration: const InputDecoration(labelText: 'Items'),
-              items: [
-                const DropdownMenuItem<int?>(
-                    value: null, child: Text('Unlimited')),
-                for (var i = 1; i <= widget.maxItems; i++)
-                  DropdownMenuItem<int?>(value: i, child: Text('$i')),
-              ],
-              onTap: _cancelCountdown,
-              onChanged: (value) {
-                _cancelCountdown();
-                setState(() => _count = value);
-              },
+            SizedBox(
+              width: _actionsWidth,
+              child: Autocomplete<String>(
+                key: ShopwatchKeys.itemsDropdown,
+                initialValue: const TextEditingValue(text: _unlimited),
+                  optionsViewOpenDirection: OptionsViewOpenDirection.mostSpace,
+                optionsBuilder: (value) {
+                  final query = value.text.trim().toLowerCase();
+                  return _options.where((o) =>
+                      query.isEmpty ||
+                      query == _unlimited.toLowerCase() ||
+                      o.toLowerCase().startsWith(query));
+                },
+                onSelected: (value) {
+                  _cancelCountdown();
+                  setState(() => _count = _parse(value));
+                },
+                fieldViewBuilder: (context, controller, focusNode, onSubmit) =>
+                    TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Items',
+                    helperText: 'Unlimited or 1-${widget.maxItems}',
+                    errorText: _valid ? null : 'Enter 1-${widget.maxItems}',
+                  ),
+                  onTap: _cancelCountdown,
+                  onChanged: (value) {
+                    _cancelCountdown();
+                    setState(() => _count = _parse(value));
+                  },
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             Wrap(
+              key: _actionsKey,
               alignment: WrapAlignment.center,
               spacing: 12,
               children: [
                 FilledButton(
                   key: ShopwatchKeys.shopConfirm,
-                  onPressed: () =>
-                      Navigator.of(context).pop(ShopChoice(_count)),
+                  onPressed: _valid
+                      ? () => Navigator.of(context).pop(ShopChoice(_count))
+                      : null,
                   child: Text(_timer == null
                       ? ShopwatchStrings.shop
                       : '${ShopwatchStrings.shop} ($_remaining)'),
@@ -107,5 +159,7 @@ class _ShopSetupSheetState extends State<ShopSetupSheet> {
             ),
           ],
         ),
-      );
+      ),
+    );
+  }
 }

@@ -3,16 +3,6 @@ import 'package:flutter/foundation.dart';
 @immutable
 class GameConfig {
   GameConfig({
-    List<String> items = const [
-      'farhát',
-      'büdös sajt',
-      'hajzselé',
-      'fokhagymás lángos',
-      'tescós zacskó',
-      'ananászos pizza',
-      'akciós pizsama',
-      'zokni páratlanul'
-    ],
     this.minGoal = const Duration(seconds: 5),
     this.maxGoal = const Duration(seconds: 15),
     this.minGap = const Duration(seconds: 3),
@@ -21,12 +11,8 @@ class GameConfig {
     this.perfect = const Duration(milliseconds: 50),
     this.close = const Duration(milliseconds: 250),
     this.fair = const Duration(milliseconds: 750),
-  }) : items = List.unmodifiable(items) {
-    if (items.isEmpty ||
-        items.length > 100 ||
-        items.any((i) => i.trim().isEmpty) ||
-        items.toSet().length != items.length ||
-        minGoal.inMilliseconds < 1 ||
+  }) {
+    if (minGoal.inMilliseconds < 1 ||
         maxGoal < minGoal ||
         minGap.inMilliseconds < 1 ||
         maxGap < minGap ||
@@ -37,7 +23,6 @@ class GameConfig {
       throw ArgumentError('Invalid game configuration');
     }
   }
-  final List<String> items;
 
   /// The first goal is in [minGoal, maxGoal] from the start; every next goal is
   /// the previous click time plus a gap in [minGap, maxGap].

@@ -8,7 +8,7 @@ Future<void> open(WidgetTester tester, void Function(ShopChoice?) onResult) asyn
     home: Builder(
       builder: (context) => TextButton(
         onPressed: () async =>
-            onResult(await showShopSetup(context, maxItems: 5)),
+            onResult(await showShopSetup(context, maxItems: 99)),
         child: const Text('open'),
       ),
     ),
@@ -18,26 +18,27 @@ Future<void> open(WidgetTester tester, void Function(ShopChoice?) onResult) asyn
 }
 
 void main() {
-  testWidgets('autostarts after 3 s with unlimited items', (tester) async {
+  testWidgets('autostarts after 5 s with unlimited items', (tester) async {
     ShopChoice? result;
     var done = false;
     await open(tester, (r) { result = r; done = true; });
-    expect(find.text('Shop! (3)'), findsOneWidget);
+    expect(find.text('Shop! (5)'), findsOneWidget);
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('Shop! (2)'), findsOneWidget);
-    await tester.pump(const Duration(seconds: 2));
+    expect(find.text('Shop! (4)'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 4));
     await tester.pumpAndSettle();
     expect(done, isTrue);
     expect(result, isNotNull);
     expect(result!.count, isNull);
   });
 
-  testWidgets('tapping the dropdown cancels the countdown', (tester) async {
+  testWidgets('typing a number cancels the countdown', (tester) async {
     ShopChoice? result;
     await open(tester, (r) => result = r);
-    await tester.tap(find.byKey(ShopwatchKeys.itemsDropdown));
+    await tester.enterText(find.byType(TextField), '2');
     await tester.pumpAndSettle();
-    await tester.tap(find.text('2').last);
+    await tester.tap(find.descendant(
+        of: find.byType(ListView), matching: find.text('2')));
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 5));
     expect(find.byKey(ShopwatchKeys.shopConfirm), findsOneWidget);

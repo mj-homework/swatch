@@ -1,12 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'game_config.dart';
+import 'shop_item.dart';
 
 enum RoundStatus { setup, ready, playing, finished }
 
 @immutable
 class GameItem {
-  const GameItem(this.name, this.goal);
-  final String name;
+  const GameItem(this.shopItem, this.goal);
+  final ShopItem shopItem;
   final Duration goal;
 }
 
@@ -28,13 +29,13 @@ class GameRound {
       required this.difficulty,
       required this.nickname,
       required this.id,
-      List<String> names = const [],
+      List<ShopItem> items = const [],
       this.limit,
       List<Duration> goals = const [],
       List<ItemResult> results = const [],
       this.status = RoundStatus.setup,
       this.ownedNickname = false})
-      : names = List.unmodifiable(names),
+      : items = List.unmodifiable(items),
         goals = List.unmodifiable(goals),
         results = List.unmodifiable(results);
   final GameConfig config;
@@ -44,27 +45,32 @@ class GameRound {
 
   /// Number of items to buy; null means an endless round.
   final int? limit;
-  final List<String> names;
+  final List<ShopItem> items;
   final List<Duration> goals;
   final List<ItemResult> results;
   final RoundStatus status;
   bool get isEndless => limit == null;
-  int get itemCount => limit ?? names.length;
+  int get itemCount => limit ?? items.length;
   Duration get totalError =>
       results.fold(Duration.zero, (sum, r) => sum + r.difference.abs());
 
   /// Click time of the last item on the continuous clock.
   Duration get totalTime =>
       results.isEmpty ? Duration.zero : results.last.actual;
+
+  /// Click time of the last item on the single running clock.
+  Duration get totalDiff =>
+      results.isEmpty ? Duration.zero : results.fold(Duration.zero, (sum, r) => sum + r.difference.abs());
+
   GameItem? get currentItem =>
-      results.length < names.length && results.length < goals.length
-          ? GameItem(names[results.length], goals[results.length])
+      results.length < items.length && results.length < goals.length
+          ? GameItem(items[results.length], goals[results.length])
           : null;
   GameRound copyWith(
           {RoundStatus? status,
           List<ItemResult>? results,
           List<Duration>? goals,
-          List<String>? names}) =>
+          List<ShopItem>? items}) =>
       GameRound(
         config: config,
         difficulty: difficulty,
@@ -72,7 +78,7 @@ class GameRound {
         id: id,
         ownedNickname: ownedNickname,
         limit: limit,
-        names: names ?? this.names,
+        items: items ?? this.items,
         goals: goals ?? this.goals,
         results: results ?? this.results,
         status: status ?? this.status,
