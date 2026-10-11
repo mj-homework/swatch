@@ -29,6 +29,7 @@ class GameRound {
       required this.nickname,
       required this.id,
       List<String> names = const [],
+      this.limit,
       List<Duration> goals = const [],
       List<ItemResult> results = const [],
       this.status = RoundStatus.setup,
@@ -40,11 +41,15 @@ class GameRound {
   final Difficulty difficulty;
   final String nickname, id;
   final bool ownedNickname;
+
+  /// Number of items to buy; null means an endless round.
+  final int? limit;
   final List<String> names;
   final List<Duration> goals;
   final List<ItemResult> results;
   final RoundStatus status;
-  int get itemCount => names.length;
+  bool get isEndless => limit == null;
+  int get itemCount => limit ?? names.length;
   Duration get totalError =>
       results.fold(Duration.zero, (sum, r) => sum + r.difference.abs());
 
@@ -58,14 +63,16 @@ class GameRound {
   GameRound copyWith(
           {RoundStatus? status,
           List<ItemResult>? results,
-          List<Duration>? goals}) =>
+          List<Duration>? goals,
+          List<String>? names}) =>
       GameRound(
         config: config,
         difficulty: difficulty,
         nickname: nickname,
         id: id,
         ownedNickname: ownedNickname,
-        names: names,
+        limit: limit,
+        names: names ?? this.names,
         goals: goals ?? this.goals,
         results: results ?? this.results,
         status: status ?? this.status,

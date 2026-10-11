@@ -5,6 +5,7 @@ import 'package:flutter/scheduler.dart';
 import '../../../core/stopwatch/stopwatch_controller.dart';
 import '../../../core/stopwatch/time_source.dart';
 import '../../../core/widgets/analog_clock.dart';
+import '../../../core/widgets/layout_breakpoints.dart';
 import 'widgets/control_buttons.dart';
 import 'widgets/elapsed_time_display.dart';
 import 'widgets/lap_panel.dart';
@@ -30,9 +31,6 @@ class _StopwatchPageState extends State<StopwatchPage>
       StopwatchController(timeSource: widget.timeSource);
   final ValueNotifier<Duration> _elapsed = ValueNotifier(Duration.zero);
   late final Ticker _ticker;
-
-  static const _wideLayoutBreakpoint = 720.0;
-
   @override
   void initState() {
     super.initState();
@@ -78,7 +76,7 @@ class _StopwatchPageState extends State<StopwatchPage>
               );
               final laps = LapPanel(controller: _controller);
 
-              if (constraints.maxWidth >= _wideLayoutBreakpoint) {
+              if (constraints.maxWidth >= wideLayoutBreakpoint) {
                 return Row(
                   children: [
                     Expanded(flex: 3, child: shopwatch),

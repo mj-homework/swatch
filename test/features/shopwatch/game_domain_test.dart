@@ -60,6 +60,21 @@ void main() {
     expect(cubit.state.results.single.difference, const Duration(seconds: 1));
     await cubit.close();
   });
+  test('endless round never finishes and keeps producing items', () async {
+    final time = FakeTimeSource();
+    final cubit = ShopwatchGameCubit(config: GameConfig(items: ['a', 'b', 'c']),
+      difficulty: Difficulty.easy, itemCount: null, nickname: 'Player',
+      roundId: 'r', random: Random(1), timeSource: time);
+    cubit.start();
+    for (var i = 0; i < 8; i++) {
+      expect(cubit.state.currentItem, isNotNull);
+      time.advance(const Duration(seconds: 6)); cubit.addToCart();
+    }
+    expect(cubit.state.results.length, 8);
+    expect(cubit.state.status, RoundStatus.playing);
+    expect(cubit.state.isEndless, isTrue);
+    await cubit.close();
+  });
   test('gaps stay within the configured range', () async {
     final time = FakeTimeSource();
     final config = GameConfig(items: ['a', 'b', 'c', 'd', 'e']);

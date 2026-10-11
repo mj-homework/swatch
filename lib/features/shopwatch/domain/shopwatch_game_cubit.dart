@@ -10,7 +10,7 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
   ShopwatchGameCubit(
       {required GameConfig config,
       required Difficulty difficulty,
-      required int itemCount,
+      required int? itemCount,
       required String nickname,
       required String roundId,
       required Random random,
@@ -28,9 +28,9 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
   bool _capturing = false;
   Duration get elapsed => _engine.elapsed;
   bool get isRunning => _engine.isRunning;
-  static GameRound _prepare(GameConfig config, Difficulty difficulty, int count,
-      String nickname, String id, Random random, bool owned) {
-    if (count < 1 || count > config.items.length) {
+  static GameRound _prepare(GameConfig config, Difficulty difficulty,
+      int? count, String nickname, String id, Random random, bool owned) {
+    if (count != null && (count < 1 || count > config.items.length)) {
       throw ArgumentError.value(count, 'itemCount');
     }
     final names = config.items.toList()..shuffle(random);
@@ -41,7 +41,8 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
         id: id,
         ownedNickname: owned,
         status: RoundStatus.ready,
-        names: names.take(count).toList(),
+        limit: count,
+        names: count == null ? [names.first] : names.take(count).toList(),
         goals: [_between(random, config.minGoal, config.maxGoal)]);
   }
 
@@ -67,28 +68,44 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
     try {
       final results = state.results.toList();
       final goals = state.goals.toList();
+      final limit = state.limit;
+      final names = state.names.toList();
       for (final lap in _engine.laps.skip(_lapBase + results.length)) {
-        if (results.length >= state.itemCount) break;
-        final item =
-            GameItem(state.names[results.length], goals[results.length]);
+        if (limit != null && results.length >= limit) break;
+        final item = GameItem(names[results.length], goals[results.length]);
         results.add(ItemResult(item, lap.splitTime,
             state.config.accuracy(lap.splitTime - item.goal)));
-        if (results.length < state.itemCount) {
+        if (limit == null || results.length < limit) {
           goals.add(lap.splitTime +
               _between(_random, state.config.minGap, state.config.maxGap));
+          if (limit == null && names.length <= results.length) {
+            names.add(_nextName(names.last));
+          }
         }
       }
       if (results.length == state.results.length) return;
-      final finished = results.length == state.itemCount;
+      final finished = limit != null && results.length == limit;
       // pause synchronously notifies: the guard prevents duplicate capture.
       if (finished) _engine.pause();
       emit(state.copyWith(
           results: results,
           goals: goals,
+          names: names,
           status: finished ? RoundStatus.finished : RoundStatus.playing));
     } finally {
       _capturing = false;
     }
+  }
+
+  /// Endless rounds: a random item that differs from the previous one.
+  String _nextName(String previous) {
+    final items = state.config.items;
+    if (items.length < 2) return items.first;
+    String next;
+    do {
+      next = items[_random.nextInt(items.length)];
+    } while (next == previous);
+    return next;
   }
 
   bool get isPaused => _engine.isPaused;

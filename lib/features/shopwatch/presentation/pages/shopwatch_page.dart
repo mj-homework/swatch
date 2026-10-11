@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import '../../../../core/formatting/duration_format.dart';
 import '../../../../core/widgets/analog_clock.dart';
+import '../../../../core/widgets/layout_breakpoints.dart';
 import '../../data/leaderboard_repository.dart';
 import '../../domain/game_config.dart';
 import '../../domain/game_round.dart';
@@ -13,6 +14,7 @@ import '../../shopwatch_strings.dart';
 import '../widgets/mood_line.dart';
 import '../widgets/pos_terminal_sheet.dart';
 import '../widgets/receipt_lap_list.dart';
+import '../widgets/shop_setup_sheet.dart';
 import '../widgets/shopping_controls.dart';
 
 class ShopwatchPage extends StatefulWidget {
@@ -26,9 +28,8 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
   late final _sound = widget.dependencies.soundFactory();
   final _elapsed = ValueNotifier(Duration.zero);
   final _gameRound = ValueNotifier<GameRound?>(null);
+  final _controlsKey = GlobalKey<_ShopwatchControlsState>();
   bool _muted = false, _checkingOut = false;
-  static const _wideLayoutBreakpoint = 720.0;
-
   Future<bool> _pay(GameRound round) async {
     if (_checkingOut) {
       return false;
@@ -88,11 +89,11 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Shopwatch'), actions: [
-          IconButton(
-              key: ShopwatchKeys.mute,
-              tooltip: _muted ? 'Unmute checkout' : 'Mute checkout',
-              onPressed: () => setState(() => _muted = !_muted),
-              icon: Icon(_muted ? Icons.volume_off : Icons.volume_up)),
+          // IconButton(
+          //     key: ShopwatchKeys.mute,
+          //     tooltip: _muted ? 'Unmute checkout' : 'Mute checkout',
+          //     onPressed: () => setState(() => _muted = !_muted),
+          //     icon: Icon(_muted ? Icons.volume_off : Icons.volume_up)),
         ]),
         body: SafeArea(
           child: Padding(
@@ -100,6 +101,7 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final controls = _ShopwatchControls(
+                  key: _controlsKey,
                   elapsed: _elapsed,
                   checkingOut: _checkingOut,
                   dependencies: widget.dependencies,
@@ -109,9 +111,11 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
 
                 final receipt = _ShopwatchReceipt(
                   gameRound: _gameRound,
+                  checkingOut: _checkingOut,
+                  onClear: () => _controlsKey.currentState?._emptyCart(),
                 );
 
-                if (constraints.maxWidth >= _wideLayoutBreakpoint) {
+                if (constraints.maxWidth >= wideLayoutBreakpoint) {
                   return Row(
                     children: [
                       Expanded(flex: 3, child: controls),
@@ -136,6 +140,7 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
 
 class _ShopwatchControls extends StatefulWidget {
   const _ShopwatchControls({
+    super.key,
     required this.elapsed,
     required this.checkingOut,
     required this.dependencies,
@@ -162,7 +167,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
   ShopwatchGameCubit? _game;
   StreamSubscription<GameRound>? _gameSubscription;
   int _generation = 0;
-  late int _count;
+  int? _count; // null = unlimited
   // Difficulty selector is temporarily hidden; rounds always play on easy.
   final Difficulty _difficulty = Difficulty.easy;
   NicknameStatus _status = NicknameStatus.invalid;
@@ -179,8 +184,6 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
       final game = _game;
       if (game != null) elapsed.value = game.elapsed;
     });
-    final availableItems = dependencies.config.items.length;
-    _count = availableItems < 3 ? availableItems : 3;
   }
 
   @override
@@ -230,6 +233,11 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
       setState(() => _status = NicknameStatus.invalid);
       return;
     }
+
+    final choice = await showShopSetup(context,
+        maxItems: dependencies.config.items.length);
+    if (choice == null || !mounted) return;
+    _count = choice.count;
 
     _debounce?.cancel();
     ++_generation;
@@ -330,7 +338,8 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
   }
 
   Future<void> _showLeaderboard() async {
-    final board = dependencies.repository.top(_count, _difficulty);
+    final board = dependencies.repository
+        .top(_count ?? dependencies.config.items.length, _difficulty);
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -377,25 +386,22 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
             Flexible(
               child: Row(
                 children: [
-                  SizedBox(
-                    width: constraints.maxWidth < 380 ? 140 : 174,
-                    child: _GameOptions(
-                      nickname: _nickname,
-                      count: _count,
-                      status: _status,
-                      starting: _starting || _game != null,
-                      itemCount: dependencies.config.items.length,
-                      onNicknameChanged: _onNicknameChanged,
-                      onCountChanged: (value) => setState(() => _count = value),
-                      onShowLeaderboard: _showLeaderboard,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
+                  // SizedBox(
+                  //   width: constraints.maxWidth < 380 ? 140 : 174,
+                  //   child: _GameOptions(
+                  //     nickname: _nickname,
+                  //     status: _status,
+                  //     starting: _starting || _game != null,
+                  //     onNicknameChanged: _onNicknameChanged,
+                  //     onShowLeaderboard: _showLeaderboard,
+                  //   ),
+                  // ),
+                  // const SizedBox(width: 12),
                   Expanded(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(
-                        maxWidth: 320,
-                        maxHeight: 320,
+                        maxWidth: 640,
+                        maxHeight: 640,
                       ),
                       child: AspectRatio(
                         aspectRatio: 1,
@@ -414,7 +420,9 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               Text(
-                'Item ${_game!.state.results.length + 1} / ${_game!.state.itemCount}',
+                _game!.state.isEndless
+                    ? 'Item ${_game!.state.results.length + 1}'
+                    : 'Item ${_game!.state.results.length + 1} / ${_game!.state.itemCount}',
                 textAlign: TextAlign.center,
               ),
             ],
@@ -466,18 +474,14 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
                               !(_game?.isPaused ?? false)
                           ? _game!.addToCart
                           : null,
-                      clear: !checkingOut &&
-                              (_game?.state.results.isNotEmpty ?? false)
-                          ? _emptyCart
-                          : null,
                       pay: !checkingOut && _game != null ? _checkoutGame : null,
                     ),
                   ],
                 );
               },
             ),
-            const SizedBox(height: 12),
-            MoodLine(elapsed: elapsed, paused: _game?.isPaused ?? false),
+            // const SizedBox(height: 12),
+            // MoodLine(elapsed: elapsed, paused: _game?.isPaused ?? false),
           ],
         ),
       );
@@ -486,22 +490,16 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
 class _GameOptions extends StatelessWidget {
   const _GameOptions({
     required this.nickname,
-    required this.count,
     required this.status,
     required this.starting,
-    required this.itemCount,
     required this.onNicknameChanged,
-    required this.onCountChanged,
     required this.onShowLeaderboard,
   });
 
   final TextEditingController nickname;
-  final int count;
   final NicknameStatus status;
   final bool starting;
-  final int itemCount;
   final ValueChanged<String> onNicknameChanged;
-  final ValueChanged<int> onCountChanged;
   final VoidCallback onShowLeaderboard;
 
   @override
@@ -509,64 +507,57 @@ class _GameOptions extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TextField(
-            key: ShopwatchKeys.nickname,
-            controller: nickname,
-            enabled: !starting,
-            onChanged: onNicknameChanged,
-            decoration: const InputDecoration(
-              labelText: 'Nickname',
-              helperText: '3–16 letters, digits or underscore',
-              isDense: true,
-            ),
-          ),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<int>(
-            initialValue: count,
-            isExpanded: true,
-            key: ValueKey('item-count-$count'),
-            decoration: const InputDecoration(
-              labelText: 'Items',
-              isDense: true,
-            ),
-            items: [
-              for (var i = 1; i <= itemCount; i++)
-                DropdownMenuItem(value: i, child: Text('$i')),
-            ],
-            onChanged: starting
-                ? null
-                : (value) {
-                    if (value != null) onCountChanged(value);
-                  },
-          ),
-          const SizedBox(height: 8),
-          Text(
-            starting
-                ? 'Reserving nickname…'
-                : switch (status) {
-                    NicknameStatus.invalid => nickname.text.trim().isEmpty
-                        ? 'Optional — needed for the leaderboard.'
-                        : 'Enter a valid nickname.',
-                    NicknameStatus.checking => 'Checking…',
-                    NicknameStatus.available => 'Available ✓',
-                    NicknameStatus.taken => 'Taken ✗',
-                    NicknameStatus.offline => ShopwatchStrings.offline,
-                  },
-            semanticsLabel: 'Nickname ${status.name}',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          TextButton(
-            onPressed: onShowLeaderboard,
-            child: const Text('Top scores'),
-          ),
+          // Nickname is temporarily hidden.
+          // TextField(
+          //   key: ShopwatchKeys.nickname,
+          //   controller: nickname,
+          //   enabled: !starting,
+          //   onChanged: onNicknameChanged,
+          //   decoration: const InputDecoration(
+          //     labelText: 'Nickname',
+          //     helperText: '3–16 letters, digits or underscore',
+          //     isDense: true,
+          //   ),
+          // ),
+          // const SizedBox(height: 8),
+
+          // const SizedBox(height: 8),
+          // Nickname checking state is temporarily hidden.
+          // Text(
+          //   starting
+          //       ? 'Reserving nickname…'
+          //       : switch (status) {
+          //           NicknameStatus.invalid => nickname.text.trim().isEmpty
+          //               ? 'Optional — needed for the leaderboard.'
+          //               : 'Enter a valid nickname.',
+          //           NicknameStatus.checking => 'Checking…',
+          //           NicknameStatus.available => 'Available ✓',
+          //           NicknameStatus.taken => 'Taken ✗',
+          //           NicknameStatus.offline => ShopwatchStrings.offline,
+          //         },
+          //   semanticsLabel: 'Nickname ${status.name}',
+          //   style: Theme.of(context).textTheme.bodySmall,
+          // ),
+
+          // Top scores button is temporarily hidden.
+          // TextButton(
+          //   onPressed: onShowLeaderboard,
+          //   child: const Text('Top scores'),
+          // ),
         ],
       );
 }
 
 class _ShopwatchReceipt extends StatelessWidget {
-  const _ShopwatchReceipt({required this.gameRound});
+  const _ShopwatchReceipt({
+    required this.gameRound,
+    required this.checkingOut,
+    required this.onClear,
+  });
 
   final ValueListenable<GameRound?> gameRound;
+  final bool checkingOut;
+  final VoidCallback onClear;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -576,8 +567,12 @@ class _ShopwatchReceipt extends StatelessWidget {
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: constraints.maxHeight),
               child: round == null
-                  ? const ReceiptLapList()
+                  ? const ReceiptLapList(showClear: true)
                   : ReceiptLapList(
+                      showClear: true,
+                      onClear: !checkingOut && round.results.isNotEmpty
+                          ? onClear
+                          : null,
                       results: round.results,
                       total: round.totalTime,
                       showTotal: round.status == RoundStatus.finished,
