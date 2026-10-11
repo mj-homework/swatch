@@ -25,3 +25,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/sounds/pos_beep.wav
+    - assets/sounds/scan_perfect.wav
+    - assets/sounds/scan_blip.wav
+    - assets/sounds/scan_low.wav
+    - assets/sounds/scan_error.wav
+    - assets/sounds/tick.wav
+    - assets/sounds/tick_loop_10.wav
+    - assets/sounds/tick_loop_20.wav

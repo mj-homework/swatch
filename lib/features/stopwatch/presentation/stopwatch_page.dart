@@ -117,7 +117,13 @@ class _ShopwatchSection extends StatelessWidget {
             constraints: const BoxConstraints(maxWidth: 320, maxHeight: 320),
             child: AspectRatio(
               aspectRatio: 1,
-              child: AnalogClock(elapsed: elapsed),
+              child: ListenableBuilder(
+                listenable: controller,
+                builder: (_, __) => AnalogClock(
+                  elapsed: elapsed,
+                  isRunning: controller.isRunning,
+                ),
+              ),
             ),
           ),
         ),

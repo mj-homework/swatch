@@ -11,6 +11,7 @@ import '../../domain/game_config.dart';
 import '../../domain/game_round.dart';
 import '../../domain/shop_item.dart';
 import '../../domain/shopwatch_game_cubit.dart';
+import '../../services/sound_player.dart';
 import '../../shopwatch_dependencies.dart';
 import '../../shopwatch_strings.dart';
 import '../widgets/pos_terminal_sheet.dart';
@@ -119,7 +120,7 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
             actions: [
               IconButton(
                   key: ShopwatchKeys.mute,
-                  tooltip: _muted ? 'Unmute checkout' : 'Mute checkout',
+                  tooltip: _muted ? 'Unmute sounds' : 'Mute sounds',
                   onPressed: () => setState(() => _muted = !_muted),
                   icon: Icon(_muted ? Icons.volume_off : Icons.volume_up)),
             ]),
@@ -135,6 +136,8 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
                   shopEnabled: _shopEnabled,
                   checkingOut: _checkingOut,
                   dependencies: widget.dependencies,
+                  sound: _sound,
+                  muted: _muted,
                   onRoundChanged: (round) => _gameRound.value = round,
                   onPay: _pay,
                 );
@@ -176,6 +179,8 @@ class _ShopwatchControls extends StatefulWidget {
     required this.shopEnabled,
     required this.checkingOut,
     required this.dependencies,
+    required this.sound,
+    required this.muted,
     required this.onRoundChanged,
     required this.onPay,
   });
@@ -185,6 +190,8 @@ class _ShopwatchControls extends StatefulWidget {
   final ValueNotifier<bool> shopEnabled;
   final bool checkingOut;
   final ShopwatchDependencies dependencies;
+  final SoundPlayer sound;
+  final bool muted;
   final ValueChanged<GameRound?> onRoundChanged;
   final Future<bool> Function(GameRound) onPay;
 
@@ -336,6 +343,24 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
     setState(() {});
   }
 
+  void _addToCart() {
+    final game = _game;
+    if (game == null) return;
+    final previousCount = game.state.results.length;
+    game.addToCart();
+    if (!widget.muted && game.state.results.length > previousCount) {
+      unawaited(_playScan(game.state.results.last.accuracy));
+    }
+  }
+
+  Future<void> _playScan(Accuracy accuracy) async {
+    try {
+      await widget.sound.playScan(accuracy);
+    } catch (_) {
+      // Audio must never block adding an item to the cart.
+    }
+  }
+
   Future<void> _checkoutGame() async {
     final game = _game;
     if (game == null) return;
@@ -437,6 +462,8 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
           Widget clockFace() => AnalogClock(
                 elapsed: elapsed,
                 goalSec: _game?.state.currentItem?.goal,
+                isRunning: _game?.isRunning ?? false,
+                muted: widget.muted,
                 digitalDisplay: ValueListenableBuilder<Duration>(
                   valueListenable: elapsed,
                   builder: (context, value, __) {
@@ -542,7 +569,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
                     add: !checkingOut &&
                             round?.status == RoundStatus.playing &&
                             !(_game?.isPaused ?? false)
-                        ? _game!.addToCart
+                        ? _addToCart
                         : null,
                     pay: !checkingOut && _game != null ? _checkoutGame : null,
                   );

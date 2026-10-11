@@ -92,6 +92,22 @@ class _GamePageState extends State<GamePage>
     }
   }
 
+  void _addToCart() {
+    final previousCount = _game.state.results.length;
+    _game.addToCart();
+    if (!_muted && _game.state.results.length > previousCount) {
+      unawaited(_playScan(_game.state.results.last.accuracy));
+    }
+  }
+
+  Future<void> _playScan(Accuracy accuracy) async {
+    try {
+      await _sound.playScan(accuracy);
+    } catch (_) {
+      // Audio must never block adding an item to the cart.
+    }
+  }
+
   @override
   void dispose() {
     _ticker.dispose();
@@ -109,7 +125,7 @@ class _GamePageState extends State<GamePage>
             actions: [
               IconButton(
                   key: ShopwatchKeys.mute,
-                  tooltip: _muted ? 'Unmute checkout' : 'Mute checkout',
+                  tooltip: _muted ? 'Unmute sounds' : 'Mute sounds',
                   onPressed: () => setState(() => _muted = !_muted),
                   icon: Icon(_muted ? Icons.volume_off : Icons.volume_up)),
             ]),
@@ -142,7 +158,11 @@ class _GamePageState extends State<GamePage>
                               round.status != RoundStatus.finished)
                             SizedBox.square(
                               dimension: 230,
-                              child: AnalogClock(elapsed: _elapsed),
+                              child: AnalogClock(
+                                elapsed: _elapsed,
+                                isRunning: round.status == RoundStatus.playing,
+                                muted: _muted,
+                              ),
                             ),
                           ValueListenableBuilder(
                               valueListenable: _elapsed,
@@ -166,7 +186,7 @@ class _GamePageState extends State<GamePage>
                                   ? _game.start
                                   : null,
                               add: round.status == RoundStatus.playing
-                                  ? _game.addToCart
+                                  ? _addToCart
                                   : null,
                               pay: !_checkingOut &&
                                       round.status == RoundStatus.finished
