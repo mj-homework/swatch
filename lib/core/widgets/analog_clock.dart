@@ -52,11 +52,12 @@ class AnalogClock extends StatelessWidget {
 }
 
 class AnalogClockPainter extends CustomPainter {
-  AnalogClockPainter({required this.elapsed, required this.colors})
+  AnalogClockPainter({required this.elapsed, required this.colors, this.goalSec})
       : super(repaint: elapsed);
 
   final ValueListenable<Duration> elapsed;
   final ColorScheme colors;
+  final double? goalSec;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -66,6 +67,11 @@ class AnalogClockPainter extends CustomPainter {
 
     _paintFace(canvas, center, radius);
     _paintTicks(canvas, center, radius);
+
+    if (goalSec != null) {
+      _paintGoalTick(canvas, center, radius, goalSec!);
+    }
+
     _paintProgressRing(canvas, center, radius, angles.second);
 
     _paintHand(
@@ -136,6 +142,22 @@ class AnalogClockPainter extends CustomPainter {
         isMajor ? major : minor,
       );
     }
+  }
+
+  void _paintGoalTick(Canvas canvas, Offset center, double radius, double goalSec) {
+    final goal = Paint()
+      ..color = Colors.red
+      ..strokeWidth = radius * 0.022
+      ..strokeCap = StrokeCap.round;
+
+    final angle = goalSec / 60 * 2 * math.pi;
+    final outer = radius * 0.88;
+    final inner = radius * 0.66;
+    canvas.drawLine(
+      _polar(center, angle, inner),
+      _polar(center, angle, outer),
+      goal,
+    );
   }
 
   void _paintProgressRing(

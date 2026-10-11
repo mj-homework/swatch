@@ -487,66 +487,66 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
       );
 }
 
-class _GameOptions extends StatelessWidget {
-  const _GameOptions({
-    required this.nickname,
-    required this.status,
-    required this.starting,
-    required this.onNicknameChanged,
-    required this.onShowLeaderboard,
-  });
-
-  final TextEditingController nickname;
-  final NicknameStatus status;
-  final bool starting;
-  final ValueChanged<String> onNicknameChanged;
-  final VoidCallback onShowLeaderboard;
-
-  @override
-  Widget build(BuildContext context) => Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Nickname is temporarily hidden.
-          // TextField(
-          //   key: ShopwatchKeys.nickname,
-          //   controller: nickname,
-          //   enabled: !starting,
-          //   onChanged: onNicknameChanged,
-          //   decoration: const InputDecoration(
-          //     labelText: 'Nickname',
-          //     helperText: '3–16 letters, digits or underscore',
-          //     isDense: true,
-          //   ),
-          // ),
-          // const SizedBox(height: 8),
-
-          // const SizedBox(height: 8),
-          // Nickname checking state is temporarily hidden.
-          // Text(
-          //   starting
-          //       ? 'Reserving nickname…'
-          //       : switch (status) {
-          //           NicknameStatus.invalid => nickname.text.trim().isEmpty
-          //               ? 'Optional — needed for the leaderboard.'
-          //               : 'Enter a valid nickname.',
-          //           NicknameStatus.checking => 'Checking…',
-          //           NicknameStatus.available => 'Available ✓',
-          //           NicknameStatus.taken => 'Taken ✗',
-          //           NicknameStatus.offline => ShopwatchStrings.offline,
-          //         },
-          //   semanticsLabel: 'Nickname ${status.name}',
-          //   style: Theme.of(context).textTheme.bodySmall,
-          // ),
-
-          // Top scores button is temporarily hidden.
-          // TextButton(
-          //   onPressed: onShowLeaderboard,
-          //   child: const Text('Top scores'),
-          // ),
-        ],
-      );
-}
+// class _GameOptions extends StatelessWidget {
+//   const _GameOptions({
+//     required this.nickname,
+//     required this.status,
+//     required this.starting,
+//     required this.onNicknameChanged,
+//     required this.onShowLeaderboard,
+//   });
+//
+//   final TextEditingController nickname;
+//   final NicknameStatus status;
+//   final bool starting;
+//   final ValueChanged<String> onNicknameChanged;
+//   final VoidCallback onShowLeaderboard;
+//
+//   @override
+//   Widget build(BuildContext context) => Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         crossAxisAlignment: CrossAxisAlignment.stretch,
+//         children: [
+//           // Nickname is temporarily hidden.
+//           // TextField(
+//           //   key: ShopwatchKeys.nickname,
+//           //   controller: nickname,
+//           //   enabled: !starting,
+//           //   onChanged: onNicknameChanged,
+//           //   decoration: const InputDecoration(
+//           //     labelText: 'Nickname',
+//           //     helperText: '3–16 letters, digits or underscore',
+//           //     isDense: true,
+//           //   ),
+//           // ),
+//           // const SizedBox(height: 8),
+//
+//           // const SizedBox(height: 8),
+//           // Nickname checking state is temporarily hidden.
+//           // Text(
+//           //   starting
+//           //       ? 'Reserving nickname…'
+//           //       : switch (status) {
+//           //           NicknameStatus.invalid => nickname.text.trim().isEmpty
+//           //               ? 'Optional — needed for the leaderboard.'
+//           //               : 'Enter a valid nickname.',
+//           //           NicknameStatus.checking => 'Checking…',
+//           //           NicknameStatus.available => 'Available ✓',
+//           //           NicknameStatus.taken => 'Taken ✗',
+//           //           NicknameStatus.offline => ShopwatchStrings.offline,
+//           //         },
+//           //   semanticsLabel: 'Nickname ${status.name}',
+//           //   style: Theme.of(context).textTheme.bodySmall,
+//           // ),
+//
+//           // Top scores button is temporarily hidden.
+//           // TextButton(
+//           //   onPressed: onShowLeaderboard,
+//           //   child: const Text('Top scores'),
+//           // ),
+//         ],
+//       );
+// }
 
 class _ShopwatchReceipt extends StatelessWidget {
   const _ShopwatchReceipt({
