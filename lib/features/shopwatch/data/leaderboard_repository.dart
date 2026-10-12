@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-import '../domain/game_config.dart';
-import '../domain/game_round.dart';
+import 'package:swatch/features/shopwatch/domain/game_config.dart';
+import 'package:swatch/features/shopwatch/domain/game_round.dart';
 
 enum NicknameStatus { checking, available, taken, offline, invalid }
 

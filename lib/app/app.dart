@@ -5,9 +5,9 @@
 
 import 'package:flutter/material.dart';
 
-import '../core/stopwatch/time_source.dart';
-import 'router.dart';
-import '../features/shopwatch/shopwatch_dependencies.dart';
+import 'package:swatch/core/stopwatch/time_source.dart';
+import 'package:swatch/app/router.dart';
+import 'package:swatch/features/shopwatch/shopwatch_dependencies.dart';
 
 /// Root widget of the application.
 ///

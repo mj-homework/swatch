@@ -10,7 +10,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'swatch_keys.dart';
+import 'package:swatch/core/widgets/swatch_keys.dart';
 
 /// Analog clock face showing the shopwatch's elapsed time.
 ///

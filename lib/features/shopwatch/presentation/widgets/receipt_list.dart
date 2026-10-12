@@ -4,12 +4,12 @@
  */
 
 import 'package:flutter/material.dart';
-import '../../../../core/formatting/duration_format.dart';
-import '../../../../core/stopwatch/lap.dart';
-import '../../domain/game_config.dart';
-import '../../domain/game_round.dart';
-import '../../shopwatch_strings.dart';
-import '../../../../core/widgets/layout_breakpoints.dart';
+import 'package:swatch/core/formatting/duration_format.dart';
+import 'package:swatch/core/stopwatch/lap.dart';
+import 'package:swatch/features/shopwatch/domain/game_config.dart';
+import 'package:swatch/features/shopwatch/domain/game_round.dart';
+import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
+import 'package:swatch/core/widgets/layout_breakpoints.dart';
 
 class ReceiptList extends StatelessWidget {
   const ReceiptList(

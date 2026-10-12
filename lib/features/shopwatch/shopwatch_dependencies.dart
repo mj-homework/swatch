@@ -5,10 +5,10 @@
 
 import 'dart:math';
 import 'package:flutter/services.dart';
-import '../../core/stopwatch/time_source.dart';
-import 'data/leaderboard_repository.dart';
-import 'domain/game_config.dart';
-import 'services/sound_player.dart';
+import 'package:swatch/core/stopwatch/time_source.dart';
+import 'package:swatch/features/shopwatch/data/leaderboard_repository.dart';
+import 'package:swatch/features/shopwatch/domain/game_config.dart';
+import 'package:swatch/features/shopwatch/services/sound_player.dart';
 
 /// App-scoped services; pages own the sound players produced by the factory.
 class ShopwatchDependencies {

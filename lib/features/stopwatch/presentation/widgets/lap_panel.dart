@@ -5,10 +5,10 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/stopwatch/lap.dart';
-import '../../../../core/stopwatch/stopwatch_controller.dart';
-import '../../../../core/formatting/duration_format.dart';
-import '../../../../core/widgets/swatch_keys.dart';
+import 'package:swatch/core/stopwatch/lap.dart';
+import 'package:swatch/core/stopwatch/stopwatch_controller.dart';
+import 'package:swatch/core/formatting/duration_format.dart';
+import 'package:swatch/core/widgets/swatch_keys.dart';
 
 /// Card with the recorded laps (newest on top) and a Clear button.
 ///

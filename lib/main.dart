@@ -5,9 +5,9 @@
 
 import 'package:flutter/material.dart';
 
-import 'app/app.dart';
-import 'features/shopwatch/data/firebase_bootstrap.dart';
-import 'features/shopwatch/shopwatch_dependencies.dart';
+import 'package:swatch/app/app.dart';
+import 'package:swatch/features/shopwatch/data/firebase_bootstrap.dart';
+import 'package:swatch/features/shopwatch/shopwatch_dependencies.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

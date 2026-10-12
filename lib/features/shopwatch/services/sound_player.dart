@@ -5,7 +5,7 @@
 
 import 'package:audioplayers/audioplayers.dart';
 
-import '../domain/game_config.dart';
+import 'package:swatch/features/shopwatch/domain/game_config.dart';
 
 /// Plays feature-specific sound effects.
 ///

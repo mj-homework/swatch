@@ -5,9 +5,9 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../domain/game_config.dart';
-import '../domain/game_round.dart';
-import 'leaderboard_repository.dart';
+import 'package:swatch/features/shopwatch/domain/game_config.dart';
+import 'package:swatch/features/shopwatch/domain/game_round.dart';
+import 'package:swatch/features/shopwatch/data/leaderboard_repository.dart';
 
 class FirestoreLeaderboardRepository implements LeaderboardRepository {
   FirestoreLeaderboardRepository(

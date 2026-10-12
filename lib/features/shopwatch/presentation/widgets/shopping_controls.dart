@@ -8,7 +8,7 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../../shopwatch_strings.dart';
+import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
 
 class ShoppingControls extends StatelessWidget {
   const ShoppingControls({

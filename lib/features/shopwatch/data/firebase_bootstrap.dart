@@ -6,8 +6,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'firestore_leaderboard_repository.dart';
-import 'leaderboard_repository.dart';
+import 'package:swatch/features/shopwatch/data/firestore_leaderboard_repository.dart';
+import 'package:swatch/features/shopwatch/data/leaderboard_repository.dart';
 
 /// Explicit opt-in only. No config means no platform calls or startup delay.
 Future<LeaderboardRepository> initializeLeaderboard() async {

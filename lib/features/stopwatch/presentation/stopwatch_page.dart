@@ -7,13 +7,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
-import '../../../core/stopwatch/stopwatch_controller.dart';
-import '../../../core/stopwatch/time_source.dart';
-import '../../../core/widgets/analog_clock.dart';
-import '../../../core/widgets/layout_breakpoints.dart';
-import 'widgets/control_buttons.dart';
-import 'widgets/elapsed_time_display.dart';
-import 'widgets/lap_panel.dart';
+import 'package:swatch/core/stopwatch/stopwatch_controller.dart';
+import 'package:swatch/core/stopwatch/time_source.dart';
+import 'package:swatch/core/widgets/analog_clock.dart';
+import 'package:swatch/core/widgets/layout_breakpoints.dart';
+import 'package:swatch/features/stopwatch/presentation/widgets/control_buttons.dart';
+import 'package:swatch/features/stopwatch/presentation/widgets/elapsed_time_display.dart';
+import 'package:swatch/features/stopwatch/presentation/widgets/lap_panel.dart';
 
 /// Main screen. Owns the [StopwatchController] and the frame [Ticker].
 ///

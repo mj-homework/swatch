@@ -7,22 +7,21 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import '../../../../core/formatting/duration_format.dart';
-import '../../../../core/widgets/analog_clock.dart';
-import '../../../../core/widgets/layout_breakpoints.dart';
-import '../../../../app/router.dart';
-import '../../data/leaderboard_repository.dart';
-import '../../domain/game_config.dart';
-import '../../domain/game_round.dart';
-import '../../domain/shop_item.dart';
-import '../../domain/shopwatch_game_cubit.dart';
-import '../../services/sound_player.dart';
-import '../../shopwatch_dependencies.dart';
-import '../../shopwatch_strings.dart';
-import '../widgets/pos_terminal_sheet.dart';
-import '../widgets/receipt_list.dart';
-import '../widgets/shop_setup_sheet.dart';
-import '../widgets/shopping_controls.dart';
+import 'package:swatch/core/formatting/duration_format.dart';
+import 'package:swatch/core/widgets/analog_clock.dart';
+import 'package:swatch/core/widgets/layout_breakpoints.dart';
+import 'package:swatch/app/router.dart';
+import 'package:swatch/features/shopwatch/data/leaderboard_repository.dart';
+import 'package:swatch/features/shopwatch/domain/game_config.dart';
+import 'package:swatch/features/shopwatch/domain/game_round.dart';
+import 'package:swatch/features/shopwatch/domain/shopwatch_game_cubit.dart';
+import 'package:swatch/features/shopwatch/services/sound_player.dart';
+import 'package:swatch/features/shopwatch/shopwatch_dependencies.dart';
+import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
+import 'package:swatch/features/shopwatch/presentation/widgets/pos_terminal_sheet.dart';
+import 'package:swatch/features/shopwatch/presentation/widgets/receipt_list.dart';
+import 'package:swatch/features/shopwatch/presentation/widgets/shop_setup_sheet.dart';
+import 'package:swatch/features/shopwatch/presentation/widgets/shopping_controls.dart';
 
 class ShopwatchPage extends StatefulWidget {
   const ShopwatchPage({super.key, required this.dependencies});
@@ -222,7 +221,6 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
   late final Ticker _ticker;
   ShopwatchGameCubit? _game;
   StreamSubscription<GameRound>? _gameSubscription;
-  int _generation = 0;
   int? _count; // null = unlimited
   // Difficulty selector is temporarily hidden; rounds always play on easy.
   final Difficulty _difficulty = Difficulty.easy;
@@ -253,7 +251,6 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
 
   @override
   void dispose() {
-    ++_generation;
     _debounce?.cancel();
     _ticker.dispose();
     unawaited(_gameSubscription?.cancel());
@@ -261,28 +258,6 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
     _nickname.dispose();
     super.dispose();
   }
-
-  // void _onNicknameChanged(String value) {
-  //   _debounce?.cancel();
-  //   final generation = ++_generation;
-  //   final valid = _policy.isValid(value);
-  //   setState(() {
-  //     _status = valid ? NicknameStatus.checking : NicknameStatus.invalid;
-  //   });
-  //   if (!valid) return;
-  //
-  //   _debounce = Timer(const Duration(milliseconds: 400), () async {
-  //     NicknameStatus status;
-  //     try {
-  //       status = await widget.dependencies.repository.check(value).timeout(const Duration(seconds: 6));
-  //     } catch (_) {
-  //       status = NicknameStatus.offline;
-  //     }
-  //     if (mounted && generation == _generation) {
-  //       setState(() => _status = status);
-  //     }
-  //   });
-  // }
 
   Future<void> _shop({bool skipSetup = false}) async {
     final game = _game;
@@ -304,7 +279,6 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
     }
 
     _debounce?.cancel();
-    ++_generation;
     final nickname = typed.isEmpty ? 'Guest' : typed;
     NicknameStatus reservation = NicknameStatus.offline;
     if (typed.isNotEmpty) {
@@ -417,48 +391,6 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
     elapsed.value = Duration.zero;
     widget.onRoundChanged(null);
     setState(() {});
-  }
-
-  Future<void> _showLeaderboard() async {
-    final board = dependencies.repository
-        .top(_count ?? shopItemCombinationCount, _difficulty);
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Top 10 • lower average difference wins'),
-        content: SizedBox(
-          width: 360,
-          child: FutureBuilder(
-            future: board,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
-                return const Text('Loading leaderboard…');
-              }
-              final entries = snapshot.data;
-              if (entries == null) return const Text('Leaderboard offline');
-              if (entries.isEmpty) return const Text('No scores yet');
-              return ListView(
-                shrinkWrap: true,
-                children: [
-                  for (var i = 0; i < entries.length; i++)
-                    ListTile(
-                      title: Text('${i + 1}. ${entries[i].nickname}'),
-                      trailing: Text(
-                          '${entries[i].averageDiffMs.toStringAsFixed(1)} ms'),
-                    ),
-                ],
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -641,67 +573,6 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
         },
       );
 }
-
-// class _GameOptions extends StatelessWidget {
-//   const _GameOptions({
-//     required this.nickname,
-//     required this.status,
-//     required this.starting,
-//     required this.onNicknameChanged,
-//     required this.onShowLeaderboard,
-//   });
-//
-//   final TextEditingController nickname;
-//   final NicknameStatus status;
-//   final bool starting;
-//   final ValueChanged<String> onNicknameChanged;
-//   final VoidCallback onShowLeaderboard;
-//
-//   @override
-//   Widget build(BuildContext context) => Column(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         crossAxisAlignment: CrossAxisAlignment.stretch,
-//         children: [
-//           // Nickname is temporarily hidden.
-//           // TextField(
-//           //   key: ShopwatchKeys.nickname,
-//           //   controller: nickname,
-//           //   enabled: !starting,
-//           //   onChanged: onNicknameChanged,
-//           //   decoration: const InputDecoration(
-//           //     labelText: 'Nickname',
-//           //     helperText: '3–16 letters, digits or underscore',
-//           //     isDense: true,
-//           //   ),
-//           // ),
-//           // const SizedBox(height: 8),
-//
-//           // const SizedBox(height: 8),
-//           // Nickname checking state is temporarily hidden.
-//           // Text(
-//           //   starting
-//           //       ? 'Reserving nickname…'
-//           //       : switch (status) {
-//           //           NicknameStatus.invalid => nickname.text.trim().isEmpty
-//           //               ? 'Optional — needed for the leaderboard.'
-//           //               : 'Enter a valid nickname.',
-//           //           NicknameStatus.checking => 'Checking…',
-//           //           NicknameStatus.available => 'Available ✓',
-//           //           NicknameStatus.taken => 'Taken ✗',
-//           //           NicknameStatus.offline => ShopwatchStrings.offline,
-//           //         },
-//           //   semanticsLabel: 'Nickname ${status.name}',
-//           //   style: Theme.of(context).textTheme.bodySmall,
-//           // ),
-//
-//           // Top scores button is temporarily hidden.
-//           // TextButton(
-//           //   onPressed: onShowLeaderboard,
-//           //   child: const Text('Top scores'),
-//           // ),
-//         ],
-//       );
-// }
 
 class _ShopwatchReceipt extends StatefulWidget {
   const _ShopwatchReceipt({

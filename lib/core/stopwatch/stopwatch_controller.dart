@@ -7,8 +7,8 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 
-import 'lap.dart';
-import 'time_source.dart';
+import 'package:swatch/core/stopwatch/lap.dart';
+import 'package:swatch/core/stopwatch/time_source.dart';
 
 enum StopwatchStatus { idle, running, paused }
 

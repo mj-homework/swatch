@@ -5,7 +5,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../../shopwatch_strings.dart';
+import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
 
 class MoodLine extends StatefulWidget {
   const MoodLine({super.key, required this.elapsed, required this.paused});

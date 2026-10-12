@@ -4,8 +4,8 @@
  */
 
 import 'package:flutter/foundation.dart';
-import 'game_config.dart';
-import 'shop_item.dart';
+import 'package:swatch/features/shopwatch/domain/game_config.dart';
+import 'package:swatch/features/shopwatch/domain/shop_item.dart';
 
 enum RoundStatus { setup, ready, playing, finished }
 

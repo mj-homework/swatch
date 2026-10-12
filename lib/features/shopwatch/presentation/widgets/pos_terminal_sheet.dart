@@ -5,9 +5,9 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../../../core/formatting/duration_format.dart';
-import '../../services/sound_player.dart';
-import '../../shopwatch_strings.dart';
+import 'package:swatch/core/formatting/duration_format.dart';
+import 'package:swatch/features/shopwatch/services/sound_player.dart';
+import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
 
 /// Resolves to true only when the gamer paid and closed the sheet with Done.
 Future<bool> showCheckout(BuildContext context,

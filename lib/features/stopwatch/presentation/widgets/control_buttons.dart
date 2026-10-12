@@ -5,8 +5,8 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../../core/stopwatch/stopwatch_controller.dart';
-import '../../../../core/widgets/swatch_keys.dart';
+import 'package:swatch/core/stopwatch/stopwatch_controller.dart';
+import 'package:swatch/core/widgets/swatch_keys.dart';
 
 /// Start / Pause(Resume) / Lap / Reset buttons.
 ///

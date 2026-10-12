@@ -5,7 +5,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../../app/router.dart';
+import 'package:swatch/app/router.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});

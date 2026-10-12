@@ -5,11 +5,11 @@
 
 import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/stopwatch/stopwatch_controller.dart';
-import '../../../../core/stopwatch/time_source.dart';
-import 'game_config.dart';
-import 'game_round.dart';
-import 'shop_item.dart';
+import 'package:swatch/core/stopwatch/stopwatch_controller.dart';
+import 'package:swatch/core/stopwatch/time_source.dart';
+import 'package:swatch/features/shopwatch/domain/game_config.dart';
+import 'package:swatch/features/shopwatch/domain/game_round.dart';
+import 'package:swatch/features/shopwatch/domain/shop_item.dart';
 
 /// Owns its engine; external callers only receive read-only timing values.
 class ShopwatchGameCubit extends Cubit<GameRound> {
