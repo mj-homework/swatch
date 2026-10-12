@@ -78,7 +78,7 @@ The lint keeps new relative imports out from now on.
 
 Fix: provide the cubit with `BlocProvider`, rebuild with `BlocBuilder` / `BlocListener`, call actions via `context.read<ShopwatchGameCubit>()`. Or be ready to explain the choice.
 
-### 7. 🔧 Buttons rebuild every frame
+### ✅ 7. 🔧 Buttons rebuild every frame
 - A `ValueListenableBuilder` on `elapsed` wraps `ShoppingControls` (`shopwatch_page.dart:575`).
 - Contradicts the README's "only the time repaints".
 - Fix: rebuild the buttons on cubit state changes only.

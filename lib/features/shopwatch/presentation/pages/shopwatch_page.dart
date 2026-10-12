@@ -432,39 +432,38 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
           }
           final item = _game?.state.currentItem;
 
-          Widget clockFace() => AnalogClock(
-                elapsed: elapsed,
-                goalSec: _game?.state.currentItem?.goal,
-                digitalDisplay: ValueListenableBuilder<Duration>(
-                  valueListenable: elapsed,
-                  builder: (context, value, __) {
-                    final round = _game?.state;
-                    final showTime = round == null ||
-                        round.difficulty == Difficulty.easy ||
-                        (round.difficulty == Difficulty.normal && value < round.config.normalHideAfter);
-                    final text = showTime ? formatElapsed(value) : '--:--.---';
-                    final colors = Theme.of(context).colorScheme;
-                    return DecoratedBox(
-                      decoration: ShapeDecoration(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        shape: StadiumBorder(side: BorderSide(color: colors.outlineVariant)),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                        child: Text(
-                          text,
-                          key: ShopwatchKeys.time,
-                          semanticsLabel: showTime ? 'Item time $text' : 'Item time hidden',
-                          style: TextStyle(
-                            fontSize: Theme.of(context).textTheme.titleLarge?.fontSize,
-                            fontFeatures: const [FontFeature.tabularFigures()],
-                          ),
+          digitalDisplay() => ValueListenableBuilder<Duration>(
+                valueListenable: elapsed,
+                builder: (context, value, __) {
+                  final round = _game?.state;
+                  final showTime = round == null ||
+                      round.difficulty == Difficulty.easy ||
+                      (round.difficulty == Difficulty.normal && value < round.config.normalHideAfter);
+                  final text = showTime ? formatElapsed(value) : '--:--.---';
+                  final colors = Theme.of(context).colorScheme;
+                  return DecoratedBox(
+                    decoration: ShapeDecoration(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      shape: StadiumBorder(side: BorderSide(color: colors.outlineVariant)),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      child: Text(
+                        text,
+                        key: ShopwatchKeys.time,
+                        semanticsLabel: showTime ? 'Item time $text' : 'Item time hidden',
+                        style: TextStyle(
+                          fontSize: Theme.of(context).textTheme.titleLarge?.fontSize,
+                          fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               );
+
+          Widget clockFace() =>
+              AnalogClock(elapsed: elapsed, goalSec: _game?.state.currentItem?.goal, digitalDisplay: digitalDisplay());
 
           Widget goalBox() => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -517,23 +516,20 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
                 child: Text('Cart complete — pay to see your receipt.'),
               );
 
-          Widget buttons() => ValueListenableBuilder<Duration>(
-                valueListenable: elapsed,
-                builder: (_, __, ___) {
-                  final round = _game?.state;
-                  return ShoppingControls(
-                    start: canShop ? _shop : null,
-                    onDoubleStart: canShop ? () => _shop(skipSetup: true) : null,
-                    pause: !checkingOut && round?.status == RoundStatus.playing ? _togglePause : null,
-                    paused: _game?.isPaused ?? false,
-                    add: !checkingOut && round?.status == RoundStatus.playing && !(_game?.isPaused ?? false)
-                        ? _addToCart
-                        : null,
-                    pay: !checkingOut && _game != null ? _checkoutGame : null,
-                    onDoublePay: !checkingOut && _game != null ? () => unawaited(_endRound()) : null,
-                  );
-                },
-              );
+          Widget buttons() {
+            final round = _game?.state;
+            return ShoppingControls(
+              start: canShop ? _shop : null,
+              onDoubleStart: canShop ? () => _shop(skipSetup: true) : null,
+              pause: !checkingOut && round?.status == RoundStatus.playing ? _togglePause : null,
+              paused: _game?.isPaused ?? false,
+              add: !checkingOut && round?.status == RoundStatus.playing && !(_game?.isPaused ?? false)
+                  ? _addToCart
+                  : null,
+              pay: !checkingOut && _game != null ? _checkoutGame : null,
+              onDoublePay: !checkingOut && _game != null ? () => unawaited(_endRound()) : null,
+            );
+          }
 
           if (widget.landscape) {
             return Column(

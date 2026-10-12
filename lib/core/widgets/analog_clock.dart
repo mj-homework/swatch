@@ -37,6 +37,10 @@ class AnalogClock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasDigits = digitalDisplay != null;
+    final goal = goalSec == null ? null : goalSec!.inMicroseconds / 1e6;
+    final colors = Theme.of(context).colorScheme;
+
     return Semantics(
       label: 'Analog clock showing the elapsed time',
       child: RepaintBoundary(
@@ -47,36 +51,71 @@ class AnalogClock extends StatelessWidget {
               key: SwatchKeys.analogClock,
               painter: AnalogClockPainter(
                 elapsed: elapsed,
-                colors: Theme.of(context).colorScheme,
-                goalSec: goalSec == null ? null : goalSec!.inMicroseconds / 1e6,
+                colors: colors,
+                goalSec: goal,
+                drawHands: !hasDigits, // new flag: hands come from the top layer instead
               ),
               size: Size.infinite,
             ),
-            if (digitalDisplay != null)
+            if (hasDigits) ...[
               IgnorePointer(
                 child: Align(
                   alignment: const Alignment(0, 0.42),
                   child: FractionallySizedBox(
                     widthFactor: 0.9,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: digitalDisplay,
-                    ),
+                    child: FittedBox(fit: BoxFit.scaleDown, child: digitalDisplay),
                   ),
                 ),
               ),
-            if (digitalDisplay != null)
               CustomPaint(
                 painter: AnalogClockPainter(
                   elapsed: elapsed,
-                  colors: Theme.of(context).colorScheme,
-                  goalSec: goalSec == null ? null : goalSec!.inMicroseconds / 1e6,
+                  colors: colors,
+                  goalSec: goal,
                   handsOnly: true,
                 ),
                 size: Size.infinite,
               ),
+            ],
           ],
         ),
+        // Stack(
+        //   fit: StackFit.expand,
+        //   children: [
+        //     CustomPaint(
+        //       key: SwatchKeys.analogClock,
+        //       painter: AnalogClockPainter(
+        //         elapsed: elapsed,
+        //         colors: Theme.of(context).colorScheme,
+        //         goalSec: goalSec == null ? null : goalSec!.inMicroseconds / 1e6,
+        //       ),
+        //       size: Size.infinite,
+        //     ),
+        //     if (digitalDisplay != null)
+        //       IgnorePointer(
+        //         child: Align(
+        //           alignment: const Alignment(0, 0.42),
+        //           child: FractionallySizedBox(
+        //             widthFactor: 0.9,
+        //             child: FittedBox(
+        //               fit: BoxFit.scaleDown,
+        //               child: digitalDisplay,
+        //             ),
+        //           ),
+        //         ),
+        //       ),
+        //     if (digitalDisplay != null)
+        //       CustomPaint(
+        //         painter: AnalogClockPainter(
+        //           elapsed: elapsed,
+        //           colors: Theme.of(context).colorScheme,
+        //           goalSec: goalSec == null ? null : goalSec!.inMicroseconds / 1e6,
+        //           handsOnly: true,
+        //         ),
+        //         size: Size.infinite,
+        //       ),
+        //   ],
+        // ),
       ),
     );
   }
@@ -95,12 +134,14 @@ class AnalogClock extends StatelessWidget {
 }
 
 class AnalogClockPainter extends CustomPainter {
-  AnalogClockPainter({required this.elapsed, required this.colors, this.goalSec, this.handsOnly = false})
+  AnalogClockPainter(
+      {required this.elapsed, required this.colors, this.goalSec, this.drawHands = true, this.handsOnly = false})
       : super(repaint: elapsed);
 
   final ValueListenable<Duration> elapsed;
   final ColorScheme colors;
   final double? goalSec;
+  final bool drawHands;
   final bool handsOnly;
 
   @override
@@ -120,31 +161,33 @@ class AnalogClockPainter extends CustomPainter {
       _paintProgressRing(canvas, center, radius, angles.second);
     }
 
-    _paintHand(
-      canvas,
-      center,
-      angle: angles.hour,
-      length: radius * 0.45,
-      width: radius * 0.05,
-      color: colors.onSurface,
-    );
-    _paintHand(
-      canvas,
-      center,
-      angle: angles.minute,
-      length: radius * 0.66,
-      width: radius * 0.035,
-      color: colors.onSurface,
-    );
-    _paintHand(
-      canvas,
-      center,
-      angle: angles.second,
-      length: radius * 0.78,
-      tail: radius * 0.16,
-      width: radius * 0.015,
-      color: colors.primary,
-    );
+    if (drawHands) {
+      _paintHand(
+        canvas,
+        center,
+        angle: angles.hour,
+        length: radius * 0.45,
+        width: radius * 0.05,
+        color: colors.onSurface,
+      );
+      _paintHand(
+        canvas,
+        center,
+        angle: angles.minute,
+        length: radius * 0.66,
+        width: radius * 0.035,
+        color: colors.onSurface,
+      );
+      _paintHand(
+        canvas,
+        center,
+        angle: angles.second,
+        length: radius * 0.78,
+        tail: radius * 0.16,
+        width: radius * 0.015,
+        color: colors.primary,
+      );
+    }
 
     canvas
       ..drawCircle(center, radius * 0.045, Paint()..color = colors.primary)
