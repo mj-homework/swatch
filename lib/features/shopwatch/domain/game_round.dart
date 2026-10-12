@@ -1,3 +1,7 @@
+/*
+ *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ */
+
 import 'package:flutter/foundation.dart';
 import 'game_config.dart';
 import 'shop_item.dart';

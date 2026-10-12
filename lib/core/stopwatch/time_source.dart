@@ -1,3 +1,7 @@
+/*
+ *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ */
+
 /// Abstraction over a monotonic clock.
 ///
 /// The stopwatch logic never reads the wall clock directly, which keeps it

@@ -1,3 +1,7 @@
+/*
+ *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ */
+
 import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';

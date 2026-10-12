@@ -1,3 +1,7 @@
+/*
+ *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ */
+
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -118,6 +122,16 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
             title: const Text('Shopwatch', textAlign: TextAlign.center),
             centerTitle: true,
             actions: [
+              IconButton(
+                  tooltip: 'About Shopwatch',
+                  onPressed: () => showAboutDialog(
+                    context: context,
+                    applicationName: 'Shopwatch',
+                    applicationLegalese:
+                        'Copyright 2026 Juhász Mátyás (gatsby82)\n'
+                        'Licensed under the MIT License.',
+                  ),
+                  icon: const Icon(Icons.info_outline)),
               IconButton(
                   key: ShopwatchKeys.mute,
                   tooltip: _muted ? 'Unmute sounds' : 'Mute sounds',

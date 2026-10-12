@@ -1,3 +1,7 @@
+/*
+ *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ */
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/shop_setup_sheet.dart';

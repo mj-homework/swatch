@@ -1,3 +1,7 @@
+/*
+ *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ */
+
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/services.dart';

@@ -1,3 +1,7 @@
+/*
+ *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ */
+
 import 'package:audioplayers/audioplayers.dart';
 
 import '../domain/game_config.dart';

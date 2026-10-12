@@ -1,3 +1,7 @@
+/*
+ *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ */
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../../core/formatting/duration_format.dart';

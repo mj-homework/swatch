@@ -1,3 +1,7 @@
+/*
+ *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ */
+
 import 'dart:async';
 import 'package:swatch/features/shopwatch/services/sound_player.dart';
 import 'package:swatch/features/shopwatch/data/leaderboard_repository.dart';

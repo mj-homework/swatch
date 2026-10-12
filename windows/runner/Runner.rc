@@ -93,7 +93,7 @@ BEGIN
             VALUE "FileDescription", "Swatch" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "swatch" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 Swatch. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright 2026 Juhász Mátyás (gatsby82)" "\0"
             VALUE "OriginalFilename", "swatch.exe" "\0"
             VALUE "ProductName", "Swatch" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"

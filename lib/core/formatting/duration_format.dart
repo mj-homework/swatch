@@ -1,3 +1,7 @@
+/*
+ *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ */
+
 /// Formats a duration as `MM:SS.mmm` (minutes, seconds, milliseconds).
 ///
 /// Minutes are not wrapped at 60, so 75 minutes is shown as `75:00.000`.

@@ -1,3 +1,7 @@
+/*
+ *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ */
+
 import '../domain/game_config.dart';
 import '../domain/game_round.dart';
 

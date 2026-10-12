@@ -1,3 +1,7 @@
+/*
+ *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ */
+
 import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/stopwatch/stopwatch_controller.dart';

@@ -1,3 +1,7 @@
+/*
+ *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ */
+
 import 'dart:math';
 import 'package:flutter/services.dart';
 import '../../core/stopwatch/time_source.dart';
