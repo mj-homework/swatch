@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 import 'package:swatch/core/stopwatch/time_source.dart';
 import 'package:swatch/features/stopwatch/presentation/stopwatch_page.dart';
-import 'package:swatch/features/landing/landing_page.dart';
+import 'package:swatch/features/landing/presentation/pages/landing_page.dart';
 import 'package:swatch/features/shopwatch/presentation/pages/shopwatch_page.dart';
 import 'package:swatch/features/shopwatch/shopwatch_dependencies.dart';
 

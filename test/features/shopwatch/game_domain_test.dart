@@ -45,6 +45,54 @@ void main() {
     await first.close();
     await second.close();
   });
+  test('starting the Shopwatch increases elapsed time', () async {
+    final time = FakeTimeSource();
+    final cubit = game(time);
+
+    expect(cubit.elapsed, Duration.zero);
+    cubit.start();
+    expect(cubit.state.status, RoundStatus.playing);
+
+    time.advance(const Duration(milliseconds: 250));
+    expect(cubit.elapsed, const Duration(milliseconds: 250));
+
+    time.advance(const Duration(seconds: 1));
+    expect(cubit.elapsed, const Duration(milliseconds: 1250));
+
+    await cubit.close();
+  });
+  test('pausing the Shopwatch freezes elapsed time', () async {
+    final time = FakeTimeSource();
+    final cubit = game(time);
+    cubit.start();
+
+    time.advance(const Duration(seconds: 3));
+    cubit.togglePause();
+
+    expect(cubit.isPaused, isTrue);
+    expect(cubit.elapsed, const Duration(seconds: 3));
+
+    time.advance(const Duration(seconds: 10));
+    expect(cubit.elapsed, const Duration(seconds: 3));
+
+    await cubit.close();
+  });
+  test('resetting the Shopwatch clock sets it to zero and stops it', () async {
+    final time = FakeTimeSource();
+    final cubit = game(time);
+    cubit.start();
+    time.advance(const Duration(seconds: 3));
+    expect(cubit.elapsed, const Duration(seconds: 3));
+
+    cubit.resetClock();
+
+    expect(cubit.elapsed, Duration.zero);
+    expect(cubit.isRunning, isFalse);
+    time.advance(const Duration(seconds: 10));
+    expect(cubit.elapsed, Duration.zero);
+
+    await cubit.close();
+  });
   test('one continuous clock: each goal is the previous click plus the gap', () async {
     final time = FakeTimeSource();
     final cubit = game(time);

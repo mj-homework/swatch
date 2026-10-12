@@ -25,13 +25,17 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
         super(_prepare(config, difficulty, itemCount, roundId, random)) {
     _engine.addListener(_capture);
   }
+
   final StopwatchController _engine;
   final Random _random;
   final List<ShopItem> _usedItems = [];
   int _lapBase = 0;
   bool _capturing = false;
+
   Duration get elapsed => _engine.elapsed;
+
   bool get isRunning => _engine.isRunning;
+
   static GameRound _prepare(GameConfig config, Difficulty difficulty, int? count, String id, Random random) {
     if (count != null && (count < 1 || count > shopItemCombinationCount)) {
       throw ArgumentError.value(count, 'itemCount');
@@ -130,7 +134,9 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
 
   // These operations deliberately cannot change an active round.
   void pause() {}
+
   void clear() {}
+
   void reset() {
     if (isClosed || state.status == RoundStatus.playing) return;
     _engine.reset();

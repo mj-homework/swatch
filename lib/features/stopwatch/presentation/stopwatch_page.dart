@@ -13,16 +13,16 @@ import 'package:swatch/core/stopwatch/stopwatch_controller.dart';
 import 'package:swatch/core/stopwatch/time_source.dart';
 import 'package:swatch/core/widgets/analog_clock.dart';
 import 'package:swatch/core/widgets/layout_breakpoints.dart';
-import 'package:swatch/features/stopwatch/presentation/widgets/control_buttons.dart';
-import 'package:swatch/features/stopwatch/presentation/widgets/elapsed_time_display.dart';
-import 'package:swatch/features/stopwatch/presentation/widgets/lap_panel.dart';
+import 'package:swatch/features/stopwatch/presentation/pages/control_buttons.dart';
+import 'package:swatch/features/stopwatch/presentation/pages/elapsed_time_display.dart';
+import 'package:swatch/features/stopwatch/presentation/pages/lap_panel.dart';
 import 'package:swatch/core/services/sound_player.dart';
 
 /// Main screen. Owns the [StopwatchController] and the frame [Ticker].
 ///
 /// The controller only notifies on state changes. While running, a [Ticker]
 /// (synchronized with the display refresh rate) pushes the current elapsed
-/// time into [_elapsed]; only the widgets listening to it repaint, the rest
+/// time into [_elapsed]; only the pages listening to it repaint, the rest
 /// of the tree is not rebuilt on every frame.
 class StopwatchPage extends StatefulWidget {
   const StopwatchPage({super.key, this.timeSource, required this.sound});
