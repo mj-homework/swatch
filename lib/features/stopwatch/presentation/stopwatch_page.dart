@@ -74,16 +74,17 @@ class _StopwatchPageState extends State<StopwatchPage> with SingleTickerProvider
           padding: const EdgeInsets.all(16),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final shopwatch = _ShopwatchSection(
+              final stopwatch = _StopwatchSection(
                 controller: _controller,
                 elapsed: _elapsed,
               );
+
               final laps = LapPanel(controller: _controller);
 
               if (constraints.maxWidth >= wideLayoutBreakpoint) {
                 return Row(
                   children: [
-                    Expanded(flex: 3, child: shopwatch),
+                    Expanded(flex: 3, child: stopwatch),
                     const SizedBox(width: 24),
                     Expanded(flex: 2, child: laps),
                   ],
@@ -91,7 +92,7 @@ class _StopwatchPageState extends State<StopwatchPage> with SingleTickerProvider
               }
               return Column(
                 children: [
-                  Expanded(flex: 3, child: shopwatch),
+                  Expanded(flex: 3, child: stopwatch),
                   const SizedBox(height: 16),
                   Expanded(flex: 2, child: laps),
                 ],
@@ -104,8 +105,8 @@ class _StopwatchPageState extends State<StopwatchPage> with SingleTickerProvider
   }
 }
 
-class _ShopwatchSection extends StatelessWidget {
-  const _ShopwatchSection({required this.controller, required this.elapsed});
+class _StopwatchSection extends StatelessWidget {
+  const _StopwatchSection({required this.controller, required this.elapsed});
 
   final StopwatchController controller;
   final ValueListenable<Duration> elapsed;

@@ -13,14 +13,14 @@ Status: 🔧 = decided to fix · 🤔 = to think about / check
 
 ## Fix before submitting
 
-### 1. ✅ 🤔 The assignment is hard to find
+### ✅ 1. 🤔 The assignment is hard to find
 - `initialRoute` is `/shopwatch`, and the custom `onGenerateInitialRoutes` returns only that one route (`lib/app/app.dart:64–71`).
 - Shopwatch replaces the back button with a timer icon, so the landing page is never shown.
 - The Classic Stopwatch (what OTP grades) sits behind an unlabeled icon.
 - Option: start on `/` (landing page).
 
 
-### 2. ✅ 🔧 License headers → MIT
+### ✅ 2. 🔧 License headers → MIT
 Keep the MIT `LICENSE`. Replace every `All rights reserved` file header with:
 
 ```dart
@@ -45,7 +45,7 @@ Keep the MIT `LICENSE`. Replace every `All rights reserved` file header with:
 - ✅ remove Firebase and leaderboard
 - ✅ Option: remove, or move to a branch.
 
-### 5. ✅ 🔧 Use `package:swatch/...` imports everywhere
+### ✅ 5. 🔧 Use `package:swatch/...` imports everywhere
 Also fixes the wrong depth in `lib/features/shopwatch/domain/shopwatch_game_cubit.dart:7–8` (`../../../../core/...` should be `../../../`).
 
 Steps:
@@ -83,22 +83,22 @@ Fix: provide the cubit with `BlocProvider`, rebuild with `BlocBuilder` / `BlocLi
 - Contradicts the README's "only the time repaints".
 - Fix: rebuild the buttons on cubit state changes only.
 
-### 8. ✅ 🤔 Reset also clears the laps
+### ✅ 8. 🤔 Reset also clears the laps
 - `stopwatch_controller.dart:84`. Valid choice, but the spec has a separate Clear button.
 - Document the decision in the README.
 
-### 9. 🔧 Uneven formatting
+### ✅ 9. 🔧 Uneven formatting
 - Dense files: `shopwatch_dependencies.dart`, `pos_terminal_sheet.dart` (lines over 150 chars).
 - `shopwatch_strings.dart` starts with a BOM.
 - Fix: `dart format .` (remove the BOM by hand if needed).
 
-### 10. 🔧 Rename leftovers (Stopwatch → Shopwatch)
-- `_ShopwatchSection` in the *classic* `stopwatch_page.dart` → e.g. `_StopwatchSection`.
-- `test/core/stopwatch/shopwatch_controller_test.dart` tests `StopwatchController` → rename to `stopwatch_controller_test.dart`.
-- "shopwatch time" in doc comments of `lap.dart` and `analog_clock.dart`.
-- `ShopwatchStrings.clear` says "Empty cart", but `receipt_list.dart:140` hard-codes "Put it all back". Unused strings: `approved`, `finePrint`.
+### ✅ 10. 🔧 Rename leftovers (Stopwatch → Shopwatch)
+- ✅ `_ShopwatchSection` in the *classic* `stopwatch_page.dart` → e.g. `_StopwatchSection`.
+- ✅ `test/core/stopwatch/shopwatch_controller_test.dart` tests `StopwatchController` → rename to `stopwatch_controller_test.dart`.
+- ✅ "shopwatch time" in doc comments of `lap.dart` and `analog_clock.dart`.
+- ✅ `ShopwatchStrings.clear` says "Empty cart", but `receipt_list.dart:140` hard-codes "Put it all back". Unused strings: `approved`, `finePrint`.
 
-### 11. 🤔 Hard-coded text styles
+### ✅ 11. 🤔 Hard-coded text styles
 - `fontSize: 22` and `18` in `pos_terminal_sheet.dart`, `16` on the clock's digital display in `shopwatch_page.dart`.
 - They bypass the 0.9 theme scaling. Base them on `Theme.of(context).textTheme`.
 

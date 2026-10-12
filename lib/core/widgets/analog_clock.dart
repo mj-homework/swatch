@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 
 import 'package:swatch/core/widgets/swatch_keys.dart';
 
-/// Analog clock face showing the shopwatch's elapsed time.
+/// Analog clock face showing the stopwatch's elapsed time.
 ///
 /// * second hand: one revolution per minute
 /// * minute hand: one revolution per hour

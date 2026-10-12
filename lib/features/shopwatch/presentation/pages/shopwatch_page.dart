@@ -438,9 +438,9 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
                           text,
                           key: ShopwatchKeys.time,
                           semanticsLabel: showTime ? 'Item time $text' : 'Item time hidden',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontFeatures: [FontFeature.tabularFigures()],
+                          style: TextStyle(
+                            fontSize: Theme.of(context).textTheme.titleLarge?.fontSize,
+                            fontFeatures: const [FontFeature.tabularFigures()],
                           ),
                         ),
                       ),

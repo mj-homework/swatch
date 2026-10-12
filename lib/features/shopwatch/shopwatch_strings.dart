@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2026 Juhász Mátyás
  * SPDX-License-Identifier: MIT
  */
@@ -10,11 +10,9 @@ abstract final class ShopwatchStrings {
   static const pause = 'Coffee break';
   static const resume = 'Back to it';
   static const add = 'Add to cart';
-  static const clear = 'Empty cart';
+  static const clear = 'Put it all back';
   static const pay = 'Pay';
   static const empty = 'Your cart is empty.';
-  static const approved = 'Payment approved ✓';
-  static const finePrint = 'No money was harmed in this transaction.';
   static const gotIt = 'Got it';
   static const showHints = 'Show hints';
   static const hintsLabel = 'Hints';
@@ -24,13 +22,6 @@ abstract final class ShopwatchStrings {
   static const shopHintText = 'Tap to start with item number config; double-tap to start at once.';
   static const payHintTitle = 'Pay';
   static const payHintText = 'Tap to check out; double-tap to reset at once.';
-  static String mood(Duration elapsed, bool paused) {
-    if (paused) return 'Coffee break. Back in a minute.';
-    if (elapsed.inMinutes < 1) return 'Just browsing…';
-    if (elapsed.inMinutes < 5) return "Ooh, that's on sale.";
-    if (elapsed.inMinutes < 15) return 'Do we really need a third one?';
-    return 'The bag holder needs a bench.';
-  }
 }
 
 abstract final class ShopwatchStyle {

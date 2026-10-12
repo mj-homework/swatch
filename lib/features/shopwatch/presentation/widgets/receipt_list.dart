@@ -121,7 +121,8 @@ class ReceiptList extends StatelessWidget {
                                   children: [
                                     Text('goal ${formatElapsed(result.item.goal)}'),
                                     Text(
-                                        '${result.difference.isNegative ? '−' : '+'}${formatElapsed(result.difference.abs())}'),
+                                        '${result.difference.isNegative ? '−' : '+'}'
+                                        '${formatElapsed(result.difference.abs())}'),
                                   ],
                                 ),
                                 Text('got  ${formatElapsed(result.actual)}'),
@@ -140,7 +141,7 @@ class ReceiptList extends StatelessWidget {
                             key: ShopwatchKeys.clear,
                             onPressed: onClear,
                             icon: const Icon(Icons.delete_sweep_outlined),
-                            label: const Text('Put it all back'),
+                            label: const Text(ShopwatchStrings.clear),
                           ),
                         ],
                       ),

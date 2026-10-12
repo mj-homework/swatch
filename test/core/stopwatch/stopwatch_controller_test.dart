@@ -246,7 +246,7 @@ void main() {
       expect(controller.laps, isEmpty);
     });
 
-    test('clearLaps empties the list but keeps the shopwatch running', () {
+    test('clearLaps empties the list but keeps the stopwatch running', () {
       controller.start();
       time.advance(const Duration(seconds: 1));
       controller.lap();

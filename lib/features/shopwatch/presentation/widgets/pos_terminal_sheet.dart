@@ -41,7 +41,7 @@ Future<bool> showNothingToPay(BuildContext context) async =>
       builder: (context) => Padding(
         padding: const EdgeInsets.all(24),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text('Nothing to pay.', style: TextStyle(fontSize: 18)),
+          Text('Nothing to pay.', style: TextStyle(fontSize: Theme.of(context).textTheme.titleLarge?.fontSize)),
           const SizedBox(height: 16),
           Wrap(spacing: 12, children: [
             FilledButton(
@@ -130,7 +130,10 @@ class _PosTerminalSheetState extends State<PosTerminalSheet> with SingleTickerPr
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text('AVERAGE DIFF: ${formatElapsed(widget.averageDiff)}',
-                    style: const TextStyle(fontFamily: 'monospace', fontSize: 22)),
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: Theme.of(context).textTheme.titleMedium?.fontSize,
+                    )),
                 if (!_approved) ...[
                   IconButton(
                     onPressed: _approve,
