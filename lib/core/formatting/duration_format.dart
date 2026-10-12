@@ -1,5 +1,6 @@
 /*
- *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ * Copyright (c) 2026 Juhász Mátyás
+ * SPDX-License-Identifier: MIT
  */
 
 /// Formats a duration as `MM:SS.mmm` (minutes, seconds, milliseconds).

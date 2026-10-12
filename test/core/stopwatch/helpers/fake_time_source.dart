@@ -1,5 +1,6 @@
 /*
- *    Copyright (c) 2026 Juhász Mátyás. All rights reserved.
+ * Copyright (c) 2026 Juhász Mátyás
+ * SPDX-License-Identifier: MIT
  */
 
 import 'package:swatch/core/stopwatch/time_source.dart';
