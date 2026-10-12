@@ -36,8 +36,7 @@ class CheckoutSoundPlayer implements SoundPlayer {
   }
 
   @override
-  Future<void> playScan(Accuracy accuracy) =>
-      _playAsset(scanAssetForAccuracy(accuracy));
+  Future<void> playScan(Accuracy accuracy) => _playAsset(scanAssetForAccuracy(accuracy));
 
   Future<void> _playAsset(String asset) async {
     if (_disposed) return;

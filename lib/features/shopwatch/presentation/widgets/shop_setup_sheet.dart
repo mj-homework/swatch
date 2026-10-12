@@ -113,7 +113,8 @@ class _ShopSetupSheetState extends State<ShopSetupSheet> {
                 optionsViewOpenDirection: OptionsViewOpenDirection.up,
                 optionsBuilder: (value) {
                   final query = value.text.trim().toLowerCase();
-                  return _options.where((o) => query.isEmpty || query == _unlimited.toLowerCase() || o.toLowerCase().startsWith(query));
+                  return _options.where(
+                      (o) => query.isEmpty || query == _unlimited.toLowerCase() || o.toLowerCase().startsWith(query));
                 },
                 onSelected: (value) {
                   _cancelCountdown();

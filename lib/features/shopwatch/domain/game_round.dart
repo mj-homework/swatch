@@ -53,25 +53,17 @@ class GameRound {
   final RoundStatus status;
   bool get isEndless => limit == null;
   int get itemCount => limit ?? items.length;
-  Duration get totalError =>
-      results.fold(Duration.zero, (sum, r) => sum + r.difference.abs());
-  Duration get averageError => results.isEmpty
-      ? Duration.zero
-      : Duration(microseconds: totalError.inMicroseconds ~/ results.length);
+  Duration get totalError => results.fold(Duration.zero, (sum, r) => sum + r.difference.abs());
+  Duration get averageError =>
+      results.isEmpty ? Duration.zero : Duration(microseconds: totalError.inMicroseconds ~/ results.length);
 
   /// Click time of the last item on the continuous clock.
-  Duration get totalTime =>
-      results.isEmpty ? Duration.zero : results.last.actual;
+  Duration get totalTime => results.isEmpty ? Duration.zero : results.last.actual;
 
-  GameItem? get currentItem =>
-      results.length < items.length && results.length < goals.length
-          ? GameItem(items[results.length], goals[results.length])
-          : null;
-  GameRound copyWith(
-          {RoundStatus? status,
-          List<ItemResult>? results,
-          List<Duration>? goals,
-          List<ShopItem>? items}) =>
+  GameItem? get currentItem => results.length < items.length && results.length < goals.length
+      ? GameItem(items[results.length], goals[results.length])
+      : null;
+  GameRound copyWith({RoundStatus? status, List<ItemResult>? results, List<Duration>? goals, List<ShopItem>? items}) =>
       GameRound(
         config: config,
         difficulty: difficulty,

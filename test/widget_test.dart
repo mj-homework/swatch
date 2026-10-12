@@ -20,8 +20,7 @@ void main() {
     expect(find.text('Shopwatch'), findsOneWidget);
   });
 
-  testWidgets('app bar About action shows the copyright notice',
-      (tester) async {
+  testWidgets('app bar About action shows the copyright notice', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);

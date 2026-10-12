@@ -82,10 +82,7 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
               child: ValueListenableBuilder<bool>(
                 valueListenable: _shopEnabled,
                 builder: (context, enabled, _) => IconButton.filled(
-                  onPressed: enabled
-                      ? () =>
-                          Navigator.of(context).pushNamed(AppRoutes.stopwatch)
-                      : null,
+                  onPressed: enabled ? () => Navigator.of(context).pushNamed(AppRoutes.stopwatch) : null,
                   style: IconButton.styleFrom(
                     foregroundColor: Theme.of(context).scaffoldBackgroundColor,
                   ),
@@ -100,12 +97,11 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
               IconButton(
                   tooltip: 'About Shopwatch',
                   onPressed: () => showAboutDialog(
-                    context: context,
-                    applicationName: 'Shopwatch',
-                    applicationLegalese:
-                        'Copyright 2026 Juhász Mátyás (gatsby82)\n'
-                        'Licensed under the MIT License.',
-                  ),
+                        context: context,
+                        applicationName: 'Shopwatch',
+                        applicationLegalese: 'Copyright 2026 Juhász Mátyás (gatsby82)\n'
+                            'Licensed under the MIT License.',
+                      ),
                   icon: const Icon(Icons.info_outline)),
               IconButton(
                   key: ShopwatchKeys.mute,
@@ -188,8 +184,7 @@ class _ShopwatchControls extends StatefulWidget {
   State<_ShopwatchControls> createState() => _ShopwatchControlsState();
 }
 
-class _ShopwatchControlsState extends State<_ShopwatchControls>
-    with SingleTickerProviderStateMixin {
+class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTickerProviderStateMixin {
   late final Ticker _ticker;
   ShopwatchGameCubit? _game;
   StreamSubscription<GameRound>? _gameSubscription;
@@ -203,9 +198,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
 
   ShopwatchDependencies get dependencies => widget.dependencies;
 
-  bool get canShop =>
-      !checkingOut &&
-      (_game == null || _game!.state.status == RoundStatus.ready);
+  bool get canShop => !checkingOut && (_game == null || _game!.state.status == RoundStatus.ready);
 
   @override
   void initState() {
@@ -354,24 +347,20 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
                     final round = _game?.state;
                     final showTime = round == null ||
                         round.difficulty == Difficulty.easy ||
-                        (round.difficulty == Difficulty.normal &&
-                            value < round.config.normalHideAfter);
+                        (round.difficulty == Difficulty.normal && value < round.config.normalHideAfter);
                     final text = showTime ? formatElapsed(value) : '--:--.---';
                     final colors = Theme.of(context).colorScheme;
                     return DecoratedBox(
                       decoration: ShapeDecoration(
                         color: Colors.white,
-                        shape: StadiumBorder(
-                            side: BorderSide(color: colors.outlineVariant)),
+                        shape: StadiumBorder(side: BorderSide(color: colors.outlineVariant)),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 4),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                         child: Text(
                           text,
                           key: ShopwatchKeys.time,
-                          semanticsLabel:
-                              showTime ? 'Item time $text' : 'Item time hidden',
+                          semanticsLabel: showTime ? 'Item time $text' : 'Item time hidden',
                           style: const TextStyle(
                             fontSize: 16,
                             fontFeatures: [FontFeature.tabularFigures()],
@@ -384,12 +373,10 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
               );
 
           Widget goalBox() => Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: ShapeDecoration(
                   shape: StadiumBorder(
-                    side: BorderSide(
-                        color: Theme.of(context).colorScheme.secondary),
+                    side: BorderSide(color: Theme.of(context).colorScheme.secondary),
                   ),
                 ),
                 child: Column(
@@ -415,12 +402,8 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
                           const SizedBox(width: 8),
                           Text(
                             formatElapsed(item.goal),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.secondary,
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
@@ -446,21 +429,14 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
                   final round = _game?.state;
                   return ShoppingControls(
                     start: canShop ? _shop : null,
-                    onDoubleStart:
-                        canShop ? () => _shop(skipSetup: true) : null,
-                    pause: !checkingOut && round?.status == RoundStatus.playing
-                        ? _togglePause
-                        : null,
+                    onDoubleStart: canShop ? () => _shop(skipSetup: true) : null,
+                    pause: !checkingOut && round?.status == RoundStatus.playing ? _togglePause : null,
                     paused: _game?.isPaused ?? false,
-                    add: !checkingOut &&
-                            round?.status == RoundStatus.playing &&
-                            !(_game?.isPaused ?? false)
+                    add: !checkingOut && round?.status == RoundStatus.playing && !(_game?.isPaused ?? false)
                         ? _addToCart
                         : null,
                     pay: !checkingOut && _game != null ? _checkoutGame : null,
-                    onDoublePay: !checkingOut && _game != null
-                        ? () => unawaited(_endRound())
-                        : null,
+                    onDoublePay: !checkingOut && _game != null ? () => unawaited(_endRound()) : null,
                   );
                 },
               );
@@ -489,10 +465,9 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
             children: [
               Flexible(
                 child: ConstrainedBox(
-                  constraints:
-                      MediaQuery.sizeOf(context).width < wideLayoutBreakpoint
-                          ? const BoxConstraints()
-                          : const BoxConstraints(maxWidth: 640, maxHeight: 640),
+                  constraints: MediaQuery.sizeOf(context).width < wideLayoutBreakpoint
+                      ? const BoxConstraints()
+                      : const BoxConstraints(maxWidth: 640, maxHeight: 640),
                   child: AspectRatio(aspectRatio: 1, child: clockFace()),
                 ),
               ),
@@ -562,9 +537,7 @@ class _ShopwatchReceiptState extends State<_ShopwatchReceipt> {
                     ? const ReceiptList(showClear: true)
                     : ReceiptList(
                         showClear: true,
-                        onClear: !widget.checkingOut && round.results.isNotEmpty
-                            ? widget.onClear
-                            : null,
+                        onClear: !widget.checkingOut && round.results.isNotEmpty ? widget.onClear : null,
                         results: round.results,
                         total: round.totalTime,
                         showTotal: round.status == RoundStatus.finished,

@@ -16,8 +16,7 @@ import '../../core/stopwatch/helpers/fake_time_source.dart';
 import 'fakes.dart';
 
 void main() {
-  testWidgets('Add to cart plays a scan sound for each result accuracy',
-      (tester) async {
+  testWidgets('Add to cart plays a scan sound for each result accuracy', (tester) async {
     tester.view.physicalSize = const Size(2400, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -62,14 +61,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 16));
     await tester.tap(find.byKey(ShopwatchKeys.add));
     await tester.pump();
-    expect(sound.scanAccuracies,
-        [Accuracy.perfect, Accuracy.close, Accuracy.fair]);
+    expect(sound.scanAccuracies, [Accuracy.perfect, Accuracy.close, Accuracy.fair]);
 
     time.advance(const Duration(milliseconds: 1751));
     await tester.pump(const Duration(milliseconds: 16));
     await tester.tap(find.byKey(ShopwatchKeys.add));
     await tester.pump();
-    expect(sound.scanAccuracies,
-        [Accuracy.perfect, Accuracy.close, Accuracy.fair, Accuracy.missed]);
+    expect(sound.scanAccuracies, [Accuracy.perfect, Accuracy.close, Accuracy.fair, Accuracy.missed]);
   });
 }

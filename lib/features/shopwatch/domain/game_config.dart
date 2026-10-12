@@ -31,14 +31,7 @@ class GameConfig {
 
   /// The first goal is in [minGoal, maxGoal] from the start; every next goal is
   /// the previous click time plus a gap in [minGap, maxGap].
-  final Duration minGoal,
-      maxGoal,
-      minGap,
-      maxGap,
-      normalHideAfter,
-      perfect,
-      close,
-      fair;
+  final Duration minGoal, maxGoal, minGap, maxGap, normalHideAfter, perfect, close, fair;
   Accuracy accuracy(Duration error) {
     final absolute = error.abs();
     if (absolute <= perfect) return Accuracy.perfect;

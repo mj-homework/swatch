@@ -27,8 +27,7 @@ class AppRouter {
     TimeSource? timeSource,
     ShopwatchDependencies? dependencies,
   }) {
-    final services =
-        dependencies ?? ShopwatchDependencies(timeSource: timeSource);
+    final services = dependencies ?? ShopwatchDependencies(timeSource: timeSource);
     final Widget page = switch (settings.name) {
       AppRoutes.stopwatch => StopwatchPage(timeSource: timeSource),
       AppRoutes.shopwatch => ShopwatchPage(dependencies: services),

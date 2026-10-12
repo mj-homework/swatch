@@ -33,8 +33,7 @@ void main() {
     expect(doubleCalls, 1);
   });
 
-  testWidgets('single-tap runs the primary action after the double-tap window',
-      (tester) async {
+  testWidgets('single-tap runs the primary action after the double-tap window', (tester) async {
     var primaryCalls = 0;
     var doubleCalls = 0;
 

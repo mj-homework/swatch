@@ -42,9 +42,10 @@ Keep the MIT `LICENSE`. Replace every `All rights reserved` file header with:
 - ✅ `GamePage` and the `/shopwatch/game`, `/shopwatch/game/play` routes: nothing navigates there (only a test uses `GamePage`).
 - Cubit: no-op `pause()` / `clear()`, unused `resetClock()`.
   - Latent bug: after `resetClock()`, `emptyCart()` calls `togglePause()` on an idle engine → round says "playing" but the clock is stopped.
-- Option: remove, or move to a branch.
+- ✅ remove Firebase and leaderboard
+- ✅ Option: remove, or move to a branch.
 
-### 5. 🔧 Use `package:swatch/...` imports everywhere
+### 5. 🔧 Use `package:swatch/...` imports everywhere ✅
 Also fixes the wrong depth in `lib/features/shopwatch/domain/shopwatch_game_cubit.dart:7–8` (`../../../../core/...` should be `../../../`).
 
 Steps:

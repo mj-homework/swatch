@@ -70,7 +70,8 @@ class SwatchApp extends StatelessWidget {
           dependencies: dependencies,
         ),
       ],
-      onGenerateRoute: (settings) => AppRouter.onGenerateRoute(settings, timeSource: timeSource, dependencies: dependencies),
+      onGenerateRoute: (settings) =>
+          AppRouter.onGenerateRoute(settings, timeSource: timeSource, dependencies: dependencies),
     );
   }
 }

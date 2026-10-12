@@ -73,9 +73,7 @@ class ShoppingControls extends StatelessWidget {
           _button(
             key: ShopwatchKeys.pause,
             title: paused ? ShopwatchStrings.resume : ShopwatchStrings.pause,
-            icon: paused
-                ? Icons.shopping_cart_checkout
-                : Icons.storefront_outlined,
+            icon: paused ? Icons.shopping_cart_checkout : Icons.storefront_outlined,
             onPressed: pause,
             onDoublePressed: onDoublePause,
           ),

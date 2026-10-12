@@ -11,9 +11,14 @@ import 'package:swatch/features/shopwatch/services/sound_player.dart';
 
 /// App-scoped services; pages own the sound players produced by the factory.
 class ShopwatchDependencies {
-  ShopwatchDependencies({this.timeSource, Random? random, GameConfig? config,
-    SoundPlayer Function()? soundFactory, Future<void> Function()? haptic})
-      : random = random ?? Random(), config = config ?? GameConfig(),
+  ShopwatchDependencies(
+      {this.timeSource,
+      Random? random,
+      GameConfig? config,
+      SoundPlayer Function()? soundFactory,
+      Future<void> Function()? haptic})
+      : random = random ?? Random(),
+        config = config ?? GameConfig(),
         soundFactory = soundFactory ?? CheckoutSoundPlayer.new,
         haptic = haptic ?? HapticFeedback.mediumImpact;
   final TimeSource? timeSource;

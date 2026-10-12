@@ -8,8 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:swatch/core/widgets/analog_clock.dart';
 
 void main() {
-  testWidgets('digital display updates over the analog clock face',
-      (tester) async {
+  testWidgets('digital display updates over the analog clock face', (tester) async {
     final elapsed = ValueNotifier(Duration.zero);
     addTearDown(elapsed.dispose);
 

@@ -46,7 +46,8 @@ class ReceiptList extends StatelessWidget {
     final game = results;
     final averageDiff = game == null || game.isEmpty
         ? null
-        : Duration(microseconds: game.fold(Duration.zero, (sum, r) => sum + r.difference.abs()).inMicroseconds ~/ game.length);
+        : Duration(
+            microseconds: game.fold(Duration.zero, (sum, r) => sum + r.difference.abs()).inMicroseconds ~/ game.length);
 
     lastRow() {
       final itemsText = Text('${game?.length ?? laps.length} items');
@@ -119,7 +120,8 @@ class ReceiptList extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text('goal ${formatElapsed(result.item.goal)}'),
-                                    Text('${result.difference.isNegative ? '−' : '+'}${formatElapsed(result.difference.abs())}'),
+                                    Text(
+                                        '${result.difference.isNegative ? '−' : '+'}${formatElapsed(result.difference.abs())}'),
                                   ],
                                 ),
                                 Text('got  ${formatElapsed(result.actual)}'),
@@ -153,7 +155,8 @@ class _DashedRule extends StatelessWidget {
   const _DashedRule();
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(builder: (_, c) => Text('-' * (c.maxWidth / 9).floor(), maxLines: 1));
+  Widget build(BuildContext context) =>
+      LayoutBuilder(builder: (_, c) => Text('-' * (c.maxWidth / 9).floor(), maxLines: 1));
 }
 
 class _TornEdge extends CustomClipper<Path> {

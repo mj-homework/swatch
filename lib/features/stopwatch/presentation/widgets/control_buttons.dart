@@ -24,9 +24,8 @@ class ControlButtons extends StatelessWidget {
       builder: (context, _) {
         final running = controller.isRunning;
         final paused = controller.isPaused;
-        final hasSomethingToReset = !controller.isIdle ||
-            controller.elapsed > Duration.zero ||
-            controller.laps.isNotEmpty;
+        final hasSomethingToReset =
+            !controller.isIdle || controller.elapsed > Duration.zero || controller.laps.isNotEmpty;
 
         return Wrap(
           alignment: WrapAlignment.center,

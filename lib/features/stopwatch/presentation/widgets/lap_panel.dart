@@ -141,9 +141,9 @@ class _LapRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final base = Theme.of(context).textTheme.bodyLarge?.copyWith(
-          fontFeatures: const [FontFeature.tabularFigures()],
-          color: highlight,
-        );
+      fontFeatures: const [FontFeature.tabularFigures()],
+      color: highlight,
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(

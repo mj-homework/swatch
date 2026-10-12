@@ -20,15 +20,13 @@ class LandingPage extends StatelessWidget {
             final stopwatch = _FeatureButton(
               icon: Icons.timer_outlined,
               label: 'Stopwatch',
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(AppRoutes.stopwatch),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.stopwatch),
               primary: true,
             );
             final shopwatch = _FeatureButton(
               icon: Icons.shopping_cart_outlined,
               label: 'Shopwatch',
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(AppRoutes.shopwatch),
+              onPressed: () => Navigator.of(context).pushNamed(AppRoutes.shopwatch),
             );
 
             return Padding(
@@ -72,10 +70,7 @@ List<Widget> _buildFeatureChildren({
 
   return [
     squareButton(stopwatch),
-    if (landscape)
-      const VerticalDivider(width: 1, thickness: 1)
-    else
-      const Divider(height: 1, thickness: 1),
+    if (landscape) const VerticalDivider(width: 1, thickness: 1) else const Divider(height: 1, thickness: 1),
     squareButton(shopwatch),
   ];
 }

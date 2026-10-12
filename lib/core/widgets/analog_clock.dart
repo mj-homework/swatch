@@ -62,8 +62,7 @@ class _AnalogClockState extends State<AnalogClock> {
   @override
   void didUpdateWidget(AnalogClock oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.isRunning != widget.isRunning ||
-        oldWidget.muted != widget.muted) {
+    if (oldWidget.isRunning != widget.isRunning || oldWidget.muted != widget.muted) {
       unawaited(_syncTicking());
     }
   }
@@ -97,10 +96,7 @@ class _AnalogClockState extends State<AnalogClock> {
         ),
         iOS: AudioContextIOS(category: AVAudioSessionCategory.ambient),
       ));
-      if (!mounted ||
-          request != _playbackRequest ||
-          !widget.isRunning ||
-          widget.muted) {
+      if (!mounted || request != _playbackRequest || !widget.isRunning || widget.muted) {
         return;
       }
       await activePlayer.play(
@@ -141,9 +137,7 @@ class _AnalogClockState extends State<AnalogClock> {
               painter: AnalogClockPainter(
                 elapsed: widget.elapsed,
                 colors: Theme.of(context).colorScheme,
-                goalSec: widget.goalSec == null
-                    ? null
-                    : widget.goalSec!.inMicroseconds / 1e6,
+                goalSec: widget.goalSec == null ? null : widget.goalSec!.inMicroseconds / 1e6,
               ),
               size: Size.infinite,
             ),
@@ -165,9 +159,7 @@ class _AnalogClockState extends State<AnalogClock> {
                 painter: AnalogClockPainter(
                   elapsed: widget.elapsed,
                   colors: Theme.of(context).colorScheme,
-                  goalSec: widget.goalSec == null
-                      ? null
-                      : widget.goalSec!.inMicroseconds / 1e6,
+                  goalSec: widget.goalSec == null ? null : widget.goalSec!.inMicroseconds / 1e6,
                   handsOnly: true,
                 ),
                 size: Size.infinite,
@@ -192,11 +184,7 @@ class _AnalogClockState extends State<AnalogClock> {
 }
 
 class AnalogClockPainter extends CustomPainter {
-  AnalogClockPainter(
-      {required this.elapsed,
-      required this.colors,
-      this.goalSec,
-      this.handsOnly = false})
+  AnalogClockPainter({required this.elapsed, required this.colors, this.goalSec, this.handsOnly = false})
       : super(repaint: elapsed);
 
   final ValueListenable<Duration> elapsed;
@@ -291,8 +279,7 @@ class AnalogClockPainter extends CustomPainter {
     }
   }
 
-  void _paintGoalTick(
-      Canvas canvas, Offset center, double radius, double goalSec) {
+  void _paintGoalTick(Canvas canvas, Offset center, double radius, double goalSec) {
     final goal = Paint()
       ..color = colors.secondary
       ..strokeWidth = radius * 0.015

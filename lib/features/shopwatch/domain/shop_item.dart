@@ -114,8 +114,7 @@ const itemNames = [
 
 const minPieces = 1;
 const maxPieces = 5;
-final shopItemCombinationCount =
-    itemProperties.length * itemNames.length * (maxPieces - minPieces + 1);
+final shopItemCombinationCount = itemProperties.length * itemNames.length * (maxPieces - minPieces + 1);
 
 class ShopItem {
   const ShopItem(this.property, this.name, this.pieces);
@@ -127,13 +126,9 @@ class ShopItem {
   // String get receiptLabel => '${'$property $name'.toUpperCase()} ×$pieces';
   String get receiptLabel => '$property $name'.toUpperCase();
 
-
   @override
   bool operator ==(Object other) =>
-      other is ShopItem &&
-      other.property == property &&
-      other.name == name &&
-      other.pieces == pieces;
+      other is ShopItem && other.property == property && other.name == name && other.pieces == pieces;
 
   @override
   int get hashCode => Object.hash(property, name, pieces);

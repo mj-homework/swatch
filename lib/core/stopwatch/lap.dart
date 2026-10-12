@@ -25,15 +25,11 @@ class Lap {
 
   @override
   bool operator ==(Object other) =>
-      other is Lap &&
-      other.number == number &&
-      other.lapTime == lapTime &&
-      other.splitTime == splitTime;
+      other is Lap && other.number == number && other.lapTime == lapTime && other.splitTime == splitTime;
 
   @override
   int get hashCode => Object.hash(number, lapTime, splitTime);
 
   @override
-  String toString() =>
-      'Lap(#$number, lap: $lapTime, split: $splitTime)';
+  String toString() => 'Lap(#$number, lap: $lapTime, split: $splitTime)';
 }

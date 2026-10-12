@@ -46,6 +46,5 @@ class _MoodLineState extends State<MoodLine> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      Text(_text, textAlign: TextAlign.center);
+  Widget build(BuildContext context) => Text(_text, textAlign: TextAlign.center);
 }

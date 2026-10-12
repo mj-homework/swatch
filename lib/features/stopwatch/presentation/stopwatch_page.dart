@@ -30,10 +30,8 @@ class StopwatchPage extends StatefulWidget {
   State<StopwatchPage> createState() => _StopwatchPageState();
 }
 
-class _StopwatchPageState extends State<StopwatchPage>
-    with SingleTickerProviderStateMixin {
-  late final StopwatchController _controller =
-      StopwatchController(timeSource: widget.timeSource);
+class _StopwatchPageState extends State<StopwatchPage> with SingleTickerProviderStateMixin {
+  late final StopwatchController _controller = StopwatchController(timeSource: widget.timeSource);
   final ValueNotifier<Duration> _elapsed = ValueNotifier(Duration.zero);
   late final Ticker _ticker;
   @override

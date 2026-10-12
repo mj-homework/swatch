@@ -10,9 +10,17 @@ class FakeSound implements SoundPlayer {
   int plays = 0, disposals = 0;
   final scanAccuracies = <Accuracy>[];
   @override
-  Future<void> playCheckoutBeep() async { plays++; }
+  Future<void> playCheckoutBeep() async {
+    plays++;
+  }
+
   @override
-  Future<void> playScan(Accuracy accuracy) async { scanAccuracies.add(accuracy); }
+  Future<void> playScan(Accuracy accuracy) async {
+    scanAccuracies.add(accuracy);
+  }
+
   @override
-  Future<void> dispose() async { disposals++; }
+  Future<void> dispose() async {
+    disposals++;
+  }
 }

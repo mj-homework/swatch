@@ -17,8 +17,7 @@ void main() {
 
   setUp(() => time = FakeTimeSource());
 
-  Future<void> pumpApp(WidgetTester tester) =>
-      tester.pumpWidget(MaterialApp(home: StopwatchPage(timeSource: time)));
+  Future<void> pumpApp(WidgetTester tester) => tester.pumpWidget(MaterialApp(home: StopwatchPage(timeSource: time)));
 
   /// Advances the fake clock and lets the ticker render one frame.
   Future<void> elapse(WidgetTester tester, Duration d) async {
@@ -31,14 +30,11 @@ void main() {
     await tester.pump();
   }
 
-  String displayedTime(WidgetTester tester) =>
-      tester.widget<Text>(find.byKey(SwatchKeys.elapsedText)).data!;
+  String displayedTime(WidgetTester tester) => tester.widget<Text>(find.byKey(SwatchKeys.elapsedText)).data!;
 
-  bool isEnabled(WidgetTester tester, Key key) =>
-      tester.widget<ButtonStyleButton>(find.byKey(key)).onPressed != null;
+  bool isEnabled(WidgetTester tester, Key key) => tester.widget<ButtonStyleButton>(find.byKey(key)).onPressed != null;
 
-  testWidgets('initial UI shows zero, clock and correct button states',
-      (tester) async {
+  testWidgets('initial UI shows zero, clock and correct button states', (tester) async {
     await pumpApp(tester);
 
     expect(displayedTime(tester), '00:00.000');
@@ -52,8 +48,7 @@ void main() {
     expect(isEnabled(tester, SwatchKeys.clearLapsButton), isFalse);
   });
 
-  testWidgets('start → pause → resume → reset updates the display',
-      (tester) async {
+  testWidgets('start → pause → resume → reset updates the display', (tester) async {
     await pumpApp(tester);
 
     await tap(tester, SwatchKeys.startButton);
@@ -79,8 +74,7 @@ void main() {
     expect(isEnabled(tester, SwatchKeys.resetButton), isFalse);
   });
 
-  testWidgets('display keeps updating in real time while running',
-      (tester) async {
+  testWidgets('display keeps updating in real time while running', (tester) async {
     await pumpApp(tester);
     await tap(tester, SwatchKeys.startButton);
 
@@ -98,8 +92,7 @@ void main() {
     ]);
   });
 
-  testWidgets('tapping start repeatedly does not disturb the measurement',
-      (tester) async {
+  testWidgets('tapping start repeatedly does not disturb the measurement', (tester) async {
     await pumpApp(tester);
 
     await tap(tester, SwatchKeys.startButton);
@@ -112,8 +105,7 @@ void main() {
     expect(displayedTime(tester), '00:02.000');
   });
 
-  testWidgets('laps are recorded, listed newest first and cleared',
-      (tester) async {
+  testWidgets('laps are recorded, listed newest first and cleared', (tester) async {
     await pumpApp(tester);
     final lapList = find.byKey(SwatchKeys.lapList);
 
@@ -124,15 +116,11 @@ void main() {
     await tap(tester, SwatchKeys.lapButton);
 
     expect(find.text('Laps (2)'), findsOneWidget);
-    expect(find.descendant(of: lapList, matching: find.text('Lap 1')),
-        findsOneWidget);
-    expect(find.descendant(of: lapList, matching: find.text('Lap 2')),
-        findsOneWidget);
+    expect(find.descendant(of: lapList, matching: find.text('Lap 1')), findsOneWidget);
+    expect(find.descendant(of: lapList, matching: find.text('Lap 2')), findsOneWidget);
     // Lap 2: lap time 3 s, total 5 s.
-    expect(find.descendant(of: lapList, matching: find.text('00:03.000')),
-        findsOneWidget);
-    expect(find.descendant(of: lapList, matching: find.text('00:05.000')),
-        findsOneWidget);
+    expect(find.descendant(of: lapList, matching: find.text('00:03.000')), findsOneWidget);
+    expect(find.descendant(of: lapList, matching: find.text('00:05.000')), findsOneWidget);
     // Newest on top.
     expect(
       tester.getTopLeft(find.text('Lap 2')).dy,

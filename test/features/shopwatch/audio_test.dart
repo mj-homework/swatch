@@ -14,9 +14,7 @@ import '../../../tool/generate_beep.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test(
-      'original WAV is reproducible, mono PCM, 260 ms and bounded with silence',
-      () {
+  test('original WAV is reproducible, mono PCM, 260 ms and bounded with silence', () {
     final bytes = generateBeep();
     final data = ByteData.sublistView(bytes);
     expect(bytes, File('assets/sounds/pos_beep.wav').readAsBytesSync());
@@ -27,8 +25,7 @@ void main() {
     expect(data.getUint16(34, Endian.little), 16);
     expect((bytes.length - 44) / 2 / 44100, closeTo(.26, .00001));
     for (var offset = 44; offset < bytes.length; offset += 2) {
-      expect(
-          data.getInt16(offset, Endian.little).abs(), lessThanOrEqualTo(6500));
+      expect(data.getInt16(offset, Endian.little).abs(), lessThanOrEqualTo(6500));
     }
     expect(data.getInt16(44 + 5292 * 2, Endian.little), 0);
   });

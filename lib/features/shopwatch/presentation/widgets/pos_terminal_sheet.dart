@@ -45,9 +45,13 @@ Future<bool> showNothingToPay(BuildContext context) async =>
           const SizedBox(height: 16),
           Wrap(spacing: 12, children: [
             FilledButton(
-                key: ShopwatchKeys.cancelShopping, onPressed: () => Navigator.of(context).pop(true), child: const Text('Checkout anyway')),
+                key: ShopwatchKeys.cancelShopping,
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Checkout anyway')),
             OutlinedButton(
-                key: ShopwatchKeys.continueShopping, onPressed: () => Navigator.of(context).pop(false), child: const Text('Continue')),
+                key: ShopwatchKeys.continueShopping,
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Continue')),
           ]),
           const SizedBox(height: 32),
         ]),
@@ -125,7 +129,8 @@ class _PosTerminalSheetState extends State<PosTerminalSheet> with SingleTickerPr
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('AVERAGE DIFF: ${formatElapsed(widget.averageDiff)}', style: const TextStyle(fontFamily: 'monospace', fontSize: 22)),
+                Text('AVERAGE DIFF: ${formatElapsed(widget.averageDiff)}',
+                    style: const TextStyle(fontFamily: 'monospace', fontSize: 22)),
                 if (!_approved) ...[
                   IconButton(
                     onPressed: _approve,

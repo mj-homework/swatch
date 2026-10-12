@@ -23,8 +23,7 @@ enum StopwatchStatus { idle, running, paused }
 /// Listeners are notified on state changes only (start, pause, lap, ...),
 /// not on every tick. The UI decides how often it wants to repaint.
 class StopwatchController extends ChangeNotifier {
-  StopwatchController({TimeSource? timeSource})
-      : _timeSource = timeSource ?? MonotonicTimeSource();
+  StopwatchController({TimeSource? timeSource}) : _timeSource = timeSource ?? MonotonicTimeSource();
 
   final TimeSource _timeSource;
 
@@ -40,9 +39,7 @@ class StopwatchController extends ChangeNotifier {
   bool get isPaused => _status == StopwatchStatus.paused;
 
   /// Current elapsed time.
-  Duration get elapsed => isRunning
-      ? _accumulated + (_timeSource.now() - _runStartedAt)
-      : _accumulated;
+  Duration get elapsed => isRunning ? _accumulated + (_timeSource.now() - _runStartedAt) : _accumulated;
 
   /// Recorded laps in chronological order (oldest first).
   UnmodifiableListView<Lap> get laps => UnmodifiableListView(_laps);
