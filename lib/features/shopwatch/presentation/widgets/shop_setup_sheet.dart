@@ -119,7 +119,7 @@ class _ShopSetupSheetState extends State<ShopSetupSheet> {
                   focusNode: focusNode,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    labelText: 'Items',
+                    labelText: 'Items to collect',
                     helperText: 'Unlimited or 1-${widget.maxItems}',
                     errorText: _valid ? null : 'Enter 1-${widget.maxItems}',
                   ),
