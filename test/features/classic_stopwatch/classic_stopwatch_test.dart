@@ -10,14 +10,20 @@ import 'package:swatch/features/stopwatch/presentation/stopwatch_page.dart';
 import 'package:swatch/core/widgets/analog_clock.dart';
 
 import '../../core/stopwatch/helpers/fake_time_source.dart';
+import '../shopwatch/fakes.dart';
 
 /// Test case 4 – widget tests simulating user interaction.
 void main() {
   late FakeTimeSource time;
+  late FakeSound sound;
 
-  setUp(() => time = FakeTimeSource());
+  setUp(() {
+    time = FakeTimeSource();
+    sound = FakeSound();
+  });
 
-  Future<void> pumpApp(WidgetTester tester) => tester.pumpWidget(MaterialApp(home: StopwatchPage(timeSource: time)));
+  Future<void> pumpApp(WidgetTester tester) =>
+      tester.pumpWidget(MaterialApp(home: StopwatchPage(timeSource: time, sound: sound)));
 
   /// Advances the fake clock and lets the ticker render one frame.
   Future<void> elapse(WidgetTester tester, Duration d) async {
@@ -52,26 +58,44 @@ void main() {
     await pumpApp(tester);
 
     await tap(tester, SwatchKeys.startButton);
+    expect(sound.ticking, isTrue);
     await elapse(tester, const Duration(seconds: 1, milliseconds: 250));
     expect(displayedTime(tester), '00:01.250');
     expect(isEnabled(tester, SwatchKeys.startButton), isFalse);
 
     await tap(tester, SwatchKeys.pauseButton);
+    expect(sound.ticking, isFalse);
     expect(find.text('Resume'), findsOneWidget);
     await elapse(tester, const Duration(seconds: 5));
     expect(displayedTime(tester), '00:01.250');
 
     await tap(tester, SwatchKeys.pauseButton); // resume
+    expect(sound.ticking, isTrue);
     expect(find.text('Pause'), findsOneWidget);
     await elapse(tester, const Duration(milliseconds: 500));
     expect(displayedTime(tester), '00:01.750');
 
     await tap(tester, SwatchKeys.resetButton);
+    expect(sound.ticking, isFalse);
     expect(displayedTime(tester), '00:00.000');
     await elapse(tester, const Duration(seconds: 3));
     expect(displayedTime(tester), '00:00.000');
     expect(isEnabled(tester, SwatchKeys.startButton), isTrue);
     expect(isEnabled(tester, SwatchKeys.resetButton), isFalse);
+  });
+
+  testWidgets('mute stops ticking and unmute resumes it while running', (tester) async {
+    await pumpApp(tester);
+    await tap(tester, SwatchKeys.startButton);
+    expect(sound.ticking, isTrue);
+
+    await tester.tap(find.byTooltip('Mute sounds'));
+    await tester.pump();
+    expect(sound.ticking, isFalse);
+
+    await tester.tap(find.byTooltip('Unmute sounds'));
+    await tester.pump();
+    expect(sound.ticking, isTrue);
   });
 
   testWidgets('display keeps updating in real time while running', (tester) async {

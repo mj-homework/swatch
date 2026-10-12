@@ -16,6 +16,35 @@ import '../../core/stopwatch/helpers/fake_time_source.dart';
 import 'fakes.dart';
 
 void main() {
+  testWidgets('mute stops Shopwatch ticking and unmute resumes it', (tester) async {
+    tester.view.physicalSize = const Size(2400, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final sound = FakeSound();
+    final dependencies = ShopwatchDependencies(
+      random: Random(1),
+      timeSource: FakeTimeSource(),
+      soundFactory: () => sound,
+      hintsStore: FakeHintsSeenStore(),
+    );
+    await tester.pumpWidget(MaterialApp(home: ShopwatchPage(dependencies: dependencies)));
+
+    await tester.tap(find.byKey(ShopwatchKeys.start));
+    await tester.tap(find.byKey(ShopwatchKeys.start));
+    await tester.pump();
+    expect(sound.ticking, isTrue);
+
+    await tester.tap(find.byKey(ShopwatchKeys.mute));
+    await tester.pump();
+    expect(sound.ticking, isFalse);
+
+    await tester.tap(find.byKey(ShopwatchKeys.mute));
+    await tester.pump();
+    expect(sound.ticking, isTrue);
+  });
+
   testWidgets('Add to cart plays a scan sound for each result accuracy', (tester) async {
     tester.view.physicalSize = const Size(2400, 1400);
     tester.view.devicePixelRatio = 1;

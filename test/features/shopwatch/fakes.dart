@@ -5,7 +5,7 @@
 
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/services/hints_seen_store.dart';
-import 'package:swatch/features/shopwatch/services/sound_player.dart';
+import 'package:swatch/core/services/sound_player.dart';
 
 class FakeHintsSeenStore implements HintsSeenStore {
   FakeHintsSeenStore({this.seen = true});
@@ -24,7 +24,8 @@ class FakeHintsSeenStore implements HintsSeenStore {
 }
 
 class FakeSound implements SoundPlayer {
-  int plays = 0, disposals = 0;
+  int plays = 0, disposals = 0, tickingStarts = 0, tickingStops = 0;
+  bool ticking = false;
   final scanAccuracies = <Accuracy>[];
   @override
   Future<void> playCheckoutBeep() async {
@@ -37,7 +38,20 @@ class FakeSound implements SoundPlayer {
   }
 
   @override
+  Future<void> startTicking() async {
+    tickingStarts++;
+    ticking = true;
+  }
+
+  @override
+  Future<void> stopTicking() async {
+    tickingStops++;
+    ticking = false;
+  }
+
+  @override
   Future<void> dispose() async {
     disposals++;
+    ticking = false;
   }
 }

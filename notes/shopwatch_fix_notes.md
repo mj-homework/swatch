@@ -32,7 +32,7 @@ Keep the MIT `LICENSE`. Replace every `All rights reserved` file header with:
 - The About dialog already says MIT. Keep the name format the same everywhere (`LICENSE` and the About dialog use "Juhász Mátyás (gatsby82)").
 - Update the expected text in `test/widget_test.dart` if the About text changes.
 
-### 3. 🔧 The shared clock plays sound by itself
+### ✅ 3. 🔧 The shared clock plays sound by itself
 - `lib/core/widgets/analog_clock.dart` creates its own `AudioPlayer` for the tick loop.
 - Consequences: the Classic Stopwatch ticks with no mute; the `SoundPlayer` interface is bypassed; widget tests create real audio players; the README's "everything nondeterministic is injected" isn't true.
 - Fix: move ticking into `SoundPlayer` (`startTicking()` / `stopTicking()`), and make `AnalogClock` silent (drop `isRunning`/`muted` sound logic and the `audioplayers` import from `core/`).
@@ -93,10 +93,10 @@ Fix: provide the cubit with `BlocProvider`, rebuild with `BlocBuilder` / `BlocLi
 - Fix: `dart format .` (remove the BOM by hand if needed).
 
 ### ✅ 10. 🔧 Rename leftovers (Stopwatch → Shopwatch)
-- ✅ `_ShopwatchSection` in the *classic* `stopwatch_page.dart` → e.g. `_StopwatchSection`.
-- ✅ `test/core/stopwatch/shopwatch_controller_test.dart` tests `StopwatchController` → rename to `stopwatch_controller_test.dart`.
-- ✅ "shopwatch time" in doc comments of `lap.dart` and `analog_clock.dart`.
-- ✅ `ShopwatchStrings.clear` says "Empty cart", but `receipt_list.dart:140` hard-codes "Put it all back". Unused strings: `approved`, `finePrint`.
+- `_ShopwatchSection` in the *classic* `stopwatch_page.dart` → e.g. `_StopwatchSection`.
+- `test/core/stopwatch/shopwatch_controller_test.dart` tests `StopwatchController` → rename to `stopwatch_controller_test.dart`.
+- "shopwatch time" in doc comments of `lap.dart` and `analog_clock.dart`.
+- `ShopwatchStrings.clear` says "Empty cart", but `receipt_list.dart:140` hard-codes "Put it all back". Unused strings: `approved`, `finePrint`.
 
 ### ✅ 11. 🤔 Hard-coded text styles
 - `fontSize: 22` and `18` in `pos_terminal_sheet.dart`, `16` on the clock's digital display in `shopwatch_page.dart`.

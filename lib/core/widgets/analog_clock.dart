@@ -3,10 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -21,108 +19,21 @@ import 'package:swatch/core/widgets/swatch_keys.dart';
 ///
 /// The painter listens to [elapsed] directly (`repaint:`), avoiding widget
 /// rebuilds for the analog hands.
-class AnalogClock extends StatefulWidget {
+class AnalogClock extends StatelessWidget {
   const AnalogClock({
     super.key,
     required this.elapsed,
     this.goalSec,
     this.digitalDisplay,
-    this.isRunning = false,
-    this.muted = false,
   });
 
   final ValueListenable<Duration> elapsed;
-
-  /// Whether the clock should play its ticking sound.
-  final bool isRunning;
-
-  /// Whether the ticking sound should be muted.
-  final bool muted;
 
   /// Optional target time, marked as a red tick on the seconds scale.
   final Duration? goalSec;
 
   /// Optional digital readout rendered over the lower half of the clock face.
   final Widget? digitalDisplay;
-
-  @override
-  State<AnalogClock> createState() => _AnalogClockState();
-}
-
-class _AnalogClockState extends State<AnalogClock> {
-  AudioPlayer? _player;
-  int _playbackRequest = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.isRunning && !widget.muted) unawaited(_syncTicking());
-  }
-
-  @override
-  void didUpdateWidget(AnalogClock oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.isRunning != widget.isRunning || oldWidget.muted != widget.muted) {
-      unawaited(_syncTicking());
-    }
-  }
-
-  Future<void> _syncTicking() async {
-    final request = ++_playbackRequest;
-    final player = _player;
-    if (!widget.isRunning || widget.muted) {
-      if (player != null) {
-        try {
-          await player.stop();
-        } catch (_) {
-          // Audio must never interfere with the clock.
-        }
-      }
-      return;
-    }
-
-    final activePlayer = _player ??= AudioPlayer();
-    try {
-      // Low-latency mode (SoundPool on Android) loops sample-accurately;
-      // the default MediaPlayer mode inserts a gap at every loop restart.
-      // The 1 s loop clip is small enough for SoundPool's size limit.
-      await activePlayer.setPlayerMode(PlayerMode.lowLatency);
-      await activePlayer.setReleaseMode(ReleaseMode.loop);
-      await activePlayer.setAudioContext(AudioContext(
-        android: const AudioContextAndroid(
-          usageType: AndroidUsageType.assistanceSonification,
-          contentType: AndroidContentType.sonification,
-          audioFocus: AndroidAudioFocus.none,
-        ),
-        iOS: AudioContextIOS(category: AVAudioSessionCategory.ambient),
-      ));
-      if (!mounted || request != _playbackRequest || !widget.isRunning || widget.muted) {
-        return;
-      }
-      await activePlayer.play(
-        AssetSource('sounds/tick_loop_10.wav'),
-        volume: 0.2,
-      );
-    } catch (_) {
-      // Audio must never interfere with the clock.
-    }
-  }
-
-  @override
-  void dispose() {
-    ++_playbackRequest;
-    final player = _player;
-    if (player != null) unawaited(_disposePlayer(player));
-    super.dispose();
-  }
-
-  Future<void> _disposePlayer(AudioPlayer player) async {
-    try {
-      await player.dispose();
-    } catch (_) {
-      // Audio must never interfere with the clock.
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,13 +46,13 @@ class _AnalogClockState extends State<AnalogClock> {
             CustomPaint(
               key: SwatchKeys.analogClock,
               painter: AnalogClockPainter(
-                elapsed: widget.elapsed,
+                elapsed: elapsed,
                 colors: Theme.of(context).colorScheme,
-                goalSec: widget.goalSec == null ? null : widget.goalSec!.inMicroseconds / 1e6,
+                goalSec: goalSec == null ? null : goalSec!.inMicroseconds / 1e6,
               ),
               size: Size.infinite,
             ),
-            if (widget.digitalDisplay != null)
+            if (digitalDisplay != null)
               IgnorePointer(
                 child: Align(
                   alignment: const Alignment(0, 0.42),
@@ -149,17 +60,17 @@ class _AnalogClockState extends State<AnalogClock> {
                     widthFactor: 0.9,
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: widget.digitalDisplay,
+                      child: digitalDisplay,
                     ),
                   ),
                 ),
               ),
-            if (widget.digitalDisplay != null)
+            if (digitalDisplay != null)
               CustomPaint(
                 painter: AnalogClockPainter(
-                  elapsed: widget.elapsed,
+                  elapsed: elapsed,
                   colors: Theme.of(context).colorScheme,
-                  goalSec: widget.goalSec == null ? null : widget.goalSec!.inMicroseconds / 1e6,
+                  goalSec: goalSec == null ? null : goalSec!.inMicroseconds / 1e6,
                   handsOnly: true,
                 ),
                 size: Size.infinite,

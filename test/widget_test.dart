@@ -18,7 +18,12 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(SwatchApp(shopwatchDependencies: ShopwatchDependencies(hintsStore: FakeHintsSeenStore())));
+    await tester.pumpWidget(SwatchApp(
+      shopwatchDependencies: ShopwatchDependencies(
+        hintsStore: FakeHintsSeenStore(),
+        soundFactory: FakeSound.new,
+      ),
+    ));
 
     expect(find.text('Shopwatch'), findsOneWidget);
   });
@@ -28,7 +33,12 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(SwatchApp(shopwatchDependencies: ShopwatchDependencies(hintsStore: FakeHintsSeenStore())));
+    await tester.pumpWidget(SwatchApp(
+      shopwatchDependencies: ShopwatchDependencies(
+        hintsStore: FakeHintsSeenStore(),
+        soundFactory: FakeSound.new,
+      ),
+    ));
     await tester.tap(find.byTooltip('About Shopwatch'));
     await tester.pumpAndSettle();
 

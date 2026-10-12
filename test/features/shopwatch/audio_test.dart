@@ -8,7 +8,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
-import 'package:swatch/features/shopwatch/services/sound_player.dart';
+import 'package:swatch/core/services/sound_player.dart';
 import '../../../tool/generate_beep.dart';
 
 void main() {

@@ -4,6 +4,8 @@
  */
 
 import 'package:flutter/foundation.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -14,6 +16,7 @@ import 'package:swatch/core/widgets/layout_breakpoints.dart';
 import 'package:swatch/features/stopwatch/presentation/widgets/control_buttons.dart';
 import 'package:swatch/features/stopwatch/presentation/widgets/elapsed_time_display.dart';
 import 'package:swatch/features/stopwatch/presentation/widgets/lap_panel.dart';
+import 'package:swatch/core/services/sound_player.dart';
 
 /// Main screen. Owns the [StopwatchController] and the frame [Ticker].
 ///
@@ -22,9 +25,10 @@ import 'package:swatch/features/stopwatch/presentation/widgets/lap_panel.dart';
 /// time into [_elapsed]; only the widgets listening to it repaint, the rest
 /// of the tree is not rebuilt on every frame.
 class StopwatchPage extends StatefulWidget {
-  const StopwatchPage({super.key, this.timeSource});
+  const StopwatchPage({super.key, this.timeSource, required this.sound});
 
   final TimeSource? timeSource;
+  final SoundPlayer sound;
 
   @override
   State<StopwatchPage> createState() => _StopwatchPageState();
@@ -34,6 +38,8 @@ class _StopwatchPageState extends State<StopwatchPage> with SingleTickerProvider
   late final StopwatchController _controller = StopwatchController(timeSource: widget.timeSource);
   final ValueNotifier<Duration> _elapsed = ValueNotifier(Duration.zero);
   late final Ticker _ticker;
+  bool _muted = false;
+
   @override
   void initState() {
     super.initState();
@@ -45,10 +51,19 @@ class _StopwatchPageState extends State<StopwatchPage> with SingleTickerProvider
 
   void _onControllerChanged() {
     _elapsed.value = _controller.elapsed;
+    _syncTicking();
     if (_controller.isRunning && !_ticker.isActive) {
       _ticker.start();
     } else if (!_controller.isRunning && _ticker.isActive) {
       _ticker.stop();
+    }
+  }
+
+  void _syncTicking() {
+    if (_controller.isRunning && !_muted) {
+      unawaited(widget.sound.startTicking());
+    } else {
+      unawaited(widget.sound.stopTicking());
     }
   }
 
@@ -58,6 +73,7 @@ class _StopwatchPageState extends State<StopwatchPage> with SingleTickerProvider
     _ticker.dispose();
     _controller.dispose();
     _elapsed.dispose();
+    unawaited(widget.sound.dispose());
     super.dispose();
   }
 
@@ -65,9 +81,18 @@ class _StopwatchPageState extends State<StopwatchPage> with SingleTickerProvider
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // automaticallyImplyLeading: false,
         title: const Text('Classic stopwatch'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: _muted ? 'Unmute sounds' : 'Mute sounds',
+            onPressed: () {
+              setState(() => _muted = !_muted);
+              _syncTicking();
+            },
+            icon: Icon(_muted ? Icons.volume_off : Icons.volume_up),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -125,7 +150,6 @@ class _StopwatchSection extends StatelessWidget {
                 listenable: controller,
                 builder: (_, __) => AnalogClock(
                   elapsed: elapsed,
-                  isRunning: controller.isRunning,
                 ),
               ),
             ),

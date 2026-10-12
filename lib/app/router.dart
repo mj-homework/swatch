@@ -29,7 +29,7 @@ class AppRouter {
   }) {
     final services = dependencies ?? ShopwatchDependencies(timeSource: timeSource);
     final Widget page = switch (settings.name) {
-      AppRoutes.stopwatch => StopwatchPage(timeSource: timeSource),
+      AppRoutes.stopwatch => StopwatchPage(timeSource: timeSource, sound: services.soundFactory()),
       AppRoutes.shopwatch => ShopwatchPage(dependencies: services),
       _ => const LandingPage(),
     };

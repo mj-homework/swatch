@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:swatch/core/stopwatch/time_source.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/services/hints_seen_store.dart';
-import 'package:swatch/features/shopwatch/services/sound_player.dart';
+import 'package:swatch/core/services/sound_player.dart';
 
 /// App-scoped services; pages own the sound players produced by the factory.
 class ShopwatchDependencies {
@@ -21,7 +21,7 @@ class ShopwatchDependencies {
       Future<void> Function()? haptic})
       : random = random ?? Random(),
         config = config ?? GameConfig(),
-        soundFactory = soundFactory ?? CheckoutSoundPlayer.new,
+        soundFactory = soundFactory ?? AudioSoundPlayer.new,
         hintsStore = hintsStore ?? InMemoryHintsSeenStore(),
         haptic = haptic ?? HapticFeedback.mediumImpact;
   final TimeSource? timeSource;

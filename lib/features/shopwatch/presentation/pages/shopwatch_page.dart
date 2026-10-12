@@ -14,7 +14,7 @@ import 'package:swatch/app/router.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/domain/game_round.dart';
 import 'package:swatch/features/shopwatch/domain/shopwatch_game_cubit.dart';
-import 'package:swatch/features/shopwatch/services/sound_player.dart';
+import 'package:swatch/core/services/sound_player.dart';
 import 'package:swatch/features/shopwatch/shopwatch_dependencies.dart';
 import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/hint_overlay.dart';
@@ -278,12 +278,26 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
   bool get canShop => !checkingOut && (_game == null || _game!.state.status == RoundStatus.ready);
 
   @override
+  void didUpdateWidget(_ShopwatchControls oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.muted != widget.muted) _syncTicking();
+  }
+
+  @override
   void initState() {
     super.initState();
     _ticker = createTicker((_) {
       final game = _game;
       if (game != null) elapsed.value = game.elapsed;
     });
+  }
+
+  void _syncTicking() {
+    if (_game?.isRunning == true && !widget.muted) {
+      unawaited(widget.sound.startTicking());
+    } else {
+      unawaited(widget.sound.stopTicking());
+    }
   }
 
   @override
@@ -322,11 +336,13 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
       widget.onRoundChanged(state);
       if (round.isRunning && !_ticker.isActive) _ticker.start();
       if (!round.isRunning && _ticker.isActive) _ticker.stop();
+      _syncTicking();
       if (mounted) setState(() {});
     });
     widget.onRoundChanged(round.state);
     setState(() {});
     round.start();
+    _syncTicking();
   }
 
   void _togglePause() {
@@ -336,6 +352,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
     elapsed.value = game.elapsed;
     if (game.isRunning && !_ticker.isActive) _ticker.start();
     if (!game.isRunning && _ticker.isActive) _ticker.stop();
+    _syncTicking();
     setState(() {});
   }
 
@@ -383,6 +400,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
     game.emptyCart();
     elapsed.value = game.elapsed;
     if (game.isRunning && !_ticker.isActive) _ticker.start();
+    _syncTicking();
     setState(() {});
   }
 
@@ -390,6 +408,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
     final game = _game;
     if (game == null) return;
     _ticker.stop();
+    await widget.sound.stopTicking();
     await _gameSubscription?.cancel();
     await game.close();
     _game = null;
@@ -416,8 +435,6 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
           Widget clockFace() => AnalogClock(
                 elapsed: elapsed,
                 goalSec: _game?.state.currentItem?.goal,
-                isRunning: _game?.isRunning ?? false,
-                muted: widget.muted,
                 digitalDisplay: ValueListenableBuilder<Duration>(
                   valueListenable: elapsed,
                   builder: (context, value, __) {
