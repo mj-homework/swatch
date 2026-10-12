@@ -233,7 +233,9 @@ class _HintOverlayState extends State<HintOverlay> with WidgetsBindingObserver {
                               child: const Text(ShopwatchStrings.gotIt),
                             ),
                           ),
-                          const SizedBox(height: 32,)
+                          const SizedBox(
+                            height: 32,
+                          )
                         ],
                       ),
                     ),

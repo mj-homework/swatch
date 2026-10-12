@@ -120,8 +120,7 @@ class ReceiptList extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text('goal ${formatElapsed(result.item.goal)}'),
-                                    Text(
-                                        '${result.difference.isNegative ? '−' : '+'}'
+                                    Text('${result.difference.isNegative ? '−' : '+'}'
                                         '${formatElapsed(result.difference.abs())}'),
                                   ],
                                 ),

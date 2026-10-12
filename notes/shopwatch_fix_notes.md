@@ -110,8 +110,8 @@ Fix: provide the cubit with `BlocProvider`, rebuild with `BlocBuilder` / `BlocLi
 
 ## Repo hygiene (public repo) 🔧
 
-- [ ] `android/.kotlin/errors/*.log` is committed → add `.kotlin/` to `.gitignore`, then `git rm -r --cached android/.kotlin`.
-- [ ] `applicationId` / `namespace` is `com.example.swatch` (`android/app/build.gradle.kts`) → use your own, e.g. `hu.juhaszmatyas.swatch` (also move `MainActivity.kt` to the matching package folder).
+- ✅ `android/.kotlin/errors/*.log` is committed → add `.kotlin/` to `.gitignore`, then `git rm -r --cached android/.kotlin`.
+- ✅ `applicationId` / `namespace` is `com.example.swatch` (`android/app/build.gradle.kts`) → use your own, e.g. `hu.juhaszmatyas.swatch` (also move `MainActivity.kt` to the matching package folder).
 - [ ] `skills/` folder: `shopwatch_concept.md` is outdated (pause disabled, total diff, old labels) and contains the line about parodying the interviewer's brand, while the app uses OTP's exact colours → remove `skills/` from the public repo, or update it.
 - [ ] First commit "init - Claude generated code": nothing to change, but be ready to say which parts you wrote or reworked yourself.
 

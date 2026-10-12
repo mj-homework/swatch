@@ -19,9 +19,9 @@ abstract final class ShopwatchStrings {
   static const classicHintTitle = 'Classic Stopwatch';
   static const classicHintText = 'The by-the-spec solution: start, pause, reset, laps, analog clock.';
   static const shopHintTitle = 'Start a shopping game';
-  static const shopHintText = 'Tap to start with item number config; double-tap to start at once.';
+  static const shopHintText = 'Tap to start with item number config; long-tap to start at once.';
   static const payHintTitle = 'Pay';
-  static const payHintText = 'Tap to check out; double-tap to reset at once.';
+  static const payHintText = 'Tap to check out; long-tap to reset at once.';
 }
 
 abstract final class ShopwatchStyle {

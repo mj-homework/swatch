@@ -50,6 +50,7 @@ class ShoppingControls extends StatelessWidget {
             label: label,
           );
   }
+
   @override
   Widget build(BuildContext context) => Wrap(
         spacing: 8,
