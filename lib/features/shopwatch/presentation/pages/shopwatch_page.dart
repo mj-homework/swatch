@@ -595,22 +595,22 @@ class _ShopwatchReceiptState extends State<_ShopwatchReceipt> {
             final resultCount = round?.results.length ?? 0;
             final resultsCleared = _lastResultCount > 0 && resultCount == 0;
 
-            void scrollToPosition(double position) {
+            void scrollTo(double Function(ScrollPosition p) target) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (_scrollController.hasClients) {
-                  _scrollController.animateTo(
-                    position,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOut,
-                  );
-                }
+                if (!_scrollController.hasClients) return;
+
+                _scrollController.animateTo(
+                  target(_scrollController.position),
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                );
               });
             }
 
             if (resultsCleared) {
-              scrollToPosition(_scrollController.position.minScrollExtent);
+              scrollTo((p) => p.minScrollExtent);
             } else if (round?.id == _lastRoundId && resultCount > _lastResultCount) {
-              scrollToPosition(_scrollController.position.maxScrollExtent);
+              scrollTo((p) => p.maxScrollExtent);
             }
 
             _lastRoundId = round?.id;
