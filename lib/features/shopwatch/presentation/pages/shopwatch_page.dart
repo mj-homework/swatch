@@ -21,7 +21,7 @@ import 'package:swatch/features/shopwatch/presentation/widgets/hint_overlay.dart
 import 'package:swatch/features/shopwatch/presentation/widgets/pos_terminal_sheet.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/receipt_list.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/shop_setup_sheet.dart';
-import 'package:swatch/features/shopwatch/presentation/widgets/shopping_controls.dart';
+import 'package:swatch/features/shopwatch/presentation/widgets/shopping_buttons.dart';
 
 class ShopwatchPage extends StatefulWidget {
   const ShopwatchPage({super.key, required this.dependencies});
@@ -213,9 +213,9 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
                 if (constraints.maxWidth >= wideLayoutBreakpoint) {
                   return Row(
                     children: [
-                      Expanded(flex: 3, child: controls),
-                      const SizedBox(width: 24),
                       Expanded(flex: 2, child: receipt),
+                      const SizedBox(width: 24),
+                      Expanded(flex: 3, child: controls),
                     ],
                   );
                 }
@@ -462,10 +462,10 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
                 },
               );
 
-          Widget clockFace() =>
+          clockFace() =>
               AnalogClock(elapsed: elapsed, goalSec: _game?.state.currentItem?.goal, digitalDisplay: digitalDisplay());
 
-          Widget goalBox() => Container(
+          goalBox() => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: ShapeDecoration(
                   shape: StadiumBorder(
@@ -511,14 +511,16 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
                 ),
               );
 
-          Widget finishedNote() => const Padding(
+          finishedNote() => const Padding(
                 padding: EdgeInsets.only(top: 8),
                 child: Text('Cart complete — pay to see your receipt.'),
               );
 
-          Widget buttons() {
+          buttons() {
             final round = _game?.state;
-            return ShoppingControls(
+            return ShoppingButtons(
+              landscape: widget.landscape,
+              inGame: _game != null,
               onStart: canShop ? _shop : null,
               onLongStart: canShop ? () => _shop(skipSetup: true) : null,
               onPause: !checkingOut && round?.status == RoundStatus.playing ? _togglePause : null,
@@ -543,7 +545,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 goalBox(),
                 if (_game?.state.status == RoundStatus.finished) finishedNote(),
               ],

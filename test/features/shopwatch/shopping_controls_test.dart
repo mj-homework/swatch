@@ -5,7 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:swatch/features/shopwatch/presentation/widgets/shopping_controls.dart';
+import 'package:swatch/features/shopwatch/presentation/widgets/shopping_buttons.dart';
 import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
 
 void main() {
@@ -16,7 +16,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ShoppingControls(
+          body: ShoppingButtons(
             onStart: () => primaryCalls++,
             onLongStart: () => doubleCalls++,
           ),
@@ -38,7 +38,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: ShoppingControls(
+          body: ShoppingButtons(
             onStart: () => primaryCalls++,
             onLongStart: () => doubleCalls++,
           ),
