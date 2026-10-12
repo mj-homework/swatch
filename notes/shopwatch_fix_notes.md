@@ -13,14 +13,14 @@ Status: 🔧 = decided to fix · 🤔 = to think about / check
 
 ## Fix before submitting
 
-### 1. 🤔 The assignment is hard to find
+### 1. ✅ 🤔 The assignment is hard to find
 - `initialRoute` is `/shopwatch`, and the custom `onGenerateInitialRoutes` returns only that one route (`lib/app/app.dart:64–71`).
 - Shopwatch replaces the back button with a timer icon, so the landing page is never shown.
 - The Classic Stopwatch (what OTP grades) sits behind an unlabeled icon.
 - Option: start on `/` (landing page).
 
 
-### 2. 🔧 License headers → MIT ✅
+### 2. ✅ 🔧 License headers → MIT
 Keep the MIT `LICENSE`. Replace every `All rights reserved` file header with:
 
 ```dart
@@ -45,7 +45,7 @@ Keep the MIT `LICENSE`. Replace every `All rights reserved` file header with:
 - ✅ remove Firebase and leaderboard
 - ✅ Option: remove, or move to a branch.
 
-### 5. 🔧 Use `package:swatch/...` imports everywhere ✅
+### 5. ✅ 🔧 Use `package:swatch/...` imports everywhere
 Also fixes the wrong depth in `lib/features/shopwatch/domain/shopwatch_game_cubit.dart:7–8` (`../../../../core/...` should be `../../../`).
 
 Steps:
@@ -83,7 +83,7 @@ Fix: provide the cubit with `BlocProvider`, rebuild with `BlocBuilder` / `BlocLi
 - Contradicts the README's "only the time repaints".
 - Fix: rebuild the buttons on cubit state changes only.
 
-### 8. 🤔 Reset also clears the laps
+### 8. ✅ 🤔 Reset also clears the laps
 - `stopwatch_controller.dart:84`. Valid choice, but the spec has a separate Clear button.
 - Document the decision in the README.
 

@@ -137,13 +137,12 @@ class _PosTerminalSheetState extends State<PosTerminalSheet> with SingleTickerPr
                     iconSize: 72,
                     icon: FadeTransition(
                       opacity: Tween(begin: .35, end: 1.0).animate(_pulse),
-                      child: const Icon(Icons.contactless),
+                      child: Icon(Icons.contactless, color: Theme.of(context).colorScheme.primary),
                     ),
                   ),
                   // const Text('Contactless'),
                   const SizedBox(height: 12),
                   Wrap(spacing: 12, children: [
-                    // FilledButton(key: ShopwatchKeys.confirmPay, onPressed: _approve, child: const Text('Pay')),
                     OutlinedButton(
                       key: ShopwatchKeys.skip,
                       onPressed: _close,
@@ -151,10 +150,6 @@ class _PosTerminalSheetState extends State<PosTerminalSheet> with SingleTickerPr
                     ),
                   ]),
                 ] else ...[
-                  // const SizedBox(height: 12),
-                  // const Icon(Icons.check_circle, color: ShopwatchStyle.approved, size: 48),
-                  // const Text(ShopwatchStrings.approved),
-                  // const Text(ShopwatchStrings.finePrint),
                   const SizedBox(height: 12),
                   Flexible(
                     child: SingleChildScrollView(child: widget.receipt),

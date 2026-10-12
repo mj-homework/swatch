@@ -429,7 +429,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
                     final colors = Theme.of(context).colorScheme;
                     return DecoratedBox(
                       decoration: ShapeDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).scaffoldBackgroundColor,
                         shape: StadiumBorder(side: BorderSide(color: colors.outlineVariant)),
                       ),
                       child: Padding(
@@ -593,27 +593,37 @@ class _ShopwatchReceiptState extends State<_ShopwatchReceipt> {
           valueListenable: widget.gameRound,
           builder: (_, round, __) {
             final resultCount = round?.results.length ?? 0;
-            if (round?.id == _lastRoundId && resultCount > _lastResultCount) {
+            final resultsCleared = _lastResultCount > 0 && resultCount == 0;
+
+            void scrollToPosition(double position) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (_scrollController.hasClients) {
                   _scrollController.animateTo(
-                    _scrollController.position.maxScrollExtent,
+                    position,
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeOut,
                   );
                 }
               });
             }
+
+            if (resultsCleared) {
+              scrollToPosition(_scrollController.position.minScrollExtent);
+            } else if (round?.id == _lastRoundId && resultCount > _lastResultCount) {
+              scrollToPosition(_scrollController.position.maxScrollExtent);
+            }
+
             _lastRoundId = round?.id;
             _lastResultCount = resultCount;
+
             return SingleChildScrollView(
               controller: _scrollController,
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: round == null
-                    ? const ReceiptList(showClear: true)
+                    ? const ReceiptList()
                     : ReceiptList(
-                        showClear: true,
+                        showClear: round.results.isNotEmpty,
                         onClear: !widget.checkingOut && round.results.isNotEmpty ? widget.onClear : null,
                         results: round.results,
                         total: round.totalTime,
