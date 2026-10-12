@@ -89,7 +89,7 @@ Keep it person-neutral: no "wife shops, husband waits" jokes.
 
 ## 8. Architecture
 
-Shopwatch is **one feature** that contains both the free shopping mode and the game (section 10). They share the receipt, the Pay checkout, the beep and the price-tag clock, so keeping them together avoids cross-feature imports. The game's logic and its Firebase access get their own layers inside the feature.
+Shopwatch is **one feature** that contains both the free shopping mode and the game (section 10). They share the receipt, the Pay checkout, the beep and the price-tag clock, so keeping them together avoids cross-feature imports.
 
 ```
 lib/
@@ -99,9 +99,6 @@ lib/
       game_config.dart
       game_round.dart            immutable: items, goals, results, status
       shopwatch_game_cubit.dart  setup → playing → finished → (pay) → setup
-    data/                        game only
-      leaderboard_repository.dart            interface
-      firestore_leaderboard_repository.dart  Firebase implementation
     presentation/
       pages/
         shopwatch_page.dart      free shopping mode
@@ -140,7 +137,6 @@ A timing game built on the Shopwatch skin: hit each item's goal time as precisel
 
 ### 10.1 Setup screen
 
-- **Nickname**: required. Uniqueness is checked live against the leaderboard while typing (debounced, see 10.7).
 - **Number of items**: 1 … size of the item list. Items are drawn **without repeats**.
 - **Difficulty**:
 
@@ -163,7 +159,7 @@ A configurable list of funny Hungarian shopping items, e.g. *farhát, büdös sa
 3. **Add to cart** (Lap) records the item. There is **one continuous clock**: goals are absolute times on it. The **next goal = click time + a random gap of 3–13 s** (`minGap`/`maxGap`), revealed only after the click. Example: 10 s, 17 s, 24 s…
 4. The receipt prints the line (goal, click time, difference), and the next item appears immediately while the clock keeps running.
 5. After the last item, the stopwatch **stops automatically**, the receipt prints the total, and **Pay is enabled**.
-6. **Pay** runs the checkout flow (section 4), resets the game and returns to the setup state with the nickname pre-filled.
+6. **Pay** runs the checkout flow (section 4), resets the game and returns to the setup state.
 
 During a round, **Pause (Coffee break)** simply freezes the total clock; Add to cart is disabled while paused. **Pay** is disabled until the round is finished. The Difficulty selector is temporarily hidden (always easy).
 
@@ -179,7 +175,7 @@ AVERAGE DIFF                    0.204
 ```
 
 - `diff = got − goal`, shown signed (`+` = too late, `−` = too early).
-- **Average diff = the sum of absolute diffs divided by the number of items.** Lower is better, and this is the leaderboard score.
+- **Average diff = the sum of absolute diffs divided by the number of items.** Lower is better.
 - The line colour shows the accuracy of `|diff|`:
 
 | \|diff\| | Colour |
@@ -200,31 +196,17 @@ Thresholds live in `GameConfig`. Colour is never the only signal, since the sign
 
 ### 10.6 Architecture
 
-The game lives inside the `shopwatch` feature (see section 8): its logic in `domain/`, Firebase access in `data/`, and its pages next to the free mode's page, reusing the same receipt, terminal and clock widgets.
+The game lives inside the `shopwatch` feature (see section 8): its logic in `domain/`, and its pages next to the free mode's page, reusing the same receipt, terminal and clock widgets.
 
 - The **stopwatch engine is unchanged**. The game cubit listens to lap events and maps each lap to the current item.
 - **`Random` is injected**, the same pattern as `TimeSource`. Tests use a seeded `Random`, so item order and goal times are deterministic.
-- **`LeaderboardRepository` is an interface**, with a fake in tests. Widget tests never touch Firebase.
-
-### 10.7 Leaderboard (Firebase)
-
-- **Cloud Firestore**, with a `players/{normalizedNickname}` doc for nickname ownership and a `scores` collection holding `{nickname, averageDiffMs, itemCount, difficulty, createdAt}`.
-- **Firebase Anonymous Auth** gives each device a uid. A nickname doc stores its owner's uid, so a player can reuse their own nickname but nobody else can.
-- **Live nickname check while typing**: debounced (~400 ms), with the states *checking… / available ✓ / taken ✗ / offline*. Stale responses are ignored (only the latest query counts).
-- The live check is only a hint. The nickname is **reserved atomically in a transaction** on Start, which closes the race where two players check the same free nickname at once.
-- Nickname rules: 3–16 chars, letters, digits, `_`; compared case- and accent-insensitively (normalized key). A small bad-word filter is used, since reviewers will see the board.
-- The leaderboard is ranked **per item count and difficulty**, ordered by `averageDiffMs` ascending (top 10).
-- **Security rules**: a user can only write their own nickname doc and their own scores, and scores are validated for shape and ranges.
-- **Graceful fallback**: if Firebase isn't configured or is offline, the game still works and the leaderboard shows "offline". Reviewers can run the app without Firebase credentials.
-
-### 10.8 Game tests
+### 10.7 Game tests
 
 - Seeded `Random` → expected items and goals.
 - Fake `TimeSource` → lap at a known time → correct signed diff, colour bucket and total.
 - Round ends automatically after N items; Pay is enabled only then.
 - Pause and Empty cart are disabled during a round.
 - Difficulty hides or shows the digits at the right moment.
-- Nickname check: debounce (one query per typing burst), stale responses ignored, the taken/available states rendered (fake repository).
 
 ## 11. Out of scope / maybe later
 

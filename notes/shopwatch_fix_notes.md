@@ -38,11 +38,10 @@ Keep the MIT `LICENSE`. Replace every `All rights reserved` file header with:
 - Fix: move ticking into `SoundPlayer` (`startTicking()` / `stopTicking()`), and make `AnalogClock` silent (drop `isRunning`/`muted` sound logic and the `audioplayers` import from `core/`).
 
 ### 4. 🤔 Dead and commented-out code
-- ✅ ~80 commented lines in `shopwatch_page.dart`, including the whole `_GameOptions` class and the nickname debounce.
+- ✅ ~80 commented lines in `shopwatch_page.dart`, including the whole `_GameOptions` class.
 - ✅ `GamePage` and the `/shopwatch/game`, `/shopwatch/game/play` routes: nothing navigates there (only a test uses `GamePage`).
 - Cubit: no-op `pause()` / `clear()`, unused `resetClock()`.
   - Latent bug: after `resetClock()`, `emptyCart()` calls `togglePause()` on an idle engine → round says "playing" but the clock is stopped.
-- Firebase dependencies, `firestore.rules` and `test/firestore/` for a leaderboard that is hidden in the UI (the README roadmap lists it as future work).
 - Option: remove, or move to a branch.
 
 ### 5. 🔧 Use `package:swatch/...` imports everywhere
@@ -88,8 +87,7 @@ Fix: provide the cubit with `BlocProvider`, rebuild with `BlocBuilder` / `BlocLi
 - Document the decision in the README.
 
 ### 9. 🔧 Uneven formatting
-- Dense files: `shopwatch_dependencies.dart`, `leaderboard_repository.dart`, `firebase_bootstrap.dart`, `pos_terminal_sheet.dart` (lines over 150 chars).
-- `firestore_leaderboard_repository.dart`: `if (...) return` without braces (flagged by `flutter_lints`).
+- Dense files: `shopwatch_dependencies.dart`, `pos_terminal_sheet.dart` (lines over 150 chars).
 - `shopwatch_strings.dart` starts with a BOM.
 - Fix: `dart format .` (remove the BOM by hand if needed).
 

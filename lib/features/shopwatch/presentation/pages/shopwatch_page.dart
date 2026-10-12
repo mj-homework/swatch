@@ -11,7 +11,6 @@ import 'package:swatch/core/formatting/duration_format.dart';
 import 'package:swatch/core/widgets/analog_clock.dart';
 import 'package:swatch/core/widgets/layout_breakpoints.dart';
 import 'package:swatch/app/router.dart';
-import 'package:swatch/features/shopwatch/data/leaderboard_repository.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/domain/game_round.dart';
 import 'package:swatch/features/shopwatch/domain/shopwatch_game_cubit.dart';
@@ -63,31 +62,7 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
         setState(() => _checkingOut = false);
       }
     }
-    // Only a completed round is submitted to the leaderboard.
-    if (paid && round.ownedNickname && round.status == RoundStatus.finished) {
-      unawaited(_submit(round));
-    }
     return paid;
-  }
-
-  Future<void> _submit(GameRound round) async {
-    bool success;
-    try {
-      success = await widget.dependencies.repository
-          .submit(round)
-          .timeout(const Duration(seconds: 6));
-    } catch (_) {
-      success = false;
-    }
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(success
-              ? 'Score saved'
-              : 'Score not uploaded — local receipt retained'),
-        ),
-      );
-    }
   }
 
   @override
@@ -215,17 +190,12 @@ class _ShopwatchControls extends StatefulWidget {
 
 class _ShopwatchControlsState extends State<_ShopwatchControls>
     with SingleTickerProviderStateMixin {
-  late final _nickname = TextEditingController();
-  final _policy = const NicknamePolicy();
-  Timer? _debounce;
   late final Ticker _ticker;
   ShopwatchGameCubit? _game;
   StreamSubscription<GameRound>? _gameSubscription;
   int? _count; // null = unlimited
   // Difficulty selector is temporarily hidden; rounds always play on easy.
   final Difficulty _difficulty = Difficulty.easy;
-  NicknameStatus _status = NicknameStatus.invalid;
-  bool _starting = false;
 
   ValueNotifier<Duration> get elapsed => widget.elapsed;
 
@@ -235,9 +205,6 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
 
   bool get canShop =>
       !checkingOut &&
-      !_starting &&
-      _status != NicknameStatus.taken &&
-      (_nickname.text.trim().isEmpty || _policy.isValid(_nickname.text)) &&
       (_game == null || _game!.state.status == RoundStatus.ready);
 
   @override
@@ -251,24 +218,17 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
 
   @override
   void dispose() {
-    _debounce?.cancel();
     _ticker.dispose();
     unawaited(_gameSubscription?.cancel());
     unawaited(_game?.close());
-    _nickname.dispose();
     super.dispose();
   }
 
   Future<void> _shop({bool skipSetup = false}) async {
     final game = _game;
-    if (_starting || checkingOut) return;
+    if (checkingOut) return;
     if (game != null) {
       if (game.state.status == RoundStatus.ready) game.start();
-      return;
-    }
-    final typed = _nickname.text.trim();
-    if (typed.isNotEmpty && !_policy.isValid(typed)) {
-      setState(() => _status = NicknameStatus.invalid);
       return;
     }
 
@@ -278,38 +238,13 @@ class _ShopwatchControlsState extends State<_ShopwatchControls>
       _count = choice.count;
     }
 
-    _debounce?.cancel();
-    final nickname = typed.isEmpty ? 'Guest' : typed;
-    NicknameStatus reservation = NicknameStatus.offline;
-    if (typed.isNotEmpty) {
-      setState(() => _starting = true);
-      try {
-        reservation = await dependencies.repository
-            .reserve(nickname)
-            .timeout(const Duration(seconds: 6));
-      } catch (_) {
-        reservation = NicknameStatus.offline;
-      }
-      if (!mounted) return;
-      setState(() {
-        _starting = false;
-        _status = reservation;
-      });
-      if (reservation != NicknameStatus.available &&
-          reservation != NicknameStatus.offline) {
-        return;
-      }
-    }
-
     final round = ShopwatchGameCubit(
       config: dependencies.config,
       difficulty: _difficulty,
       itemCount: _count,
-      nickname: nickname,
       roundId: dependencies.newRoundId(),
       random: dependencies.random,
       timeSource: dependencies.timeSource,
-      ownedNickname: reservation == NicknameStatus.available,
     );
     _game = round;
     _gameSubscription = round.stream.listen((state) {

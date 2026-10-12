@@ -32,21 +32,18 @@ class GameRound {
   GameRound(
       {required this.config,
       required this.difficulty,
-      required this.nickname,
       required this.id,
       List<ShopItem> items = const [],
       this.limit,
       List<Duration> goals = const [],
       List<ItemResult> results = const [],
-      this.status = RoundStatus.setup,
-      this.ownedNickname = false})
+      this.status = RoundStatus.setup})
       : items = List.unmodifiable(items),
         goals = List.unmodifiable(goals),
         results = List.unmodifiable(results);
   final GameConfig config;
   final Difficulty difficulty;
-  final String nickname, id;
-  final bool ownedNickname;
+  final String id;
 
   /// Number of items to buy; null means an endless round.
   final int? limit;
@@ -78,9 +75,7 @@ class GameRound {
       GameRound(
         config: config,
         difficulty: difficulty,
-        nickname: nickname,
         id: id,
-        ownedNickname: ownedNickname,
         limit: limit,
         items: items ?? this.items,
         goals: goals ?? this.goals,

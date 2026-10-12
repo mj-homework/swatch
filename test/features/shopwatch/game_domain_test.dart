@@ -9,7 +9,6 @@ import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/domain/game_round.dart';
 import 'package:swatch/features/shopwatch/domain/shopwatch_game_cubit.dart';
 import 'package:swatch/features/shopwatch/domain/shop_item.dart';
-import 'package:swatch/features/shopwatch/data/leaderboard_repository.dart';
 import '../../core/stopwatch/helpers/fake_time_source.dart';
 
 void main() {
@@ -22,7 +21,6 @@ void main() {
               maxGap: const Duration(seconds: 3)),
           difficulty: Difficulty.normal,
           itemCount: count,
-          nickname: 'Player',
           roundId: 'test',
           random: Random(7),
           timeSource: time);
@@ -33,7 +31,6 @@ void main() {
         config: config,
         difficulty: Difficulty.easy,
         itemCount: 8,
-        nickname: 'Player',
         roundId: 'id',
         random: Random(123));
     final first = create(), second = create();
@@ -125,7 +122,6 @@ void main() {
         config: GameConfig(),
         difficulty: Difficulty.easy,
         itemCount: null,
-        nickname: 'Player',
         roundId: 'r',
         random: Random(1),
         timeSource: time);
@@ -147,7 +143,6 @@ void main() {
         config: config,
         difficulty: Difficulty.easy,
         itemCount: 5,
-        nickname: 'Player',
         roundId: 'r',
         random: Random(3),
         timeSource: time);
@@ -185,29 +180,8 @@ void main() {
             config: GameConfig(),
             difficulty: Difficulty.easy,
             itemCount: shopItemCombinationCount + 1,
-            nickname: 'Player',
             roundId: 'id',
             random: Random(1)),
         throwsArgumentError);
-  });
-  test('normalization, bad words, invalid keys and explicit offline behavior',
-      () async {
-    const policy = NicknamePolicy();
-    expect(policy.normalize(' ÁRVÍZTŰRŐ '), 'arvizturo');
-    expect(policy.normalize('Jo\u0301zsi'), 'jozsi');
-    for (final name in [
-      'ab',
-      'a/b',
-      'admin1',
-      'a b',
-      'abcdefghijklmnopq',
-      '💰💰💰'
-    ]) {
-      expect(policy.isValid(name), isFalse);
-    }
-    expect(policy.isValid('Józsi_12'), isTrue);
-    const repository = OfflineLeaderboardRepository();
-    expect(await repository.reserve('Jozsi'), NicknameStatus.offline);
-    expect(await repository.top(1, Difficulty.easy), isNull);
   });
 }

@@ -17,15 +17,12 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
       {required GameConfig config,
       required Difficulty difficulty,
       required int? itemCount,
-      required String nickname,
       required String roundId,
       required Random random,
-      TimeSource? timeSource,
-      bool ownedNickname = false})
+      TimeSource? timeSource})
       : _engine = StopwatchController(timeSource: timeSource),
         _random = random,
-        super(_prepare(config, difficulty, itemCount, nickname, roundId, random,
-            ownedNickname)) {
+        super(_prepare(config, difficulty, itemCount, roundId, random)) {
     _engine.addListener(_capture);
   }
   final StopwatchController _engine;
@@ -36,16 +33,14 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
   Duration get elapsed => _engine.elapsed;
   bool get isRunning => _engine.isRunning;
   static GameRound _prepare(GameConfig config, Difficulty difficulty,
-      int? count, String nickname, String id, Random random, bool owned) {
+      int? count, String id, Random random) {
     if (count != null && (count < 1 || count > shopItemCombinationCount)) {
       throw ArgumentError.value(count, 'itemCount');
     }
     return GameRound(
         config: config,
         difficulty: difficulty,
-        nickname: nickname,
         id: id,
-        ownedNickname: owned,
         status: RoundStatus.ready,
         limit: count,
         goals: [_between(random, config.minGoal, config.maxGoal)]);

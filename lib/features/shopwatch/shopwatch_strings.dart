@@ -15,7 +15,6 @@ abstract final class ShopwatchStrings {
   static const empty = 'Your cart is empty.';
   static const approved = 'Payment approved ✓';
   static const finePrint = 'No money was harmed in this transaction.';
-  static const offline = 'Offline — play locally; nickname is not reserved.';
   static String mood(Duration elapsed, bool paused) {
     if (paused) return 'Coffee break. Back in a minute.';
     if (elapsed.inMinutes < 1) return 'Just browsing…';
@@ -49,5 +48,4 @@ abstract final class ShopwatchKeys {
   static const continueShopping = ValueKey('shop-continue-shopping');
   static const confirmPay = ValueKey('shop-confirm-pay');
   static const dismiss = ValueKey('shop-dismiss');
-  static const nickname = ValueKey('shop-nickname');
 }
