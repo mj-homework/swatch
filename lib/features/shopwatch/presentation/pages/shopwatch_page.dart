@@ -17,6 +17,7 @@ import 'package:swatch/features/shopwatch/domain/shopwatch_game_cubit.dart';
 import 'package:swatch/features/shopwatch/services/sound_player.dart';
 import 'package:swatch/features/shopwatch/shopwatch_dependencies.dart';
 import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
+import 'package:swatch/features/shopwatch/presentation/widgets/hint_overlay.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/pos_terminal_sheet.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/receipt_list.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/shop_setup_sheet.dart';
@@ -37,7 +38,61 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
   final _gameRound = ValueNotifier<GameRound?>(null);
   final _shopEnabled = ValueNotifier(true);
   final _controlsKey = GlobalKey<_ShopwatchControlsState>();
+  final _timerKey = GlobalKey();
+  OverlayEntry? _hintsEntry;
   bool _muted = false, _checkingOut = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_autoShowHints()));
+  }
+
+  Future<void> _autoShowHints() async {
+    final seen = await widget.dependencies.hintsStore.isSeen();
+    if (!seen && mounted) _showHints();
+  }
+
+  void _showHints() {
+    if (_hintsEntry != null) return;
+    final entry = OverlayEntry(
+      builder: (_) => HintOverlay(
+        onDismiss: _dismissHints,
+        targets: [
+          HintTarget(
+            targetKey: _timerKey,
+            icon: Icons.timer_outlined,
+            title: ShopwatchStrings.classicHintTitle,
+            text: ShopwatchStrings.classicHintText,
+          ),
+          const HintTarget(
+            targetKey: ShopwatchKeys.start,
+            preferAbove: true,
+            icon: Icons.shopping_cart_outlined,
+            title: ShopwatchStrings.shopHintTitle,
+            text: ShopwatchStrings.shopHintText,
+          ),
+          const HintTarget(
+            targetKey: ShopwatchKeys.pay,
+            icon: Icons.contactless,
+            title: ShopwatchStrings.payHintTitle,
+            text: ShopwatchStrings.payHintText,
+          ),
+        ],
+      ),
+    );
+    Overlay.of(context).insert(entry);
+    setState(() => _hintsEntry = entry);
+  }
+
+  void _dismissHints() {
+    final entry = _hintsEntry;
+    if (entry == null) return;
+    entry.remove();
+    entry.dispose();
+    setState(() => _hintsEntry = null);
+    unawaited(widget.dependencies.hintsStore.markSeen());
+  }
 
   Future<bool> _pay(GameRound round) async {
     if (_checkingOut) {
@@ -67,6 +122,8 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
 
   @override
   void dispose() {
+    _hintsEntry?.remove();
+    _hintsEntry?.dispose();
     _elapsed.dispose();
     _gameRound.dispose();
     _shopEnabled.dispose();
@@ -75,13 +132,23 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => PopScope(
+        canPop: _hintsEntry == null,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) _dismissHints();
+        },
+        child: _buildScaffold(context),
+      );
+
+  Widget _buildScaffold(BuildContext context) => Scaffold(
         appBar: AppBar(
             leading: Padding(
               padding: const EdgeInsets.all(8.0),
               child: ValueListenableBuilder<bool>(
                 valueListenable: _shopEnabled,
                 builder: (context, enabled, _) => IconButton.filled(
+                  key: _timerKey,
+                  tooltip: ShopwatchStrings.classicHintTitle,
                   onPressed: enabled ? () => Navigator.of(context).pushNamed(AppRoutes.stopwatch) : null,
                   style: IconButton.styleFrom(
                     foregroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -101,6 +168,16 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
                         applicationName: 'Shopwatch',
                         applicationLegalese: 'Copyright 2026 Juhász Mátyás (gatsby82)\n'
                             'Licensed under the MIT License.',
+                        children: [
+                          const SizedBox(height: 32),
+                          FilledButton.icon(
+                              icon: const Icon(Icons.help_outline),
+                              onPressed: () {
+                                _showHints();
+                                Navigator.of(context).pop();
+                              },
+                              label: const Text('Show hints'))
+                        ],
                       ),
                   icon: const Icon(Icons.info_outline)),
               IconButton(

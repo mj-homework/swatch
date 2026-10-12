@@ -15,6 +15,15 @@ abstract final class ShopwatchStrings {
   static const empty = 'Your cart is empty.';
   static const approved = 'Payment approved ✓';
   static const finePrint = 'No money was harmed in this transaction.';
+  static const gotIt = 'Got it';
+  static const showHints = 'Show hints';
+  static const hintsLabel = 'Hints';
+  static const classicHintTitle = 'Classic Stopwatch';
+  static const classicHintText = 'The by-the-spec solution: start, pause, reset, laps, analog clock.';
+  static const shopHintTitle = 'Start a shopping game';
+  static const shopHintText = 'Tap to start with item number config; double-tap to start at once.';
+  static const payHintTitle = 'Pay';
+  static const payHintText = 'Tap to check out; double-tap to reset at once.';
   static String mood(Duration elapsed, bool paused) {
     if (paused) return 'Coffee break. Back in a minute.';
     if (elapsed.inMinutes < 1) return 'Just browsing…';
@@ -48,4 +57,6 @@ abstract final class ShopwatchKeys {
   static const continueShopping = ValueKey('shop-continue-shopping');
   static const confirmPay = ValueKey('shop-confirm-pay');
   static const dismiss = ValueKey('shop-dismiss');
+  static const hintsOverlay = ValueKey('shop-hints-overlay');
+  static const hintsGotIt = ValueKey('shop-hints-got-it');
 }

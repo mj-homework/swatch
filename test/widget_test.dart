@@ -8,6 +8,9 @@ import 'dart:ui' show Size;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:swatch/app/app.dart';
+import 'package:swatch/features/shopwatch/shopwatch_dependencies.dart';
+
+import 'features/shopwatch/fakes.dart';
 
 void main() {
   testWidgets('app launches to the Shopwatch screen', (tester) async {
@@ -15,7 +18,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const SwatchApp());
+    await tester.pumpWidget(SwatchApp(shopwatchDependencies: ShopwatchDependencies(hintsStore: FakeHintsSeenStore())));
 
     expect(find.text('Shopwatch'), findsOneWidget);
   });
@@ -25,7 +28,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(const SwatchApp());
+    await tester.pumpWidget(SwatchApp(shopwatchDependencies: ShopwatchDependencies(hintsStore: FakeHintsSeenStore())));
     await tester.tap(find.byTooltip('About Shopwatch'));
     await tester.pumpAndSettle();
 

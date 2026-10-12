@@ -3,8 +3,25 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'package:swatch/features/shopwatch/services/sound_player.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
+import 'package:swatch/features/shopwatch/services/hints_seen_store.dart';
+import 'package:swatch/features/shopwatch/services/sound_player.dart';
+
+class FakeHintsSeenStore implements HintsSeenStore {
+  FakeHintsSeenStore({this.seen = true});
+
+  bool seen;
+  int markSeenCalls = 0;
+
+  @override
+  Future<bool> isSeen() async => seen;
+
+  @override
+  Future<void> markSeen() async {
+    markSeenCalls++;
+    seen = true;
+  }
+}
 
 class FakeSound implements SoundPlayer {
   int plays = 0, disposals = 0;

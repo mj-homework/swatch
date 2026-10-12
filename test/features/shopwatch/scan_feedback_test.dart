@@ -34,6 +34,7 @@ void main() {
       random: Random(1),
       timeSource: time,
       soundFactory: () => sound,
+      hintsStore: FakeHintsSeenStore(),
     );
 
     await tester.pumpWidget(MaterialApp(
