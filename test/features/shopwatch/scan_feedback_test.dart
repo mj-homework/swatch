@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2026 Juhász Mátyás
  * SPDX-License-Identifier: MIT
  */
@@ -31,8 +31,7 @@ void main() {
     );
     await tester.pumpWidget(MaterialApp(home: ShopwatchPage(dependencies: dependencies)));
 
-    await tester.tap(find.byKey(ShopwatchKeys.start));
-    await tester.tap(find.byKey(ShopwatchKeys.start));
+    await tester.longPress(find.byKey(ShopwatchKeys.start));
     await tester.pump();
     expect(sound.ticking, isTrue);
 
@@ -72,8 +71,7 @@ void main() {
       ),
     ));
 
-    await tester.tap(find.byKey(ShopwatchKeys.start));
-    await tester.tap(find.byKey(ShopwatchKeys.start));
+    await tester.longPress(find.byKey(ShopwatchKeys.start));
     await tester.pump();
     time.advance(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 16));

@@ -519,15 +519,15 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
           Widget buttons() {
             final round = _game?.state;
             return ShoppingControls(
-              start: canShop ? _shop : null,
-              onDoubleStart: canShop ? () => _shop(skipSetup: true) : null,
-              pause: !checkingOut && round?.status == RoundStatus.playing ? _togglePause : null,
+              onStart: canShop ? _shop : null,
+              onLongStart: canShop ? () => _shop(skipSetup: true) : null,
+              onPause: !checkingOut && round?.status == RoundStatus.playing ? _togglePause : null,
               paused: _game?.isPaused ?? false,
-              add: !checkingOut && round?.status == RoundStatus.playing && !(_game?.isPaused ?? false)
+              onAdd: !checkingOut && round?.status == RoundStatus.playing && !(_game?.isPaused ?? false)
                   ? _addToCart
                   : null,
-              pay: !checkingOut && _game != null ? _checkoutGame : null,
-              onDoublePay: !checkingOut && _game != null ? () => unawaited(_endRound()) : null,
+              onPay: !checkingOut && _game != null ? _checkoutGame : null,
+              onLongPay: !checkingOut && _game != null ? () => unawaited(_endRound()) : null,
             );
           }
 

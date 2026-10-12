@@ -102,7 +102,7 @@ Fix: provide the cubit with `BlocProvider`, rebuild with `BlocBuilder` / `BlocLi
 - `fontSize: 22` and `18` in `pos_terminal_sheet.dart`, `16` on the clock's digital display in `shopwatch_page.dart`.
 - They bypass the 0.9 theme scaling. Base them on `Theme.of(context).textTheme`.
 
-### 12. Double-tapping Pay resets without confirmation
+### ✅ 12. Double-tapping Pay resets without confirmation
 - Hidden destructive gesture; also delays single taps by ~300 ms.
 - The README roadmap's long-press idea is the better fix.
 
