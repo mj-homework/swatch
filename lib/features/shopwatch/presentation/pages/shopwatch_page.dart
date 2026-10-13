@@ -4,10 +4,8 @@
  */
 
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:swatch/core/formatting/duration_format.dart';
 import 'package:swatch/core/widgets/analog_clock.dart';
 import 'package:swatch/app/router.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
@@ -19,9 +17,11 @@ import 'package:swatch/features/shopwatch/presentation/scan_cue.dart';
 import 'package:swatch/app/app_dependencies.dart';
 import 'package:swatch/features/shopwatch/presentation/shopwatch_keys.dart';
 import 'package:swatch/features/shopwatch/presentation/shopwatch_strings.dart';
+import 'package:swatch/features/shopwatch/presentation/widgets/goal_box.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/hint_overlay.dart';
+import 'package:swatch/features/shopwatch/presentation/widgets/item_time_display.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/pos_terminal_sheet.dart';
-import 'package:swatch/features/shopwatch/presentation/widgets/receipt_list.dart';
+import 'package:swatch/features/shopwatch/presentation/widgets/receipt_panel.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/shop_setup_sheet.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/shopping_buttons.dart';
 
@@ -196,7 +196,7 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
                   onPay: _pay,
                 );
 
-                final receipt = _ShopwatchReceipt(
+                final receipt = ReceiptPanel(
                   gameRound: _gameRound,
                   checkingOut: _checkingOut,
                   onClear: () => _controlsKey.currentState?._emptyCart(),
@@ -437,89 +437,17 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
               }
             });
           }
-          final item = _game?.state.currentItem;
+          final round = _game?.state;
 
-          digitalDisplay() => ValueListenableBuilder<Duration>(
-                valueListenable: elapsed,
-                builder: (context, value, __) {
-                  final round = _game?.state;
-                  final showTime = round == null ||
-                      round.difficulty == Difficulty.easy ||
-                      (round.difficulty == Difficulty.normal && value < round.config.normalHideAfter);
-                  final text = showTime ? formatElapsed(value) : '--:--.---';
-                  final colors = Theme.of(context).colorScheme;
-                  return DecoratedBox(
-                    decoration: ShapeDecoration(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      shape: StadiumBorder(side: BorderSide(color: colors.outlineVariant)),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      child: Text(
-                        text,
-                        key: ShopwatchKeys.time,
-                        semanticsLabel: showTime ? 'Item time $text' : 'Item time hidden',
-                        style: TextTheme.of(context).titleLarge?.copyWith(
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                    ),
-                  );
-                },
+          clockFace() => AnalogClock(
+                elapsed: elapsed,
+                goalSec: round?.currentItem?.goal,
+                digitalDisplay: ItemTimeDisplay(elapsed: elapsed, round: round),
               );
 
-          clockFace() =>
-              AnalogClock(elapsed: elapsed, goalSec: _game?.state.currentItem?.goal, digitalDisplay: digitalDisplay());
-
-          goalBox() => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: ShapeDecoration(
-                  shape: StadiumBorder(
-                    side: BorderSide(color: Theme.of(context).colorScheme.secondary),
-                  ),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (item == null)
-                      Text(
-                        'Add to cart at exactly the right millisecond!',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      )
-                    else
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Collect ${item.shopItem.receiptLabel} at',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            formatElapsed(item.goal),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.secondary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ],
-                      ),
-                    if (item != null && !_game!.state.isEndless)
-                      Text(
-                        'Item ${_game!.state.results.length + 1} / ${_game!.state.itemCount}',
-                        textAlign: TextAlign.center,
-                      ),
-                  ],
-                ),
-              );
+          goalBox() => GoalBox(round: round);
 
           buttons() {
-            final round = _game?.state;
             return ShoppingButtons(
               landscape: widget.isWide,
               inGame: _game != null,
@@ -569,79 +497,5 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
             ],
           );
         },
-      );
-}
-
-class _ShopwatchReceipt extends StatefulWidget {
-  const _ShopwatchReceipt({
-    required this.gameRound,
-    required this.checkingOut,
-    required this.onClear,
-  });
-
-  final ValueListenable<GameRound?> gameRound;
-  final bool checkingOut;
-  final VoidCallback onClear;
-
-  @override
-  State<_ShopwatchReceipt> createState() => _ShopwatchReceiptState();
-}
-
-class _ShopwatchReceiptState extends State<_ShopwatchReceipt> {
-  final _scrollController = ScrollController();
-  String? _lastRoundId;
-  int _lastResultCount = 0;
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => LayoutBuilder(
-        builder: (context, constraints) => ValueListenableBuilder<GameRound?>(
-          valueListenable: widget.gameRound,
-          builder: (_, round, __) {
-            final resultCount = round?.results.length ?? 0;
-            final resultsCleared = _lastResultCount > 0 && resultCount == 0;
-
-            void scrollTo(double Function(ScrollPosition p) target) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!_scrollController.hasClients) return;
-
-                _scrollController.animateTo(
-                  target(_scrollController.position),
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOut,
-                );
-              });
-            }
-
-            if (resultsCleared) {
-              scrollTo((p) => p.minScrollExtent);
-            } else if (round?.id == _lastRoundId && resultCount > _lastResultCount) {
-              scrollTo((p) => p.maxScrollExtent);
-            }
-
-            _lastRoundId = round?.id;
-            _lastResultCount = resultCount;
-
-            return SingleChildScrollView(
-              controller: _scrollController,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: round == null
-                    ? const ReceiptList()
-                    : ReceiptList(
-                        showClear: round.results.isNotEmpty,
-                        onClear: !widget.checkingOut && round.results.isNotEmpty ? widget.onClear : null,
-                        round: round,
-                        showTotal: round.status == RoundStatus.finished,
-                      ),
-              ),
-            );
-          },
-        ),
       );
 }
