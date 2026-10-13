@@ -43,7 +43,7 @@ round is in progress.
    after 5 seconds; typing a number stops the countdown.
    *Long press* **Shop!** to skip the sheet and start straight away with the
    last chosen item count (unlimited the first time). **Add to cart** appears
-   where **Shop!** was, so it stays disabled for 300 ms after a long-press
+   where **Shop!** was, so it stays disabled for 555 ms after a long-press
    start – a quick follow-up tap cannot add an item by accident.
 2. **Read your shopping list.** The current item and its goal time appear
    under the clock, e.g. *Collect HAUNTED TOASTER at 00:07.350*. The goal is
@@ -85,7 +85,7 @@ Every Shopwatch button maps to a stopwatch action from the spec:
 | Spec action | Shopwatch button | Behaviour |
 |---|---|---|
 | Start | **Shop!** | Tap: opens the item count sheet. Long press: quick start. Disabled while a round is in progress. |
-| Lap | **Add to cart** | Takes the place of **Shop!** during a round; disabled for 300 ms after a long-press start. Records the current item on the receipt; the receipt scrolls to the newest line. |
+| Lap | **Add to cart** | Takes the place of **Shop!** during a round; disabled for 555 ms after a long-press start. Records the current item on the receipt; the receipt scrolls to the newest line. |
 | Pause / Resume | **Coffee break** / **Back to it** | One toggle button; enabled while a round is being played. |
 | Clear laps | **Put it all back** | Under the receipt; empties the cart and restarts at item 1. |
 | Reset | **Pay** | Tap: opens the checkout. Long press: ends the round immediately and resets the clock. |
@@ -211,6 +211,10 @@ item count sheet).
 - **Remember the hints** – show the hint overlay only on the first launch
   (e.g. with `shared_preferences`), behind the existing `HintsSeenStore`
   interface.
+- **Setup sheet countdown** – the item count sheet starts the round by
+  itself after 5 seconds, so someone still reading it ends up in a running
+  game. Consider dropping the countdown, or show it as a progress bar with a
+  clear label.
 
 ## License
 

@@ -419,14 +419,20 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
   Future<void> _endRound() async {
     final game = _game;
     if (game == null) return;
+    final subscription = _gameSubscription;
+    // Reset the UI first: awaiting the cleanup below must not delay it, and
+    // clearing _game keeps dispose() from closing the round a second time.
     _ticker.stop();
-    await widget.sound.stopTicking();
-    await _gameSubscription?.cancel();
-    await game.close();
     _game = null;
+    _gameSubscription = null;
+    _addLockout?.cancel();
+    _addLockout = null;
     elapsed.value = Duration.zero;
     widget.onRoundChanged(null);
     setState(() {});
+    await widget.sound.stopTicking();
+    await subscription?.cancel();
+    await game.close();
   }
 
   @override

@@ -141,11 +141,9 @@ void main() {
       expect(displayedTime(tester), '00:03.000');
 
       // Tap Pay again
-      print('DEBUG T2: Before second pay tap');
       await tester.tap(find.byKey(ShopwatchKeys.pay));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      print('DEBUG T2: PosTerminalSheet count: ${find.byType(PosTerminalSheet).evaluate().length}');
 
       // Approve payment via contactless tap in the checkout sheet
       final contactless = find.descendant(
@@ -221,7 +219,7 @@ void main() {
       expect(displayedTime(tester), '00:00.000');
     });
 
-    testWidgets('long-pressing Shop! locks Add to cart for 300 ms', (tester) async {
+    testWidgets('long-pressing Shop! locks Add to cart for 555 ms', (tester) async {
       await pumpShopwatch(tester);
 
       await tester.longPress(find.byKey(ShopwatchKeys.start));
@@ -233,7 +231,7 @@ void main() {
       await tester.pump();
       expect(sound.scanAccuracies, isEmpty);
 
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 555));
       await tester.tap(find.byKey(ShopwatchKeys.add));
       await tester.pump();
       expect(sound.scanAccuracies, hasLength(1));

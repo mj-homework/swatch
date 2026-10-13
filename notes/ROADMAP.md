@@ -15,7 +15,8 @@
   and Pay with long press: no tap delay, and clearer intent.
 - **Compact control layout** – left column: Coffee break / Back to it, with
   Pay below; right side: one large primary button that reads Shop! when idle
-  and Add to cart while running. Because the same button starts the clock and
-  records items, a short lap lockout (~300 ms) after start prevents a fast
-  double tap from adding an item by accident; the long-press quick start
-  removes the risk entirely.
+  and Add to cart while running.
+- **Setup sheet countdown** – the sheet auto-starts the round after 5 s
+  (`shop_setup_sheet.dart:54–62`), so a reviewer still reading it gets a
+  running game. Consider dropping the countdown, or make it visible as a
+  progress bar with a clear label.

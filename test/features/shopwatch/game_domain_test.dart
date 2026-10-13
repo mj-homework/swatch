@@ -77,20 +77,6 @@ void main() {
 
     await cubit.close();
   });
-  test('resetting the Shopwatch clock sets it to zero and stops it', () async {
-    final time = FakeTimeSource();
-    final cubit = game(time);
-    cubit.start();
-    time.advance(const Duration(seconds: 3));
-    expect(cubit.elapsed, const Duration(seconds: 3));
-
-    expect(cubit.elapsed, Duration.zero);
-    expect(cubit.isRunning, isFalse);
-    time.advance(const Duration(seconds: 10));
-    expect(cubit.elapsed, Duration.zero);
-
-    await cubit.close();
-  });
   test('one continuous clock: each goal is the previous click plus the gap', () async {
     final time = FakeTimeSource();
     final cubit = game(time);

@@ -134,8 +134,7 @@ class AnalogClock extends StatelessWidget {
 }
 
 class AnalogClockPainter extends CustomPainter {
-  AnalogClockPainter(
-      {required this.elapsed, required this.colors, this.goalSec, this.drawHands = true, this.handsOnly = false})
+  AnalogClockPainter({required this.elapsed, required this.colors, this.goalSec, this.drawHands = true, this.handsOnly = false})
       : super(repaint: elapsed);
 
   final ValueListenable<Duration> elapsed;
@@ -189,16 +188,17 @@ class AnalogClockPainter extends CustomPainter {
       );
     }
 
-    canvas
-      ..drawCircle(center, radius * 0.045, Paint()..color = colors.primary)
-      ..drawCircle(center, radius * 0.018, Paint()..color = colors.surface);
+    canvas..drawCircle(center, radius * 0.045, Paint()
+      ..color = colors.primary)..drawCircle(center, radius * 0.018, Paint()
+      ..color = colors.surface);
   }
 
   void _paintFace(Canvas canvas, Offset center, double radius) {
     canvas.drawCircle(
       center,
       radius * 0.96,
-      Paint()..color = colors.surfaceContainerHighest,
+      Paint()
+        ..color = colors.surfaceContainerHighest,
     );
     canvas.drawCircle(
       center,
@@ -250,12 +250,10 @@ class AnalogClockPainter extends CustomPainter {
     );
   }
 
-  void _paintProgressRing(
-    Canvas canvas,
-    Offset center,
-    double radius,
-    double secondAngle,
-  ) {
+  void _paintProgressRing(Canvas canvas,
+      Offset center,
+      double radius,
+      double secondAngle,) {
     final rect = Rect.fromCircle(center: center, radius: radius * 0.90);
     canvas.drawArc(
       rect,
@@ -270,15 +268,14 @@ class AnalogClockPainter extends CustomPainter {
     );
   }
 
-  void _paintHand(
-    Canvas canvas,
-    Offset center, {
-    required double angle,
-    required double length,
-    required double width,
-    required Color color,
-    double tail = 0,
-  }) {
+  void _paintHand(Canvas canvas,
+      Offset center, {
+        required double angle,
+        required double length,
+        required double width,
+        required Color color,
+        double tail = 0,
+      }) {
     canvas.drawLine(
       _polar(center, angle + math.pi, tail),
       _polar(center, angle, length),
@@ -296,7 +293,9 @@ class AnalogClockPainter extends CustomPainter {
   @override
   bool shouldRepaint(AnalogClockPainter oldDelegate) =>
       oldDelegate.elapsed != elapsed ||
-      oldDelegate.colors != colors ||
-      oldDelegate.goalSec != goalSec ||
-      oldDelegate.handsOnly != handsOnly;
+          oldDelegate.colors != colors ||
+          oldDelegate.goalSec != goalSec ||
+          oldDelegate.handsOnly != handsOnly ||
+          oldDelegate.drawHands != drawHands;
 }
+
