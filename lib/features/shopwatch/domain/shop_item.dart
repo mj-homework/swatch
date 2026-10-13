@@ -105,7 +105,7 @@ const itemNames = [
   'egg',
   'sponge',
   'alarm clock',
-  'stopwatch',
+  'swatch',
   'paprika',
   'wooden spoon',
   'shopping trolley',
@@ -139,7 +139,9 @@ ShopItem nextItem(List<ShopItem> current, Random random) {
   if (current.length >= shopItemCombinationCount) {
     throw StateError('All shop item combinations have been used');
   }
+
   ShopItem item;
+
   do {
     item = ShopItem(
       itemProperties[random.nextInt(itemProperties.length)],
@@ -147,5 +149,6 @@ ShopItem nextItem(List<ShopItem> current, Random random) {
       minPieces + random.nextInt(maxPieces - minPieces + 1),
     );
   } while (current.contains(item));
+
   return item;
 }

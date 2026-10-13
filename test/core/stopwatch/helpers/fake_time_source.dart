@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'package:swatch/core/stopwatch/time_source.dart';
+import 'package:swatch/core/swatch/time_source.dart';
 
 /// Manually controlled clock for deterministic tests.
 class FakeTimeSource implements TimeSource {

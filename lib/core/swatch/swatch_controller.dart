@@ -7,12 +7,12 @@ import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 
-import 'package:swatch/core/stopwatch/lap.dart';
-import 'package:swatch/core/stopwatch/time_source.dart';
+import 'package:swatch/core/swatch/lap.dart';
+import 'package:swatch/core/swatch/time_source.dart';
 
 enum StopwatchStatus { idle, running, paused }
 
-/// Pure business logic of the stopwatch, independent of any widget.
+/// Pure business logic of the swatch, independent of any widget.
 ///
 /// Elapsed time is not accumulated tick by tick (which would drift), it is
 /// computed on demand from a monotonic [TimeSource]:
@@ -22,8 +22,8 @@ enum StopwatchStatus { idle, running, paused }
 ///
 /// Listeners are notified on state changes only (start, pause, lap, ...),
 /// not on every tick. The UI decides how often it wants to repaint.
-class StopwatchController extends ChangeNotifier {
-  StopwatchController({TimeSource? timeSource}) : _timeSource = timeSource ?? MonotonicTimeSource();
+class SwatchController extends ChangeNotifier {
+  SwatchController({TimeSource? timeSource}) : _timeSource = timeSource ?? MonotonicTimeSource();
 
   final TimeSource _timeSource;
 
@@ -50,22 +50,27 @@ class StopwatchController extends ChangeNotifier {
   /// measurement nor notifies listeners.
   void start() {
     if (isRunning) return;
+
     _runStartedAt = _timeSource.now();
     _status = StopwatchStatus.running;
+
     notifyListeners();
   }
 
   /// Freezes the elapsed time. No-op unless running.
   void pause() {
     if (!isRunning) return;
+
     _accumulated = elapsed;
     _status = StopwatchStatus.paused;
+
     notifyListeners();
   }
 
   /// Continues from where it was paused. No-op unless paused.
   void resume() {
     if (!isPaused) return;
+
     start();
   }
 
@@ -79,28 +84,34 @@ class StopwatchController extends ChangeNotifier {
     }
   }
 
-  /// Stops the stopwatch, sets it back to zero and clears the laps.
+  /// Stops the swatch, sets it back to zero and clears the laps.
   void reset() {
     if (isIdle && _accumulated == Duration.zero && _laps.isEmpty) return;
+
     _status = StopwatchStatus.idle;
     _accumulated = Duration.zero;
     _lastLapSplit = Duration.zero;
     _laps.clear();
+
     notifyListeners();
   }
 
   /// Records a lap. Only possible while running; returns `null` otherwise.
   Lap? lap() {
     if (!isRunning) return null;
+
     final split = elapsed;
     final lap = Lap(
       number: _laps.length + 1,
       lapTime: split - _lastLapSplit,
       splitTime: split,
     );
+
     _lastLapSplit = split;
     _laps.add(lap);
+
     notifyListeners();
+
     return lap;
   }
 
@@ -110,7 +121,9 @@ class StopwatchController extends ChangeNotifier {
   /// so it always reflects the real duration of that lap.
   void clearLaps() {
     if (_laps.isEmpty) return;
+
     _laps.clear();
+
     notifyListeners();
   }
 }

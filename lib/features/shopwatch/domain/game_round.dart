@@ -63,6 +63,7 @@ class GameRound {
   GameItem? get currentItem => results.length < items.length && results.length < goals.length
       ? GameItem(items[results.length], goals[results.length])
       : null;
+
   GameRound copyWith({RoundStatus? status, List<ItemResult>? results, List<Duration>? goals, List<ShopItem>? items}) =>
       GameRound(
         config: config,

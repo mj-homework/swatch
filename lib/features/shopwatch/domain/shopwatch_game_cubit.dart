@@ -5,8 +5,8 @@
 
 import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:swatch/core/stopwatch/stopwatch_controller.dart';
-import 'package:swatch/core/stopwatch/time_source.dart';
+import 'package:swatch/core/swatch/swatch_controller.dart';
+import 'package:swatch/core/swatch/time_source.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/domain/game_round.dart';
 import 'package:swatch/features/shopwatch/domain/shop_item.dart';
@@ -20,13 +20,13 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
       required String roundId,
       required Random random,
       TimeSource? timeSource})
-      : _engine = StopwatchController(timeSource: timeSource),
+      : _engine = SwatchController(timeSource: timeSource),
         _random = random,
         super(_prepare(config, difficulty, itemCount, roundId, random)) {
     _engine.addListener(_capture);
   }
 
-  final StopwatchController _engine;
+  final SwatchController _engine;
   final Random _random;
   final List<ShopItem> _usedItems = [];
   int _lapBase = 0;

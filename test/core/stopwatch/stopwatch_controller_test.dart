@@ -4,20 +4,20 @@
  */
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:swatch/core/stopwatch/lap.dart';
-import 'package:swatch/core/stopwatch/stopwatch_controller.dart';
-import 'package:swatch/core/stopwatch/time_source.dart';
+import 'package:swatch/core/swatch/lap.dart';
+import 'package:swatch/core/swatch/swatch_controller.dart';
+import 'package:swatch/core/swatch/time_source.dart';
 
 import 'helpers/fake_time_source.dart';
 
 void main() {
   late FakeTimeSource time;
-  late StopwatchController controller;
+  late SwatchController controller;
   late int notifications;
 
   setUp(() {
     time = FakeTimeSource();
-    controller = StopwatchController(timeSource: time);
+    controller = SwatchController(timeSource: time);
     notifications = 0;
     controller.addListener(() => notifications++);
   });
@@ -44,7 +44,7 @@ void main() {
     });
 
     test('elapsed time increases with the real monotonic clock', () async {
-      final real = StopwatchController(timeSource: MonotonicTimeSource());
+      final real = SwatchController(timeSource: MonotonicTimeSource());
       addTearDown(real.dispose);
 
       real.start();
@@ -246,7 +246,7 @@ void main() {
       expect(controller.laps, isEmpty);
     });
 
-    test('clearLaps empties the list but keeps the stopwatch running', () {
+    test('clearLaps empties the list but keeps the swatch running', () {
       controller.start();
       time.advance(const Duration(seconds: 1));
       controller.lap();

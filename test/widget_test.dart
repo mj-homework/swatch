@@ -29,7 +29,7 @@ void main() {
     expect(find.text('Shopwatch'), findsOneWidget);
   });
 
-  testWidgets('Classic stopwatch uses the time source from dependencies', (tester) async {
+  testWidgets('Classic swatch uses the time source from dependencies', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);

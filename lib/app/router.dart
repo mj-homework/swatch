@@ -12,7 +12,7 @@ import 'package:swatch/app/app_dependencies.dart';
 
 abstract final class AppRoutes {
   static const landing = '/';
-  static const stopwatch = '/stopwatch';
+  static const stopwatch = '/swatch';
   static const shopwatch = '/shopwatch';
 }
 

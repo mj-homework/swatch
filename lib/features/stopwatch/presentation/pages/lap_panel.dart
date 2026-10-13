@@ -5,8 +5,8 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:swatch/core/stopwatch/lap.dart';
-import 'package:swatch/core/stopwatch/stopwatch_controller.dart';
+import 'package:swatch/core/swatch/lap.dart';
+import 'package:swatch/core/swatch/swatch_controller.dart';
 import 'package:swatch/core/formatting/duration_format.dart';
 import 'package:swatch/core/widgets/swatch_keys.dart';
 
@@ -16,7 +16,7 @@ import 'package:swatch/core/widgets/swatch_keys.dart';
 class LapPanel extends StatelessWidget {
   const LapPanel({super.key, required this.controller});
 
-  final StopwatchController controller;
+  final SwatchController controller;
 
   @override
   Widget build(BuildContext context) {

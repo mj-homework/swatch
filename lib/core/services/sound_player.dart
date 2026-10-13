@@ -55,7 +55,7 @@ class AudioSoundPlayer implements SoundPlayer {
         await _tickPlayer.play(AssetSource('sounds/tick_loop_10.wav'), volume: 0.2);
       }
     } catch (_) {
-      // Audio must never interfere with stopwatch operation.
+      // Audio must never interfere with swatch operation.
     }
   }
 
@@ -66,7 +66,7 @@ class AudioSoundPlayer implements SoundPlayer {
     try {
       await _tickPlayer.stop();
     } catch (_) {
-      // Audio must never interfere with stopwatch operation.
+      // Audio must never interfere with swatch operation.
     }
   }
 

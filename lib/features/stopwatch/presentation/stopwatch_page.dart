@@ -10,15 +10,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:swatch/core/services/layout_service.dart';
 
-import 'package:swatch/core/stopwatch/stopwatch_controller.dart';
-import 'package:swatch/core/stopwatch/time_source.dart';
+import 'package:swatch/core/swatch/swatch_controller.dart';
+import 'package:swatch/core/swatch/time_source.dart';
 import 'package:swatch/core/widgets/analog_clock.dart';
 import 'package:swatch/features/stopwatch/presentation/pages/control_buttons.dart';
 import 'package:swatch/features/stopwatch/presentation/pages/elapsed_time_display.dart';
 import 'package:swatch/features/stopwatch/presentation/pages/lap_panel.dart';
 import 'package:swatch/core/services/sound_player.dart';
 
-/// Main screen. Owns the [StopwatchController] and the frame [Ticker].
+/// Main screen. Owns the [SwatchController] and the frame [Ticker].
 ///
 /// The controller only notifies on state changes. While running, a [Ticker]
 /// (synchronized with the display refresh rate) pushes the current elapsed
@@ -35,7 +35,7 @@ class StopwatchPage extends StatefulWidget {
 }
 
 class _StopwatchPageState extends State<StopwatchPage> with SingleTickerProviderStateMixin {
-  late final StopwatchController _controller = StopwatchController(timeSource: widget.timeSource);
+  late final SwatchController _controller = SwatchController(timeSource: widget.timeSource);
   final ValueNotifier<Duration> _elapsed = ValueNotifier(Duration.zero);
   late final Ticker _ticker;
   bool _muted = false;
@@ -81,7 +81,7 @@ class _StopwatchPageState extends State<StopwatchPage> with SingleTickerProvider
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Classic stopwatch'),
+        title: const Text('Classic swatch'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -133,7 +133,7 @@ class _StopwatchPageState extends State<StopwatchPage> with SingleTickerProvider
 class _StopwatchSection extends StatelessWidget {
   const _StopwatchSection({required this.controller, required this.elapsed});
 
-  final StopwatchController controller;
+  final SwatchController controller;
   final ValueListenable<Duration> elapsed;
 
   @override

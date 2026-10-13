@@ -34,7 +34,7 @@ const itemNames = [
   'jar of pickles', 'bath bomb', 'birthday card', 'doormat', 'hairnet',
   'lunchbox', 'teapot', 'yo-yo', 'balloon', 'bucket', 'fridge magnet',
   'salami', 'croissant', 'potato', 'duvet', 'slipper', 'egg', 'sponge',
-  'alarm clock', 'stopwatch', 'paprika', 'wooden spoon', 'shopping trolley',
+  'alarm clock', 'swatch', 'paprika', 'wooden spoon', 'shopping trolley',
   'disco ball',
 ];
 

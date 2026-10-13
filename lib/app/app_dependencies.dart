@@ -5,7 +5,7 @@
 
 import 'dart:math';
 import 'package:flutter/services.dart';
-import 'package:swatch/core/stopwatch/time_source.dart';
+import 'package:swatch/core/swatch/time_source.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/services/hints_seen_store.dart';
 import 'package:swatch/core/services/sound_player.dart';

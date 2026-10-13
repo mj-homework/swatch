@@ -5,7 +5,7 @@
 
 /// Abstraction over a monotonic clock.
 ///
-/// The stopwatch logic never reads the wall clock directly, which keeps it
+/// The swatch logic never reads the wall clock directly, which keeps it
 /// deterministic and fully testable: tests inject a fake implementation and
 /// advance time manually instead of sleeping.
 abstract interface class TimeSource {
