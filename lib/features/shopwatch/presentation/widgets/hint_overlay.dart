@@ -1,12 +1,15 @@
-// Copyright (c) 2026 Juhász Mátyás
-// SPDX-License-Identifier: MIT
+/*
+ * Copyright (c) 2026 Juhász Mátyás
+ * SPDX-License-Identifier: MIT
+ */
 
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
+import 'package:swatch/features/shopwatch/presentation/shopwatch_keys.dart';
+import 'package:swatch/features/shopwatch/presentation/shopwatch_strings.dart';
 
 class HintTarget {
   const HintTarget({

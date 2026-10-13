@@ -11,7 +11,7 @@ import 'package:swatch/core/services/sound_player.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/presentation/pages/shopwatch_page.dart';
 import 'package:swatch/app/app_dependencies.dart';
-import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
+import 'package:swatch/features/shopwatch/presentation/shopwatch_keys.dart';
 
 import '../../core/stopwatch/helpers/fake_time_source.dart';
 import 'fakes.dart';

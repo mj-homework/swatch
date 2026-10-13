@@ -5,7 +5,8 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
+import 'package:swatch/features/shopwatch/presentation/shopwatch_keys.dart';
+import 'package:swatch/features/shopwatch/presentation/shopwatch_strings.dart';
 
 class ShoppingButtons extends StatelessWidget {
   const ShoppingButtons({
@@ -91,6 +92,7 @@ class ShoppingButtons extends StatelessWidget {
 
     if (landscape) {
       return Column(
+        spacing: 8,
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -101,9 +103,8 @@ class ShoppingButtons extends StatelessWidget {
       );
     }
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Row(children: [Expanded(child: pauseButton), const SizedBox(width: 16), Expanded(child: payButton)]),
-      const SizedBox(width: 16),
+    return Column(spacing: 8, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Row(spacing: 8, children: [Expanded(child: pauseButton), Expanded(child: payButton)]),
       inGame ? addButton : startButton
     ]);
   }

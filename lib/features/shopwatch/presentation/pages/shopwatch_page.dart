@@ -17,7 +17,8 @@ import 'package:swatch/core/services/layout_service.dart';
 import 'package:swatch/core/services/sound_player.dart';
 import 'package:swatch/features/shopwatch/presentation/scan_cue.dart';
 import 'package:swatch/app/app_dependencies.dart';
-import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
+import 'package:swatch/features/shopwatch/presentation/shopwatch_keys.dart';
+import 'package:swatch/features/shopwatch/presentation/shopwatch_strings.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/hint_overlay.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/pos_terminal_sheet.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/receipt_list.dart';
@@ -102,17 +103,8 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
     setState(() => _checkingOut = true);
     var paid = false;
     try {
-      paid = await showCheckout(context,
-          total: round.totalTime,
-          averageDiff: round.averageError,
-          isEndless: round.isEndless,
-          receipt: ReceiptList(
-            results: round.results,
-            total: round.totalTime,
-          ),
-          sound: _sound,
-          muted: _muted,
-          haptic: widget.dependencies.haptic);
+      paid =
+          await showCheckout(context, round: round, sound: _sound, muted: _muted, haptic: widget.dependencies.haptic);
     } finally {
       if (mounted) {
         setState(() => _checkingOut = false);
@@ -155,7 +147,6 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
                     foregroundColor: Theme.of(context).scaffoldBackgroundColor,
                   ),
                   icon: const Icon(Icons.timer_outlined),
-                  // label: const Text(''),
                 ),
               ),
             ),
@@ -651,8 +642,7 @@ class _ShopwatchReceiptState extends State<_ShopwatchReceipt> {
                     : ReceiptList(
                         showClear: round.results.isNotEmpty,
                         onClear: !widget.checkingOut && round.results.isNotEmpty ? widget.onClear : null,
-                        results: round.results,
-                        total: round.totalTime,
+                        round: round,
                         showTotal: round.status == RoundStatus.finished,
                       ),
               ),

@@ -7,31 +7,24 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:swatch/core/formatting/duration_format.dart';
 import 'package:swatch/core/services/sound_player.dart';
-import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
+import 'package:swatch/features/shopwatch/domain/game_round.dart';
+import 'package:swatch/features/shopwatch/presentation/widgets/receipt_list.dart';
+import 'package:swatch/features/shopwatch/presentation/shopwatch_keys.dart';
 
 /// Resolves to true only when the gamer paid and closed the sheet with Done.
 Future<bool> showCheckout(BuildContext context,
-        {required Duration total,
-        required Duration averageDiff,
-        required bool isEndless,
-        required Widget receipt,
+        {required GameRound round,
         required SoundPlayer sound,
         required bool muted,
         required Future<void> Function() haptic}) =>
     showModalBottomSheet<bool>(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        isDismissible: false,
-        enableDrag: false,
-        builder: (_) => PosTerminalSheet(
-            total: total,
-            averageDiff: averageDiff,
-            isEndless: isEndless,
-            receipt: receipt,
-            sound: sound,
-            muted: muted,
-            haptic: haptic)).then((paid) => paid ?? false);
+            context: context,
+            isScrollControlled: true,
+            useSafeArea: true,
+            isDismissible: false,
+            enableDrag: false,
+            builder: (_) => PosTerminalSheet(round: round, sound: sound, muted: muted, haptic: haptic))
+        .then((paid) => paid ?? false);
 
 /// Returns true when the gamer chooses to cancel shopping.
 Future<bool> showNothingToPay(BuildContext context) async =>
@@ -61,19 +54,9 @@ Future<bool> showNothingToPay(BuildContext context) async =>
 
 class PosTerminalSheet extends StatefulWidget {
   const PosTerminalSheet(
-      {super.key,
-      required this.total,
-      required this.averageDiff,
-      required this.isEndless,
-      required this.receipt,
-      required this.sound,
-      required this.muted,
-      required this.haptic});
+      {super.key, required this.round, required this.sound, required this.muted, required this.haptic});
 
-  final Duration total;
-  final Duration averageDiff;
-  final bool isEndless;
-  final Widget receipt;
+  final GameRound round;
   final SoundPlayer sound;
   final bool muted;
   final Future<void> Function() haptic;
@@ -129,7 +112,7 @@ class _PosTerminalSheetState extends State<PosTerminalSheet> with SingleTickerPr
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('AVERAGE DIFF: ${formatElapsed(widget.averageDiff)}',
+                Text('AVERAGE DIFF: ${formatElapsed(widget.round.averageError)}',
                     style: TextStyle(
                       fontFamily: 'monospace',
                       fontSize: Theme.of(context).textTheme.titleMedium?.fontSize,
@@ -143,19 +126,18 @@ class _PosTerminalSheetState extends State<PosTerminalSheet> with SingleTickerPr
                       child: Icon(Icons.contactless, color: Theme.of(context).colorScheme.primary),
                     ),
                   ),
-                  // const Text('Contactless'),
                   const SizedBox(height: 12),
                   Wrap(spacing: 12, children: [
                     OutlinedButton(
                       key: ShopwatchKeys.skip,
                       onPressed: _close,
-                      child: Text(widget.isEndless ? 'Continue shopping' : 'Cancel'),
+                      child: Text(widget.round.isEndless ? 'Continue shopping' : 'Cancel'),
                     ),
                   ]),
                 ] else ...[
                   const SizedBox(height: 12),
                   Flexible(
-                    child: SingleChildScrollView(child: widget.receipt),
+                    child: SingleChildScrollView(child: ReceiptList(round: widget.round)),
                   ),
                   const SizedBox(height: 12),
                   FilledButton(

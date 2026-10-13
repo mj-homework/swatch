@@ -5,25 +5,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:swatch/core/formatting/duration_format.dart';
-import 'package:swatch/core/services/layout_service.dart';
-import 'package:swatch/core/stopwatch/lap.dart';
-import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/domain/game_round.dart';
-import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
+import 'package:swatch/features/shopwatch/presentation/shopwatch_keys.dart';
+import 'package:swatch/features/shopwatch/presentation/shopwatch_strings.dart';
+import 'package:swatch/features/shopwatch/presentation/shopwatch_style.dart';
 
 class ReceiptList extends StatelessWidget {
-  const ReceiptList(
-      {super.key,
-      this.laps = const [],
-      this.results,
-      this.total = Duration.zero,
-      this.showTotal = true,
-      this.showClear = false,
-      this.onClear});
+  const ReceiptList({super.key, this.round, this.showTotal = true, this.showClear = false, this.onClear});
 
-  final List<Lap> laps;
-  final List<ItemResult>? results;
-  final Duration total;
+  /// Round to print; null prints an empty receipt.
+  final GameRound? round;
   final bool showTotal;
 
   /// Shows the Clear button in the header (disabled while [onClear] is null).
@@ -32,39 +23,17 @@ class ReceiptList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int? fastest, slowest;
-    if (laps.length >= 3) {
-      fastest = 0;
-      slowest = 0;
-      for (var i = 1; i < laps.length; i++) {
-        if (laps[i].lapTime < laps[fastest!].lapTime) fastest = i;
-        if (laps[i].lapTime > laps[slowest!].lapTime) slowest = i;
-      }
-      // Earliest wins ties. All-equal receipts have only a BEST DEAL.
-      if (fastest == slowest) slowest = null;
-    }
-    final game = results;
-    final averageDiff = game == null || game.isEmpty
-        ? null
-        : Duration(
-            microseconds: game.fold(Duration.zero, (sum, r) => sum + r.difference.abs()).inMicroseconds ~/ game.length);
+    final results = round?.results ?? const <ItemResult>[];
 
-    lastRow() {
-      final itemsText = Text('${game?.length ?? laps.length} items');
-      final averageDiffText = Text('AVERAGE DIFF: ${formatElapsed(averageDiff ?? Duration.zero)}');
-
-      if (averageDiff == null) return itemsText;
-
-      return LayoutService.isWide(MediaQuery.sizeOf(context).width)
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [itemsText, averageDiffText],
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [itemsText, averageDiffText],
-            );
-    }
+    // Side by side when the receipt is wide enough, stacked when it is not.
+    lastRow() => Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          spacing: 12,
+          children: [
+            Text('${results.length} items'),
+            if (results.isNotEmpty) Text('AVERAGE DIFF: ${formatElapsed(round!.averageError)}'),
+          ],
+        );
 
     return ClipPath(
       clipper: _TornEdge(),
@@ -79,59 +48,44 @@ class ReceiptList extends StatelessWidget {
                   children: [
                     const Text('RECEIPT'),
                     const _DashedRule(),
-                    if ((game ?? laps).isEmpty) const Text(ShopwatchStrings.empty),
-                    // if (game == null)
-                    //   for (var i = 0; i < laps.length; i++)
-                    //     Padding(
-                    //       padding: const EdgeInsets.symmetric(vertical: 5),
-                    //       child: Text('ITEM ${laps[i].number.toString().padLeft(2, '0')} · ${formatElapsed(laps[i].lapTime)}'
-                    //           '${i == fastest ? '  BEST DEAL' : ''}${i == slowest ? '  OVERPRICED' : ''}'
-                    //           '\n  running total ${formatElapsed(laps[i].splitTime)}'),
-                    //     ),
-                    if (game != null)
-                      for (final result in game)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 6),
-                          child: DefaultTextStyle.merge(
-                            style: TextStyle(
-                                color: switch (result.accuracy) {
-                              Accuracy.perfect => const Color(0xFF126A36),
-                              Accuracy.close => const Color(0xFF407221),
-                              Accuracy.fair => const Color(0xFF8C5800),
-                              Accuracy.missed => const Color(0xFFB32121),
-                            }),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        result.item.shopItem.receiptLabel,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                    if (results.isEmpty) const Text(ShopwatchStrings.empty),
+                    for (final result in results)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: DefaultTextStyle.merge(
+                          style: TextStyle(color: ShopwatchStyle.accuracy(result.accuracy)),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      result.item.shopItem.receiptLabel,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    const SizedBox(width: 12),
-                                    Text(result.accuracy.name.toUpperCase()),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('goal ${formatElapsed(result.item.goal)}'),
-                                    Text('${result.difference.isNegative ? '−' : '+'}'
-                                        '${formatElapsed(result.difference.abs())}'),
-                                  ],
-                                ),
-                                Text('got  ${formatElapsed(result.actual)}'),
-                              ],
-                            ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(result.accuracy.name.toUpperCase()),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('goal ${formatElapsed(result.item.goal)}'),
+                                  Text('${result.difference.isNegative ? '−' : '+'}'
+                                      '${formatElapsed(result.difference.abs())}'),
+                                ],
+                              ),
+                              Text('got  ${formatElapsed(result.actual)}'),
+                            ],
                           ),
                         ),
+                      ),
                     const _DashedRule(),
                     lastRow(),
-                    if (showTotal) Text('TOTAL TIME ${formatElapsed(total)}'),
+                    if (showTotal) Text('TOTAL TIME ${formatElapsed(round?.totalTime ?? Duration.zero)}'),
                     if (showClear)
                       Column(
                         children: [

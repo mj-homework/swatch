@@ -5,7 +5,8 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
+import 'package:swatch/features/shopwatch/presentation/shopwatch_keys.dart';
+import 'package:swatch/features/shopwatch/presentation/shopwatch_strings.dart';
 
 /// The gamer's choice from the setup sheet. [count] null means unlimited.
 class ShopChoice {

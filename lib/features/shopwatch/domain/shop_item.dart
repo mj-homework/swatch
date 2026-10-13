@@ -123,6 +123,7 @@ class ShopItem {
   final String name;
   final int pieces;
 
+  // it could show pieces as well, but its not used now
   // String get receiptLabel => '${'$property $name'.toUpperCase()} ×$pieces';
   String get receiptLabel => '$property $name'.toUpperCase();
 

@@ -1,5 +1,7 @@
-// Copyright (c) 2026 Juhász Mátyás
-// SPDX-License-Identifier: MIT
+/*
+ * Copyright (c) 2026 Juhász Mátyás
+ * SPDX-License-Identifier: MIT
+ */
 
 abstract interface class HintsSeenStore {
   Future<bool> isSeen();
