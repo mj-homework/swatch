@@ -184,7 +184,7 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final controls = _ShopwatchControls(
-                  landscape: LayoutService.isWide(constraints.maxWidth),
+                  isWide: LayoutService.isWide(constraints.maxWidth),
                   key: _controlsKey,
                   elapsed: _elapsed,
                   shopEnabled: _shopEnabled,
@@ -228,7 +228,7 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
 class _ShopwatchControls extends StatefulWidget {
   const _ShopwatchControls({
     super.key,
-    required this.landscape,
+    required this.isWide,
     required this.elapsed,
     required this.shopEnabled,
     required this.checkingOut,
@@ -239,7 +239,7 @@ class _ShopwatchControls extends StatefulWidget {
     required this.onPay,
   });
 
-  final bool landscape;
+  final bool isWide;
   final ValueNotifier<Duration> elapsed;
   final ValueNotifier<bool> shopEnabled;
   final bool checkingOut;
@@ -459,8 +459,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
                         text,
                         key: ShopwatchKeys.time,
                         semanticsLabel: showTime ? 'Item time $text' : 'Item time hidden',
-                        style: TextStyle(
-                          fontSize: Theme.of(context).textTheme.titleLarge?.fontSize,
+                        style: TextTheme.of(context).titleLarge?.copyWith(
                           fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                       ),
@@ -522,7 +521,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
           buttons() {
             final round = _game?.state;
             return ShoppingButtons(
-              landscape: widget.landscape,
+              landscape: widget.isWide,
               inGame: _game != null,
               onStart: canShop ? _shop : null,
               onLongStart: canShop ? _quickStart : null,
@@ -539,7 +538,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
             );
           }
 
-          if (widget.landscape) {
+          if (widget.isWide) {
             return Column(
               children: [
                 Expanded(
@@ -561,12 +560,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Flexible(
-                child: ConstrainedBox(
-                  constraints: LayoutService.isWide(constraints.maxWidth)
-                      ? const BoxConstraints(maxWidth: 640, maxHeight: 640)
-                      : const BoxConstraints(),
-                  child: AspectRatio(aspectRatio: 1, child: clockFace()),
-                ),
+                child: AspectRatio(aspectRatio: 1, child: clockFace()),
               ),
               const SizedBox(height: 8),
               goalBox(),

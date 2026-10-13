@@ -1,0 +1,5 @@
+root = true
+
+# UTF-8 without BOM, so editors keep source files consistent.
+[*]
+charset = utf-8

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2026 Juhász Mátyás
  * SPDX-License-Identifier: MIT
  */

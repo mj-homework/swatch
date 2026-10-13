@@ -29,7 +29,7 @@ class AnalogClock extends StatelessWidget {
 
   final ValueListenable<Duration> elapsed;
 
-  /// Optional target time, marked as a red tick on the seconds scale.
+  /// Optional target time, marked as a green tick on the seconds scale.
   final Duration? goalSec;
 
   /// Optional digital readout rendered over the lower half of the clock face.
