@@ -23,6 +23,7 @@ void main() {
       roundId: 'test',
       random: Random(7),
       timeSource: time);
+
   test('seeded generated items, inclusive goals, and immutable lists', () async {
     final config = GameConfig();
     ShopwatchGameCubit create() => ShopwatchGameCubit(
@@ -45,6 +46,7 @@ void main() {
     await first.close();
     await second.close();
   });
+
   test('starting the Shopwatch increases elapsed time', () async {
     final time = FakeTimeSource();
     final cubit = game(time);
@@ -61,6 +63,7 @@ void main() {
 
     await cubit.close();
   });
+
   test('pausing the Shopwatch freezes elapsed time', () async {
     final time = FakeTimeSource();
     final cubit = game(time);
@@ -77,6 +80,7 @@ void main() {
 
     await cubit.close();
   });
+
   test('one continuous clock: each goal is the previous click plus the gap', () async {
     final time = FakeTimeSource();
     final cubit = game(time);
@@ -89,9 +93,6 @@ void main() {
     cubit.addToCart();
     expect(cubit.state.results.single.difference.inMilliseconds, 50);
     expect(cubit.state.currentItem!.goal, const Duration(milliseconds: 8050));
-    cubit.pause();
-    cubit.clear();
-    cubit.reset();
     expect(cubit.state.status, RoundStatus.playing);
     time.advance(const Duration(milliseconds: 2750));
     cubit.addToCart();
@@ -106,18 +107,11 @@ void main() {
     expect(cubit.isRunning, isFalse);
     cubit.addToCart();
     expect(cubit.state.results.length, 3);
-    cubit.reset();
-    expect(cubit.state.status, RoundStatus.ready);
-    expect(cubit.elapsed, Duration.zero);
-    expect(cubit.state.goals, [const Duration(seconds: 5)]);
-    cubit.start();
-    time.advance(const Duration(seconds: 1));
-    cubit.addToCart();
-    expect(cubit.state.results, hasLength(1));
     await cubit.close();
     cubit.start();
     cubit.addToCart();
   });
+
   test('empty cart restarts at item 1 without resetting the clock', () async {
     final time = FakeTimeSource();
     final cubit = game(time);
@@ -136,6 +130,7 @@ void main() {
     expect(cubit.state.results.single.difference, const Duration(seconds: 1));
     await cubit.close();
   });
+
   test('endless round never finishes and keeps producing items', () async {
     final time = FakeTimeSource();
     final cubit = ShopwatchGameCubit(
@@ -156,6 +151,7 @@ void main() {
     expect(cubit.state.isEndless, isTrue);
     await cubit.close();
   });
+
   test('gaps stay within the configured range', () async {
     final time = FakeTimeSource();
     final config = GameConfig();
@@ -171,6 +167,7 @@ void main() {
     }
     await cubit.close();
   });
+
   test('accuracy boundary buckets and invalid configurations', () {
     final config = GameConfig();
     for (final pair in [

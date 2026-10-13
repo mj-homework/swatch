@@ -279,7 +279,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
 
   AppDependencies get dependencies => widget.dependencies;
 
-  bool get canShop => !checkingOut && (_game == null || _game!.state.status == RoundStatus.ready);
+  bool get canShop => !checkingOut && _game == null;
 
   @override
   void didUpdateWidget(_ShopwatchControls oldWidget) {
@@ -316,10 +316,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
   Future<void> _shop({bool skipSetup = false}) async {
     final game = _game;
     if (checkingOut) return;
-    if (game != null) {
-      if (game.state.status == RoundStatus.ready) game.start();
-      return;
-    }
+    if (game != null) return;
 
     if (!skipSetup) {
       final choice = await showShopSetup(context);

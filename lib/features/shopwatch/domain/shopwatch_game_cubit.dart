@@ -123,19 +123,6 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
     if (wasFinished) _engine.togglePause();
   }
 
-  // These operations deliberately cannot change an active round.
-  void pause() {}
-
-  void clear() {}
-
-  void reset() {
-    if (isClosed || state.status == RoundStatus.playing) return;
-    _engine.reset();
-    _lapBase = 0;
-    _usedItems.clear();
-    emit(state.copyWith(results: [], goals: state.goals.take(1).toList(), items: [], status: RoundStatus.ready));
-  }
-
   @override
   Future<void> close() {
     _engine.removeListener(_capture);
