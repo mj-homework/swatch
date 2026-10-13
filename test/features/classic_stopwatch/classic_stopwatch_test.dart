@@ -9,7 +9,7 @@ import 'package:swatch/core/widgets/swatch_keys.dart';
 import 'package:swatch/features/stopwatch/presentation/stopwatch_page.dart';
 import 'package:swatch/core/widgets/analog_clock.dart';
 
-import '../../core/stopwatch/helpers/fake_time_source.dart';
+import '../../core/swatch/helpers/fake_time_source.dart';
 import '../shopwatch/fakes.dart';
 
 /// Test case 4 – widget tests simulating user interaction.

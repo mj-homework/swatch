@@ -13,7 +13,7 @@ import 'package:swatch/features/shopwatch/presentation/pages/shopwatch_page.dart
 import 'package:swatch/app/app_dependencies.dart';
 import 'package:swatch/features/shopwatch/presentation/shopwatch_keys.dart';
 
-import '../../core/stopwatch/helpers/fake_time_source.dart';
+import '../../core/swatch/helpers/fake_time_source.dart';
 import 'fakes.dart';
 
 void main() {

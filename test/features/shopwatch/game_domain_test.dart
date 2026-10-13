@@ -9,7 +9,7 @@ import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/domain/game_round.dart';
 import 'package:swatch/features/shopwatch/domain/shopwatch_game_cubit.dart';
 import 'package:swatch/features/shopwatch/domain/shop_item.dart';
-import '../../core/stopwatch/helpers/fake_time_source.dart';
+import '../../core/swatch/helpers/fake_time_source.dart';
 
 void main() {
   ShopwatchGameCubit game(FakeTimeSource time, {int count = 3}) => ShopwatchGameCubit(

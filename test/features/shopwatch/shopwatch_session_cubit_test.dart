@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/domain/game_round.dart';
 import 'package:swatch/features/shopwatch/domain/shopwatch_session_cubit.dart';
-import '../../core/stopwatch/helpers/fake_time_source.dart';
+import '../../core/swatch/helpers/fake_time_source.dart';
 
 void main() {
   late FakeTimeSource time;

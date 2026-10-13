@@ -10,7 +10,7 @@ import 'package:swatch/app/router.dart';
 import 'package:swatch/core/widgets/swatch_keys.dart';
 import 'package:swatch/app/app_dependencies.dart';
 
-import 'core/stopwatch/helpers/fake_time_source.dart';
+import 'core/swatch/helpers/fake_time_source.dart';
 import 'features/shopwatch/fakes.dart';
 
 void main() {

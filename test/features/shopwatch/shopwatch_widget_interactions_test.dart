@@ -15,7 +15,7 @@ import 'package:swatch/app/app_dependencies.dart';
 import 'package:swatch/features/shopwatch/presentation/shopwatch_keys.dart';
 import 'package:swatch/features/shopwatch/presentation/shopwatch_strings.dart';
 
-import '../../core/stopwatch/helpers/fake_time_source.dart';
+import '../../core/swatch/helpers/fake_time_source.dart';
 import 'fakes.dart';
 
 void main() {
@@ -58,8 +58,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 16));
   }
 
-  String displayedTime(WidgetTester tester) =>
-      tester.widget<Text>(find.byKey(ShopwatchKeys.time)).data!;
+  String displayedTime(WidgetTester tester) => tester.widget<Text>(find.byKey(ShopwatchKeys.time)).data!;
 
   group('Shopwatch: Widget interactions', () {
     testWidgets('tapping pause freezes the clock and tapping resume unfreezes it', (tester) async {
@@ -102,7 +101,9 @@ void main() {
       expect(displayedTime(tester), '00:01.750');
     });
 
-    testWidgets('tapping checkout with items in cart pauses the clock, continuing resumes, and paying resets clock to zero', (tester) async {
+    testWidgets(
+        'tapping checkout with items in cart pauses the clock, continuing resumes, and paying resets clock to zero',
+        (tester) async {
       await pumpShopwatch(tester);
 
       // Start the shopping game
@@ -170,7 +171,9 @@ void main() {
       expect(displayedTime(tester), '00:00.000');
     });
 
-    testWidgets('tapping checkout with empty cart pauses the clock, continuing resumes, and checking out anyway resets clock to zero', (tester) async {
+    testWidgets(
+        'tapping checkout with empty cart pauses the clock, continuing resumes, and checking out anyway resets clock to zero',
+        (tester) async {
       await pumpShopwatch(tester);
 
       // Start the shopping game
