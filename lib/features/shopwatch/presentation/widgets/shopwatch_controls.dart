@@ -58,6 +58,8 @@ class _ShopwatchControlsState extends State<ShopwatchControls> with SingleTicker
   void initState() {
     super.initState();
     _ticker = createTicker((_) => _elapsed.value = _session.elapsed);
+    _elapsed.value = _session.elapsed;
+    if (_session.state.isRunning) _ticker.start();
   }
 
   @override

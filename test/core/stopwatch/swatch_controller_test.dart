@@ -25,7 +25,7 @@ void main() {
   tearDown(() => controller.dispose());
 
   test('initial state is idle at zero with no laps', () {
-    expect(controller.status, StopwatchStatus.idle);
+    expect(controller.status, SwatchStatus.idle);
     expect(controller.elapsed, Duration.zero);
     expect(controller.laps, isEmpty);
   });

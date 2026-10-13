@@ -155,7 +155,7 @@ To try dark mode: change the device's display setting, or on Android run
   monotonic `TimeSource` instead of adding up timer ticks, so it never drifts
   and is fully deterministic in tests.
 - **One engine, two faces.** The Classic Stopwatch and the Shopwatch game both
-  run on the same `StopwatchController`; the game maps each lap to the current
+  run on the same `SwatchController`; the game maps each lap to the current
   item.
 - **Only the time repaints.** A `Ticker` drives the digital readout and the
   clock face; the rest of the screen rebuilds only on state changes.

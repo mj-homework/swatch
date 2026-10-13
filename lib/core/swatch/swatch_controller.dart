@@ -10,7 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'package:swatch/core/swatch/lap.dart';
 import 'package:swatch/core/swatch/time_source.dart';
 
-enum StopwatchStatus { idle, running, paused }
+enum SwatchStatus { idle, running, paused }
 
 /// Pure business logic of the swatch, independent of any widget.
 ///
@@ -27,16 +27,16 @@ class SwatchController extends ChangeNotifier {
 
   final TimeSource _timeSource;
 
-  StopwatchStatus _status = StopwatchStatus.idle;
+  SwatchStatus _status = SwatchStatus.idle;
   Duration _accumulated = Duration.zero;
   Duration _runStartedAt = Duration.zero;
   Duration _lastLapSplit = Duration.zero;
   final List<Lap> _laps = [];
 
-  StopwatchStatus get status => _status;
-  bool get isIdle => _status == StopwatchStatus.idle;
-  bool get isRunning => _status == StopwatchStatus.running;
-  bool get isPaused => _status == StopwatchStatus.paused;
+  SwatchStatus get status => _status;
+  bool get isIdle => _status == SwatchStatus.idle;
+  bool get isRunning => _status == SwatchStatus.running;
+  bool get isPaused => _status == SwatchStatus.paused;
 
   /// Current elapsed time.
   Duration get elapsed => isRunning ? _accumulated + (_timeSource.now() - _runStartedAt) : _accumulated;
@@ -52,7 +52,7 @@ class SwatchController extends ChangeNotifier {
     if (isRunning) return;
 
     _runStartedAt = _timeSource.now();
-    _status = StopwatchStatus.running;
+    _status = SwatchStatus.running;
 
     notifyListeners();
   }
@@ -62,7 +62,7 @@ class SwatchController extends ChangeNotifier {
     if (!isRunning) return;
 
     _accumulated = elapsed;
-    _status = StopwatchStatus.paused;
+    _status = SwatchStatus.paused;
 
     notifyListeners();
   }
@@ -88,7 +88,7 @@ class SwatchController extends ChangeNotifier {
   void reset() {
     if (isIdle && _accumulated == Duration.zero && _laps.isEmpty) return;
 
-    _status = StopwatchStatus.idle;
+    _status = SwatchStatus.idle;
     _accumulated = Duration.zero;
     _lastLapSplit = Duration.zero;
     _laps.clear();
