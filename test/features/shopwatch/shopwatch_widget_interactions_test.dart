@@ -11,7 +11,7 @@ import 'package:swatch/core/widgets/analog_clock.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/presentation/pages/shopwatch_page.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/pos_terminal_sheet.dart';
-import 'package:swatch/features/shopwatch/shopwatch_dependencies.dart';
+import 'package:swatch/app/app_dependencies.dart';
 import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
 
 import '../../core/stopwatch/helpers/fake_time_source.dart';
@@ -20,12 +20,12 @@ import 'fakes.dart';
 void main() {
   late FakeTimeSource time;
   late FakeSound sound;
-  late ShopwatchDependencies dependencies;
+  late AppDependencies dependencies;
 
   setUp(() {
     time = FakeTimeSource();
     sound = FakeSound();
-    dependencies = ShopwatchDependencies(
+    dependencies = AppDependencies(
       config: GameConfig(
         minGoal: const Duration(seconds: 1),
         maxGoal: const Duration(seconds: 1),
@@ -34,7 +34,7 @@ void main() {
       ),
       random: Random(1),
       timeSource: time,
-      soundFactory: () => sound,
+      sound: sound,
       hintsStore: FakeHintsSeenStore(),
     );
   });
@@ -229,12 +229,12 @@ void main() {
       await elapse(tester, const Duration(seconds: 1));
       await tester.tap(find.byKey(ShopwatchKeys.add), warnIfMissed: false);
       await tester.pump();
-      expect(sound.scanAccuracies, isEmpty);
+      expect(sound.scanCues, isEmpty);
 
       await tester.pump(const Duration(milliseconds: 555));
       await tester.tap(find.byKey(ShopwatchKeys.add));
       await tester.pump();
-      expect(sound.scanAccuracies, hasLength(1));
+      expect(sound.scanCues, hasLength(1));
     });
 
     testWidgets('long-pressing pay immediately ends round and resets clock to zero', (tester) async {

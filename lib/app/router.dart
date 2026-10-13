@@ -5,32 +5,32 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:swatch/core/stopwatch/time_source.dart';
 import 'package:swatch/features/stopwatch/presentation/stopwatch_page.dart';
 import 'package:swatch/features/landing/presentation/pages/landing_page.dart';
 import 'package:swatch/features/shopwatch/presentation/pages/shopwatch_page.dart';
-import 'package:swatch/features/shopwatch/shopwatch_dependencies.dart';
+import 'package:swatch/app/app_dependencies.dart';
 
 abstract final class AppRoutes {
   static const landing = '/';
   static const stopwatch = '/stopwatch';
   static const shopwatch = '/shopwatch';
-  static const game = '/shopwatch/game';
-  static const play = '/shopwatch/game/play';
 }
 
 class AppRouter {
   const AppRouter._();
 
+  /// Every page gets the same app-scoped [dependencies], so all of them share
+  /// one time source and one sound player.
   static Route<dynamic> onGenerateRoute(
     RouteSettings settings, {
-    TimeSource? timeSource,
-    ShopwatchDependencies? dependencies,
+    required AppDependencies dependencies,
   }) {
-    final services = dependencies ?? ShopwatchDependencies(timeSource: timeSource);
     final Widget page = switch (settings.name) {
-      AppRoutes.stopwatch => StopwatchPage(timeSource: timeSource, sound: services.soundFactory()),
-      AppRoutes.shopwatch => ShopwatchPage(dependencies: services),
+      AppRoutes.stopwatch => StopwatchPage(
+          timeSource: dependencies.timeSource,
+          soundPlayer: dependencies.sound,
+        ),
+      AppRoutes.shopwatch => ShopwatchPage(dependencies: dependencies),
       _ => const LandingPage(),
     };
 

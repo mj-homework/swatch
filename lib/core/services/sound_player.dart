@@ -5,16 +5,25 @@
 
 import 'package:audioplayers/audioplayers.dart';
 
-import 'package:swatch/features/shopwatch/domain/game_config.dart';
+/// Short sound effects that features can request from a [SoundPlayer].
+enum SoundCue {
+  checkoutBeep('sounds/pos_beep.wav'),
+  scanPerfect('sounds/scan_perfect.wav'),
+  scanClose('sounds/scan_blip.wav'),
+  scanFair('sounds/scan_low.wav'),
+  scanError('sounds/scan_error.wav');
 
-/// Plays feature-specific sound effects.
+  const SoundCue(this.asset);
+
+  final String asset;
+}
+
+/// Plays sound effects without depending on any feature.
 ///
-/// Keep the interface independent of any audio package so Shopwatch UI and
-/// tests can use a production player or a lightweight fake implementation.
+/// Keep the interface independent of any audio package so UI and tests can use
+/// a production player or a lightweight fake implementation.
 abstract interface class SoundPlayer {
-  Future<void> playCheckoutBeep();
-
-  Future<void> playScan(Accuracy accuracy);
+  Future<void> play(SoundCue cue);
 
   Future<void> startTicking();
 
@@ -22,13 +31,6 @@ abstract interface class SoundPlayer {
 
   Future<void> dispose();
 }
-
-String scanAssetForAccuracy(Accuracy accuracy) => switch (accuracy) {
-      Accuracy.perfect => 'sounds/scan_perfect.wav',
-      Accuracy.close => 'sounds/scan_blip.wav',
-      Accuracy.fair => 'sounds/scan_low.wav',
-      Accuracy.missed => 'sounds/scan_error.wav',
-    };
 
 class AudioSoundPlayer implements SoundPlayer {
   final AudioPlayer _player = AudioPlayer();
@@ -38,12 +40,7 @@ class AudioSoundPlayer implements SoundPlayer {
   int _tickRequest = 0;
 
   @override
-  Future<void> playCheckoutBeep() async {
-    await _playAsset('sounds/pos_beep.wav');
-  }
-
-  @override
-  Future<void> playScan(Accuracy accuracy) => _playAsset(scanAssetForAccuracy(accuracy));
+  Future<void> play(SoundCue cue) => _playAsset(cue.asset);
 
   @override
   Future<void> startTicking() async {

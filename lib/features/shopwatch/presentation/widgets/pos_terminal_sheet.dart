@@ -99,7 +99,7 @@ class _PosTerminalSheetState extends State<PosTerminalSheet> with SingleTickerPr
     if (!mounted || _closing || _approved) return;
     _pulse.stop();
     setState(() => _approved = true);
-    if (!widget.muted) unawaited(_effect(widget.sound.playCheckoutBeep));
+    if (!widget.muted) unawaited(_effect(() => widget.sound.play(SoundCue.checkoutBeep)));
     unawaited(_effect(widget.haptic));
   }
 

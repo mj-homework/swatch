@@ -5,19 +5,18 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:swatch/core/stopwatch/time_source.dart';
 import 'package:swatch/app/router.dart';
-import 'package:swatch/features/shopwatch/shopwatch_dependencies.dart';
+import 'package:swatch/app/app_dependencies.dart';
 
 /// Root widget of the application.
 ///
-/// [timeSource] can be injected so the whole app can be driven by a fake
-/// clock in widget tests.
+/// [dependencies] is created once, outside the widget tree, so the
+/// time source and the single [SoundPlayer] survive rebuilds. Tests inject
+/// fakes through it.
 class SwatchApp extends StatelessWidget {
-  const SwatchApp({super.key, this.timeSource, this.shopwatchDependencies});
+  const SwatchApp({super.key, required this.dependencies});
 
-  final TimeSource? timeSource;
-  final ShopwatchDependencies? shopwatchDependencies;
+  final AppDependencies dependencies;
 
   static const _seedColor = Color(0xFF00674C);
 
@@ -56,7 +55,6 @@ class SwatchApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dependencies = shopwatchDependencies ?? ShopwatchDependencies(timeSource: timeSource);
     return MaterialApp(
       title: 'Swatch',
       debugShowCheckedModeBanner: false,
@@ -64,14 +62,9 @@ class SwatchApp extends StatelessWidget {
       darkTheme: _buildTheme(Brightness.dark),
       initialRoute: AppRoutes.shopwatch,
       onGenerateInitialRoutes: (name) => [
-        AppRouter.onGenerateRoute(
-          RouteSettings(name: name),
-          timeSource: timeSource,
-          dependencies: dependencies,
-        ),
+        AppRouter.onGenerateRoute(RouteSettings(name: name), dependencies: dependencies),
       ],
-      onGenerateRoute: (settings) =>
-          AppRouter.onGenerateRoute(settings, timeSource: timeSource, dependencies: dependencies),
+      onGenerateRoute: (settings) => AppRouter.onGenerateRoute(settings, dependencies: dependencies),
     );
   }
 }

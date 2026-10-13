@@ -8,7 +8,7 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
-import 'package:swatch/core/services/sound_player.dart';
+import 'package:swatch/features/shopwatch/presentation/scan_cue.dart';
 import '../../../tool/generate_beep.dart';
 
 void main() {
@@ -31,10 +31,10 @@ void main() {
   });
 
   test('scan sound follows the cart accuracy', () {
-    expect(scanAssetForAccuracy(Accuracy.perfect), 'sounds/scan_perfect.wav');
-    expect(scanAssetForAccuracy(Accuracy.close), 'sounds/scan_blip.wav');
-    expect(scanAssetForAccuracy(Accuracy.fair), 'sounds/scan_low.wav');
-    expect(scanAssetForAccuracy(Accuracy.missed), 'sounds/scan_error.wav');
+    expect(scanCueForAccuracy(Accuracy.perfect).asset, 'sounds/scan_perfect.wav');
+    expect(scanCueForAccuracy(Accuracy.close).asset, 'sounds/scan_blip.wav');
+    expect(scanCueForAccuracy(Accuracy.fair).asset, 'sounds/scan_low.wav');
+    expect(scanCueForAccuracy(Accuracy.missed).asset, 'sounds/scan_error.wav');
   });
 
   test('scan sounds are bundled', () async {

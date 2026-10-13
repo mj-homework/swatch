@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/services/hints_seen_store.dart';
 import 'package:swatch/core/services/sound_player.dart';
 
@@ -24,17 +23,15 @@ class FakeHintsSeenStore implements HintsSeenStore {
 }
 
 class FakeSound implements SoundPlayer {
-  int plays = 0, disposals = 0, tickingStarts = 0, tickingStops = 0;
+  int disposals = 0, tickingStarts = 0, tickingStops = 0;
   bool ticking = false;
-  final scanAccuracies = <Accuracy>[];
-  @override
-  Future<void> playCheckoutBeep() async {
-    plays++;
-  }
+  final cues = <SoundCue>[];
+  List<SoundCue> get scanCues => cues.where((cue) => cue != SoundCue.checkoutBeep).toList();
+  int get plays => cues.where((cue) => cue == SoundCue.checkoutBeep).length;
 
   @override
-  Future<void> playScan(Accuracy accuracy) async {
-    scanAccuracies.add(accuracy);
+  Future<void> play(SoundCue cue) async {
+    cues.add(cue);
   }
 
   @override

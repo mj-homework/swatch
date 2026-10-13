@@ -25,10 +25,10 @@ import 'package:swatch/core/services/sound_player.dart';
 /// time into [_elapsed]; only the pages listening to it repaint, the rest
 /// of the tree is not rebuilt on every frame.
 class StopwatchPage extends StatefulWidget {
-  const StopwatchPage({super.key, this.timeSource, required this.sound});
+  const StopwatchPage({super.key, this.timeSource, required this.soundPlayer});
 
   final TimeSource? timeSource;
-  final SoundPlayer sound;
+  final SoundPlayer? soundPlayer;
 
   @override
   State<StopwatchPage> createState() => _StopwatchPageState();
@@ -61,9 +61,9 @@ class _StopwatchPageState extends State<StopwatchPage> with SingleTickerProvider
 
   void _syncTicking() {
     if (_controller.isRunning && !_muted) {
-      unawaited(widget.sound.startTicking());
+      unawaited(widget.soundPlayer?.startTicking());
     } else {
-      unawaited(widget.sound.stopTicking());
+      unawaited(widget.soundPlayer?.stopTicking());
     }
   }
 
@@ -73,7 +73,7 @@ class _StopwatchPageState extends State<StopwatchPage> with SingleTickerProvider
     _ticker.dispose();
     _controller.dispose();
     _elapsed.dispose();
-    unawaited(widget.sound.dispose());
+    unawaited(widget.soundPlayer?.stopTicking());
     super.dispose();
   }
 

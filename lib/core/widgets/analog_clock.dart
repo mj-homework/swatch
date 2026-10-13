@@ -79,43 +79,6 @@ class AnalogClock extends StatelessWidget {
             ],
           ],
         ),
-        // Stack(
-        //   fit: StackFit.expand,
-        //   children: [
-        //     CustomPaint(
-        //       key: SwatchKeys.analogClock,
-        //       painter: AnalogClockPainter(
-        //         elapsed: elapsed,
-        //         colors: Theme.of(context).colorScheme,
-        //         goalSec: goalSec == null ? null : goalSec!.inMicroseconds / 1e6,
-        //       ),
-        //       size: Size.infinite,
-        //     ),
-        //     if (digitalDisplay != null)
-        //       IgnorePointer(
-        //         child: Align(
-        //           alignment: const Alignment(0, 0.42),
-        //           child: FractionallySizedBox(
-        //             widthFactor: 0.9,
-        //             child: FittedBox(
-        //               fit: BoxFit.scaleDown,
-        //               child: digitalDisplay,
-        //             ),
-        //           ),
-        //         ),
-        //       ),
-        //     if (digitalDisplay != null)
-        //       CustomPaint(
-        //         painter: AnalogClockPainter(
-        //           elapsed: elapsed,
-        //           colors: Theme.of(context).colorScheme,
-        //           goalSec: goalSec == null ? null : goalSec!.inMicroseconds / 1e6,
-        //           handsOnly: true,
-        //         ),
-        //         size: Size.infinite,
-        //       ),
-        //   ],
-        // ),
       ),
     );
   }

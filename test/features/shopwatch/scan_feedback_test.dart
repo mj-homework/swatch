@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) 2026 Juhász Mátyás
  * SPDX-License-Identifier: MIT
  */
@@ -7,9 +7,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:swatch/core/services/sound_player.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/presentation/pages/shopwatch_page.dart';
-import 'package:swatch/features/shopwatch/shopwatch_dependencies.dart';
+import 'package:swatch/app/app_dependencies.dart';
 import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
 
 import '../../core/stopwatch/helpers/fake_time_source.dart';
@@ -23,10 +24,10 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final sound = FakeSound();
-    final dependencies = ShopwatchDependencies(
+    final dependencies = AppDependencies(
       random: Random(1),
       timeSource: FakeTimeSource(),
-      soundFactory: () => sound,
+      sound: sound,
       hintsStore: FakeHintsSeenStore(),
     );
     await tester.pumpWidget(MaterialApp(home: ShopwatchPage(dependencies: dependencies)));
@@ -52,7 +53,7 @@ void main() {
 
     final time = FakeTimeSource();
     final sound = FakeSound();
-    final dependencies = ShopwatchDependencies(
+    final dependencies = AppDependencies(
       config: GameConfig(
         minGoal: const Duration(seconds: 1),
         maxGoal: const Duration(seconds: 1),
@@ -61,7 +62,7 @@ void main() {
       ),
       random: Random(1),
       timeSource: time,
-      soundFactory: () => sound,
+      sound: sound,
       hintsStore: FakeHintsSeenStore(),
     );
 
@@ -77,24 +78,24 @@ void main() {
     await tester.pump(const Duration(milliseconds: 16));
     await tester.tap(find.byKey(ShopwatchKeys.add));
     await tester.pump();
-    expect(sound.scanAccuracies, [Accuracy.perfect]);
+    expect(sound.scanCues, [SoundCue.scanPerfect]);
 
     time.advance(const Duration(milliseconds: 1100));
     await tester.pump(const Duration(milliseconds: 16));
     await tester.tap(find.byKey(ShopwatchKeys.add));
     await tester.pump();
-    expect(sound.scanAccuracies, [Accuracy.perfect, Accuracy.close]);
+    expect(sound.scanCues, [SoundCue.scanPerfect, SoundCue.scanClose]);
 
     time.advance(const Duration(milliseconds: 1500));
     await tester.pump(const Duration(milliseconds: 16));
     await tester.tap(find.byKey(ShopwatchKeys.add));
     await tester.pump();
-    expect(sound.scanAccuracies, [Accuracy.perfect, Accuracy.close, Accuracy.fair]);
+    expect(sound.scanCues, [SoundCue.scanPerfect, SoundCue.scanClose, SoundCue.scanFair]);
 
     time.advance(const Duration(milliseconds: 1751));
     await tester.pump(const Duration(milliseconds: 16));
     await tester.tap(find.byKey(ShopwatchKeys.add));
     await tester.pump();
-    expect(sound.scanAccuracies, [Accuracy.perfect, Accuracy.close, Accuracy.fair, Accuracy.missed]);
+    expect(sound.scanCues, [SoundCue.scanPerfect, SoundCue.scanClose, SoundCue.scanFair, SoundCue.scanError]);
   });
 }

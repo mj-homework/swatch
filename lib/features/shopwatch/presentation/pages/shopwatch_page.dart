@@ -15,7 +15,8 @@ import 'package:swatch/features/shopwatch/domain/game_round.dart';
 import 'package:swatch/features/shopwatch/domain/shopwatch_game_cubit.dart';
 import 'package:swatch/core/services/layout_service.dart';
 import 'package:swatch/core/services/sound_player.dart';
-import 'package:swatch/features/shopwatch/shopwatch_dependencies.dart';
+import 'package:swatch/features/shopwatch/presentation/scan_cue.dart';
+import 'package:swatch/app/app_dependencies.dart';
 import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/hint_overlay.dart';
 import 'package:swatch/features/shopwatch/presentation/widgets/pos_terminal_sheet.dart';
@@ -26,14 +27,14 @@ import 'package:swatch/features/shopwatch/presentation/widgets/shopping_buttons.
 class ShopwatchPage extends StatefulWidget {
   const ShopwatchPage({super.key, required this.dependencies});
 
-  final ShopwatchDependencies dependencies;
+  final AppDependencies dependencies;
 
   @override
   State<ShopwatchPage> createState() => _ShopwatchPageState();
 }
 
 class _ShopwatchPageState extends State<ShopwatchPage> {
-  late final _sound = widget.dependencies.soundFactory();
+  SoundPlayer get _sound => widget.dependencies.sound;
   final _elapsed = ValueNotifier(Duration.zero);
   final _gameRound = ValueNotifier<GameRound?>(null);
   final _shopEnabled = ValueNotifier(true);
@@ -127,7 +128,7 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
     _elapsed.dispose();
     _gameRound.dispose();
     _shopEnabled.dispose();
-    unawaited(_sound.dispose());
+    unawaited(_sound.stopTicking());
     super.dispose();
   }
 
@@ -251,7 +252,7 @@ class _ShopwatchControls extends StatefulWidget {
   final ValueNotifier<Duration> elapsed;
   final ValueNotifier<bool> shopEnabled;
   final bool checkingOut;
-  final ShopwatchDependencies dependencies;
+  final AppDependencies dependencies;
   final SoundPlayer sound;
   final bool muted;
   final ValueChanged<GameRound?> onRoundChanged;
@@ -276,7 +277,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
 
   bool get checkingOut => widget.checkingOut;
 
-  ShopwatchDependencies get dependencies => widget.dependencies;
+  AppDependencies get dependencies => widget.dependencies;
 
   bool get canShop => !checkingOut && (_game == null || _game!.state.status == RoundStatus.ready);
 
@@ -380,7 +381,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
 
   Future<void> _playScan(Accuracy accuracy) async {
     try {
-      await widget.sound.playScan(accuracy);
+      await widget.sound.play(scanCueForAccuracy(accuracy));
     } catch (_) {
       // Audio must never block adding an item to the cart.
     }

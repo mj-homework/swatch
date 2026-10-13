@@ -23,7 +23,7 @@ void main() {
   });
 
   Future<void> pumpApp(WidgetTester tester) =>
-      tester.pumpWidget(MaterialApp(home: StopwatchPage(timeSource: time, sound: sound)));
+      tester.pumpWidget(MaterialApp(home: StopwatchPage(timeSource: time, soundPlayer: sound)));
 
   /// Advances the fake clock and lets the ticker render one frame.
   Future<void> elapse(WidgetTester tester, Duration d) async {

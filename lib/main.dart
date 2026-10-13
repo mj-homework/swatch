@@ -6,6 +6,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:swatch/app/app.dart';
-import 'package:swatch/features/shopwatch/shopwatch_dependencies.dart';
+import 'package:swatch/app/app_dependencies.dart';
 
-void main() => runApp(SwatchApp(shopwatchDependencies: ShopwatchDependencies()));
+void main() {
+  // AppDependencies creates the audio players, which need platform channels.
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(SwatchApp(dependencies: AppDependencies()));
+}
