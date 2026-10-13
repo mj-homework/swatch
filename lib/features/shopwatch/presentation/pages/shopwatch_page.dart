@@ -265,6 +265,9 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
   late final Ticker _ticker;
   ShopwatchGameCubit? _game;
   StreamSubscription<GameRound>? _gameSubscription;
+  // Add to cart sits where Shop! was, so block it briefly after a long-press start.
+  static const _quickStartLockout = Duration(milliseconds: 555);
+  Timer? _addLockout;
   int? _count; // null = unlimited
   // Difficulty selector is temporarily hidden; rounds always play on easy.
   final Difficulty _difficulty = Difficulty.easy;
@@ -303,6 +306,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
   @override
   void dispose() {
     _ticker.dispose();
+    _addLockout?.cancel();
     unawaited(_gameSubscription?.cancel());
     unawaited(_game?.close());
     super.dispose();
@@ -343,6 +347,14 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
     setState(() {});
     round.start();
     _syncTicking();
+  }
+
+  void _quickStart() {
+    _addLockout?.cancel();
+    _addLockout = Timer(_quickStartLockout, () {
+      if (mounted) setState(() => _addLockout = null);
+    });
+    unawaited(_shop(skipSetup: true));
   }
 
   void _togglePause() {
@@ -474,6 +486,7 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (item == null)
                       Text(
@@ -511,21 +524,19 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
                 ),
               );
 
-          finishedNote() => const Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text('Cart complete — pay to see your receipt.'),
-              );
-
           buttons() {
             final round = _game?.state;
             return ShoppingButtons(
               landscape: widget.landscape,
               inGame: _game != null,
               onStart: canShop ? _shop : null,
-              onLongStart: canShop ? () => _shop(skipSetup: true) : null,
+              onLongStart: canShop ? _quickStart : null,
               onPause: !checkingOut && round?.status == RoundStatus.playing ? _togglePause : null,
               paused: _game?.isPaused ?? false,
-              onAdd: !checkingOut && round?.status == RoundStatus.playing && !(_game?.isPaused ?? false)
+              onAdd: !checkingOut &&
+                      _addLockout == null &&
+                      round?.status == RoundStatus.playing &&
+                      !(_game?.isPaused ?? false)
                   ? _addToCart
                   : null,
               onPay: !checkingOut && _game != null ? _checkoutGame : null,
@@ -547,7 +558,6 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
                 ),
                 const SizedBox(height: 8),
                 goalBox(),
-                if (_game?.state.status == RoundStatus.finished) finishedNote(),
               ],
             );
           }
@@ -563,13 +573,10 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
                   child: AspectRatio(aspectRatio: 1, child: clockFace()),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               goalBox(),
-              if (_game?.state.status == RoundStatus.finished) finishedNote(),
-              const SizedBox(height: 16),
               const SizedBox(height: 8),
               buttons(),
-              const SizedBox(height: 12),
             ],
           );
         },

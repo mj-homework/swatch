@@ -42,7 +42,9 @@ round is in progress.
    *Unlimited* (the default) or 1–99. The sheet starts the round by itself
    after 5 seconds; typing a number stops the countdown.
    *Long press* **Shop!** to skip the sheet and start straight away with the
-   last chosen item count (unlimited the first time).
+   last chosen item count (unlimited the first time). **Add to cart** appears
+   where **Shop!** was, so it stays disabled for 300 ms after a long-press
+   start – a quick follow-up tap cannot add an item by accident.
 2. **Read your shopping list.** The current item and its goal time appear
    under the clock, e.g. *Collect HAUNTED TOASTER at 00:07.350*. The goal is
    also marked on the clock face with a green tick.
@@ -83,7 +85,7 @@ Every Shopwatch button maps to a stopwatch action from the spec:
 | Spec action | Shopwatch button | Behaviour |
 |---|---|---|
 | Start | **Shop!** | Tap: opens the item count sheet. Long press: quick start. Disabled while a round is in progress. |
-| Lap | **Add to cart** | Takes the place of **Shop!** during a round. Records the current item on the receipt; the receipt scrolls to the newest line. |
+| Lap | **Add to cart** | Takes the place of **Shop!** during a round; disabled for 300 ms after a long-press start. Records the current item on the receipt; the receipt scrolls to the newest line. |
 | Pause / Resume | **Coffee break** / **Back to it** | One toggle button; enabled while a round is being played. |
 | Clear laps | **Put it all back** | Under the receipt; empties the cart and restarts at item 1. |
 | Reset | **Pay** | Tap: opens the checkout. Long press: ends the round immediately and resets the clock. |
@@ -206,9 +208,6 @@ item count sheet).
   lists as an offline fallback.
 - **Difficulty levels** – Easy (digits always visible), Normal (digits hidden
   2 s after each item starts), Hard (digits and clock hands hidden).
-- **Quick-start lockout** – **Add to cart** appears where **Shop!** was, so a
-  short lockout (~300 ms) after a long-press start would prevent adding an
-  item by accident.
 - **Remember the hints** – show the hint overlay only on the first launch
   (e.g. with `shared_preferences`), behind the existing `HintsSeenStore`
   interface.

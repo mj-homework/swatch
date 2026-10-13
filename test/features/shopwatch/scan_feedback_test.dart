@@ -72,7 +72,7 @@ void main() {
     ));
 
     await tester.longPress(find.byKey(ShopwatchKeys.start));
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300)); // quick-start lockout
     time.advance(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 16));
     await tester.tap(find.byKey(ShopwatchKeys.add));

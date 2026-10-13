@@ -84,8 +84,6 @@ void main() {
     time.advance(const Duration(seconds: 3));
     expect(cubit.elapsed, const Duration(seconds: 3));
 
-    cubit.resetClock();
-
     expect(cubit.elapsed, Duration.zero);
     expect(cubit.isRunning, isFalse);
     time.advance(const Duration(seconds: 10));

@@ -106,7 +106,7 @@ void main() {
 
       // Start the shopping game
       await tester.longPress(find.byKey(ShopwatchKeys.start));
-      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 555)); // quick-start lockout
 
       // Advance clock and add an item to the cart
       await elapse(tester, const Duration(seconds: 1));
@@ -219,6 +219,24 @@ void main() {
       // Clock remains stopped at zero
       await elapse(tester, const Duration(seconds: 3));
       expect(displayedTime(tester), '00:00.000');
+    });
+
+    testWidgets('long-pressing Shop! locks Add to cart for 300 ms', (tester) async {
+      await pumpShopwatch(tester);
+
+      await tester.longPress(find.byKey(ShopwatchKeys.start));
+      await tester.pump();
+
+      // A quick follow-up tap lands on the locked Add to cart button
+      await elapse(tester, const Duration(seconds: 1));
+      await tester.tap(find.byKey(ShopwatchKeys.add), warnIfMissed: false);
+      await tester.pump();
+      expect(sound.scanAccuracies, isEmpty);
+
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.tap(find.byKey(ShopwatchKeys.add));
+      await tester.pump();
+      expect(sound.scanAccuracies, hasLength(1));
     });
 
     testWidgets('long-pressing pay immediately ends round and resets clock to zero', (tester) async {

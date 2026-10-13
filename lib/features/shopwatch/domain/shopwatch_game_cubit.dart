@@ -123,15 +123,6 @@ class ShopwatchGameCubit extends Cubit<GameRound> {
     if (wasFinished) _engine.togglePause();
   }
 
-  /// Pay: zeroes and stops the clock but keeps the cart (results) as it is.
-  void resetClock() {
-    if (isClosed || (state.status != RoundStatus.playing && state.status != RoundStatus.finished)) {
-      return;
-    }
-    emit(state.copyWith(status: RoundStatus.finished));
-    _engine.reset();
-  }
-
   // These operations deliberately cannot change an active round.
   void pause() {}
 
