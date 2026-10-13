@@ -64,6 +64,7 @@ class ShopwatchSessionCubit extends Cubit<ShopwatchSession> {
   /// round is in progress.
   void start({required int? itemCount, required Difficulty difficulty}) {
     if (isClosed || _game != null) return;
+
     _game = ShopwatchGameCubit(
       config: _config,
       difficulty: difficulty,
@@ -84,22 +85,30 @@ class ShopwatchSessionCubit extends Cubit<ShopwatchSession> {
   /// Ends the round and resets the screen; the clock goes back to zero.
   Future<void> endRound() async {
     final game = _game;
+
     if (game == null) return;
+
     _game = null;
     _sync();
+
     await game.close();
   }
 
   void _run(void Function(ShopwatchGameCubit game) command) {
     final game = _game;
+
     if (game == null) return;
+
     command(game);
+
     _sync();
   }
 
   void _sync() {
     if (isClosed) return;
+
     final game = _game;
+
     emit(game == null
         ? const ShopwatchSession()
         : ShopwatchSession(round: game.state, isRunning: game.isRunning, isPaused: game.isPaused));

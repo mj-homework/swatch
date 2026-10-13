@@ -42,6 +42,7 @@ class _ShopwatchControlsState extends State<ShopwatchControls> with SingleTicker
   late final ShopwatchSessionCubit _session = context.read<ShopwatchSessionCubit>();
   final _elapsed = ValueNotifier(Duration.zero);
   late final Ticker _ticker;
+
   // Add to cart sits where Shop! was, so block it briefly after a long-press start.
   static const _quickStartLockout = Duration(milliseconds: 555);
   Timer? _addLockout;
@@ -142,31 +143,28 @@ class _ShopwatchControlsState extends State<ShopwatchControls> with SingleTicker
 
           if (widget.isWide) {
             return Column(
+              spacing: 8,
               children: [
                 Expanded(
                   child: Row(
+                    spacing: 16,
                     children: [
                       AspectRatio(aspectRatio: 1, child: clockFace()),
-                      const SizedBox(width: 16),
-                      Expanded(child: Center(child: buttons)),
+                      Expanded(child: Center(child: buttons))
                     ],
                   ),
                 ),
-                const SizedBox(height: 8),
                 GoalBox(round: round),
               ],
             );
           }
 
           return Column(
+            spacing: 8,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Flexible(
-                child: AspectRatio(aspectRatio: 1, child: clockFace()),
-              ),
-              const SizedBox(height: 8),
+              Flexible(child: AspectRatio(aspectRatio: 1, child: clockFace())),
               GoalBox(round: round),
-              const SizedBox(height: 8),
               buttons,
             ],
           );
