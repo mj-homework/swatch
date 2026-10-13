@@ -8,11 +8,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:swatch/core/services/layout_service.dart';
 
 import 'package:swatch/core/stopwatch/stopwatch_controller.dart';
 import 'package:swatch/core/stopwatch/time_source.dart';
 import 'package:swatch/core/widgets/analog_clock.dart';
-import 'package:swatch/core/widgets/layout_breakpoints.dart';
 import 'package:swatch/features/stopwatch/presentation/pages/control_buttons.dart';
 import 'package:swatch/features/stopwatch/presentation/pages/elapsed_time_display.dart';
 import 'package:swatch/features/stopwatch/presentation/pages/lap_panel.dart';
@@ -106,7 +106,7 @@ class _StopwatchPageState extends State<StopwatchPage> with SingleTickerProvider
 
               final laps = LapPanel(controller: _controller);
 
-              if (constraints.maxWidth >= wideLayoutBreakpoint) {
+              if (LayoutService.isWide(constraints.maxWidth)) {
                 return Row(
                   children: [
                     Expanded(flex: 3, child: stopwatch),

@@ -5,11 +5,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:swatch/core/formatting/duration_format.dart';
+import 'package:swatch/core/services/layout_service.dart';
 import 'package:swatch/core/stopwatch/lap.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/domain/game_round.dart';
 import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
-import 'package:swatch/core/widgets/layout_breakpoints.dart';
 
 class ReceiptList extends StatelessWidget {
   const ReceiptList(
@@ -55,13 +55,13 @@ class ReceiptList extends StatelessWidget {
 
       if (averageDiff == null) return itemsText;
 
-      return MediaQuery.sizeOf(context).width < wideLayoutBreakpoint
-          ? Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      return LayoutService.isWide(MediaQuery.sizeOf(context).width)
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [itemsText, averageDiffText],
             )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [itemsText, averageDiffText],
             );
     }

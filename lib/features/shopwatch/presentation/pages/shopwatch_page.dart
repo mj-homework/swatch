@@ -9,11 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:swatch/core/formatting/duration_format.dart';
 import 'package:swatch/core/widgets/analog_clock.dart';
-import 'package:swatch/core/widgets/layout_breakpoints.dart';
 import 'package:swatch/app/router.dart';
 import 'package:swatch/features/shopwatch/domain/game_config.dart';
 import 'package:swatch/features/shopwatch/domain/game_round.dart';
 import 'package:swatch/features/shopwatch/domain/shopwatch_game_cubit.dart';
+import 'package:swatch/core/services/layout_service.dart';
 import 'package:swatch/core/services/sound_player.dart';
 import 'package:swatch/features/shopwatch/shopwatch_dependencies.dart';
 import 'package:swatch/features/shopwatch/shopwatch_strings.dart';
@@ -192,7 +192,7 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final controls = _ShopwatchControls(
-                  landscape: constraints.maxWidth > wideLayoutBreakpoint,
+                  landscape: LayoutService.isWide(constraints.maxWidth),
                   key: _controlsKey,
                   elapsed: _elapsed,
                   shopEnabled: _shopEnabled,
@@ -210,7 +210,7 @@ class _ShopwatchPageState extends State<ShopwatchPage> {
                   onClear: () => _controlsKey.currentState?._emptyCart(),
                 );
 
-                if (constraints.maxWidth >= wideLayoutBreakpoint) {
+                if (LayoutService.isWide(constraints.maxWidth)) {
                   return Row(
                     children: [
                       Expanded(flex: 2, child: receipt),
@@ -557,9 +557,9 @@ class _ShopwatchControlsState extends State<_ShopwatchControls> with SingleTicke
             children: [
               Flexible(
                 child: ConstrainedBox(
-                  constraints: MediaQuery.sizeOf(context).width < wideLayoutBreakpoint
-                      ? const BoxConstraints()
-                      : const BoxConstraints(maxWidth: 640, maxHeight: 640),
+                  constraints: LayoutService.isWide(constraints.maxWidth)
+                      ? const BoxConstraints(maxWidth: 640, maxHeight: 640)
+                      : const BoxConstraints(),
                   child: AspectRatio(aspectRatio: 1, child: clockFace()),
                 ),
               ),
